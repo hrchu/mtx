@@ -54,18 +54,19 @@ This application is currently in beta test, and may be buggy. The database
 that it feeds off of is currently very incomplete. Please 
 <a href="contrib.php">contribute</a> new entries so that others can
 benefit. 
-
-Sort by:<p>
+<p>
 <table border=1 width=100%">
 <tr>
-<td> <a href="compatibility.php?SORT_ORDER=vendor">Vendor</a></td>
+  <th colspan=5 bgcolor="cyan"> Sort By </a>
+<tr>
+<td> <a href="compatibility.php?SORT_ORDER=vendorid">Vendor</a></td>
 <td> <a href="compatibility.php?SORT_ORDER=osname,osversion">OS</a></td>
 <td> <a href="compatibility.php?SORT_ORDER=description">Description</a></td>
 <td> <a href="compatibility.php?SORT_ORDER=slots">Number of Slots</a></td>
 <td> <a href="compatibility.php?SORT_ORDER=worked">Compatible</a></td>
 </tr>
 </table>
-
+<p>
 <table border=1 width="100%">
 <tr>
   <th bgcolor="cyan">OS Info</th>
@@ -142,8 +143,45 @@ Sort by:<p>
                  <?php } ?>
             </td>
           </tr>
+          <tr>
+            <th bgcolor="cyan" align="right">Transfer Geometry Descriptor Page (TGDP) </th>
+            <td> <?php if (tgdp=="1") { ?>
+                    Yes 
+                 <?php } else { ?>
+                    No
+                  <?php } ?>
+            </td>
+          </tr>
+          <tr>    
+            <td> <?php if (canxfer == "1") { ?>
+                         Yes
+                  <?php } else { ?>
+                         No
+                  <?php } ?>
+            </td> 
+          </tr>
+          <tr>
+            <th bgcolor="cyan" align="right">Can Transfer </th>
+            <td> <?php if (canxfer == "1") { ?>
+                         Yes
+                  <?php } else { ?>
+                         No
+                  <?php } ?>
+            </td> 
          </table>
       </td>
+      <td> 
+        <table> 
+           <tr>
+            <th bgcolor="cyan" align="right">Contributed By </th>
+            <td> <?php print "$name"; ?>  </td> 
+           </tr>
+           <tr> 
+            <th bgcolor="cyan" align="right">On date </th>
+            <td> <?php print "$contributed"; ?> </td>
+           </tr>
+         </table>
+     </td>
   </tr>
   <?php }
   } ?>
