@@ -545,9 +545,14 @@ static ElementStatus_T *AllocateElementData(ElementModeSense_T *mode_sense) {
 
 void copy_barcode(unsigned char *src, unsigned char *dest) {
   int i;
-  
-  for (i=0; i < 37; i++) {
-    *dest++ = *src++;
+
+  for (i=0; i < 36; i++) {
+    *dest=*src++;
++#ifdef __WEIRD_CHAR_SUPPRESS
++    if ((*dest < 32) || (*dest > 127))
++       *dest = '\0';
++#endif
+     *dest++;
   }
   *dest=0; /* null-terminate, sigh. */ 
 }
@@ -1383,6 +1388,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.14  2002/09/27 17:16:53  elgreen
+ * Fix copy_barcode
+ *
  * Revision 1.13  2002/08/14 22:05:29  mahlonstacy
  * Added position command
  *
