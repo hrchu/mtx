@@ -24,6 +24,7 @@
         "$SORT_ORDER" != "slots" &&
         "$SORT_ORDER" != "worked"  ) {
 	$SORT_ORDER = "vendorid"; 
+   }
 
    $query_str="select * from loaders order by $SORT_ORDER";
    $result=mysql_query($query_str,$link) or die("Invalid query '$query_str'");
