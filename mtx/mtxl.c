@@ -548,10 +548,10 @@ void copy_barcode(unsigned char *src, unsigned char *dest) {
 
   for (i=0; i < 36; i++) {
     *dest=*src++;
-+#ifdef __WEIRD_CHAR_SUPPRESS
-+    if ((*dest < 32) || (*dest > 127))
-+       *dest = '\0';
-+#endif
+#ifdef __WEIRD_CHAR_SUPPRESS
+    if ((*dest < 32) || (*dest > 127))
+       *dest = '\0';
+#endif
      *dest++;
   }
   *dest=0; /* null-terminate, sigh. */ 
@@ -1388,6 +1388,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.15  2002/09/27 17:19:50  elgreen
+ * doh, get rid of the + from the patch process!
+ *
  * Revision 1.14  2002/09/27 17:16:53  elgreen
  * Fix copy_barcode
  *
