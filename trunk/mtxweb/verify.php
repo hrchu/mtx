@@ -171,7 +171,6 @@ If they are not correct, hit the BACK button on your browser:
   </tr>
   <tr>
     <th colspan=4>Personal Data</a>
-
   </tr>
   <tr>
    <th align="right" bgcolor="cyan">Your Name: </th> 
@@ -180,12 +179,8 @@ If they are not correct, hit the BACK button on your browser:
    <td> <?php print "$l_email"; ?>  </td>     
   </tr>
   <tr>
-    <td colspan=2 align="right">
+    <td colspan=4 align="center">
        <input type="submit" name="Save" value="Save">
-     </td> </form>
-     <form action="contrib.php" method="POST"> 
-     <td>
-     <input type="submit" name="Edit" value="Edit">
     </td>
     </form>
   </tr>
