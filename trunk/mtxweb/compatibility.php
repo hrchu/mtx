@@ -87,8 +87,8 @@ Sort by:<p>
 	
 ?>
       <tr>
-      <td> <?php print "$osname $osversion"; ?> </td>
-      <td>
+      <td valign="top"> <?php print "$osname $osversion"; ?> </td>
+      <td valign="top">
         <table>
            <tr>
 	             <th colspan=2 bgcolor="cyan"> <?php print "$description"; ?> </th>
@@ -111,8 +111,8 @@ Sort by:<p>
            </tr>
 	</table>
       </td>
-      <td> <!-- <th bgcolor="cyan">Loader Info</th> -->
-       <table border=1>
+      <td valign="top"> <!-- <th bgcolor="cyan">Loader Info</th> -->
+       <table>
           <tr>
             <th bgcolor="cyan" align="right"> Media Slots: </th>
             <td> <?php print "$slots"; ?> </td>
@@ -131,7 +131,7 @@ Sort by:<p>
           </tr>
         </table>
       </td>
-      <td> <!--  <th bgcolor="cyan">Loader Capabilities</th> -->
+      <td valign="top"> <!--  <th bgcolor="cyan">Loader Capabilities</th> -->
          <table>
           <tr>
             <th bgcolor="cyan" align="right"> Element Address Assignment Page (EAAP) </th>
