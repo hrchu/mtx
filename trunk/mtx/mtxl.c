@@ -57,8 +57,8 @@ $Revision$
 #  include "scsi_sun.c"
 #endif
 
-/* The 'tm_buf' interface, as used on AIX. */
-#ifdef HAVE_SYS_SCSI_H
+/* The 'gsc' interface, is used on AIX. */
+#if HAVE_SYS_GSCDDS_H
 #  include "scsi_aix.c"
 #endif
 
@@ -1436,6 +1436,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.21  2003/06/27 00:28:26  elgreen
+ * added AIX support
+ *
  * Revision 1.20  2003/03/12 23:45:52  elgreen
  * mtx 1.3.4
  *
