@@ -533,7 +533,7 @@ unsigned char *SendElementStatusRequest(DEVICE_TYPE MediumChangerFD,
       /* clear out our sense buffer first... */
       slow_bzero((char *)RequestSense,sizeof(RequestSense_T));
 
-      CDB[1] &=~10; /* clear bar code flag! */
+      CDB[1] &= ~0x10; /* clear bar code flag! */
 
 #ifdef DEBUG_BARCODE
       {
@@ -1205,6 +1205,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.7  2001/06/25 04:56:35  elgreen
+ * Kai to the rescue *again* :-)
+ *
  * Revision 1.6  2001/06/24 07:02:01  elgreen
  * Kai's fix was better than mine.
  *
