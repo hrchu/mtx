@@ -90,7 +90,8 @@ struct command_table_struct {
   { 1, "mark", S_mark },
   { 1, "seek", S_seek },
   { 2, "read", S_read },
-  { 2, "write",S_write }
+  { 2, "write",S_write },
+  { 0, NULL, NULL } /* terminate list */
 };
 
 char *argv0;
