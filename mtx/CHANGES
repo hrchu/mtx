@@ -1,3 +1,12 @@
+CHANGES, mtx 1.3.0
+- New Linux SCSI subsystem interface for 2.4 kernels, ripped boldly 
+  from sgtools by Doug Gilbert
+- mtx 'next' now skips blank slots, courtesy of Christopher McCrory
+- mtx 'unload' now prints an error message telling you that you need to
+  eject the tape in the drive prior to unloading it, under certain
+  conditions. 
+- Started work on 'nsmhack' for controlling NSM jukeboxes. 
+
 CHANGES, mtx 1.2.15:
 - Some Solaris fixes, courtesy of Matt Ward
 - Fix URL in .spec file

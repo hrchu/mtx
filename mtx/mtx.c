@@ -265,9 +265,11 @@ static void Next(void) {
   }
   
   /* okay, now to load, if we can... */
-  current++;
-  if (current > ElementStatus->StorageElementCount) { /* the last slot... */
-    FatalError("No More Tapes\n");
+  /* Thanks, Chris McCrory! */
+  while ( ! ElementStatus->StorageElementFull[current++]) { /*cycle til found*/
+    if ( current > ElementStatus->StorageElementCount ) {/*last slot...*/
+      FatalError("No More Tapes\n");
+    }
   }
   arg1=current;
   arg2=driveno;
@@ -412,6 +414,11 @@ void Move(int src, int dest) {
       if (result->AdditionalSenseCode == 0x3B &&
 	  result->AdditionalSenseCodeQualifier == 0x0E)
 	FatalError("source Element Address %d is Empty\n", src);
+
+      if (result->AdditionalSenseCode == 0x3A &&
+          result->AdditionalSenseCodeQualifier == 0x00)
+       FatalError("Drive needs offline before move\n");  
+
       if (result->AdditionalSenseCode == 0x3B &&
 	  result->AdditionalSenseCodeQualifier == 0x0D)
 	FatalError("destination Element Address %d is Already Full\n",
@@ -733,6 +740,9 @@ int main(int ArgCount,
 }
 /*
  *$Log$
+ *Revision 1.4  2002/02/05 16:33:18  elgreen
+ *added Christopher McCrory's patches to mtx.c (see CHANGES)
+ *
  *Revision 1.3  2001/11/06 21:21:31  elgreen
  *Hopefully fix for the from-crontab problem
  *
