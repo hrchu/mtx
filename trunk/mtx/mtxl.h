@@ -70,4 +70,14 @@ void SCSI_Default_Timeout(void);  /* go back to default timeout */
    scsi_id_t *SCSI_GetIDLun(DEVICE_TYPE fd);
 #endif
 
+/* These two hacks are so that I can stick the tongue out on an
+ * NSM optical jukebox. 
+ */ 
+NSM_Result_T *RecNSMHack(DEVICE_TYPE MediumChangerFD, 
+			 int param_len, int timeout);
+
+int SendNSMHack(DEVICE_TYPE MediumChangerFD, NSM_Param_T *nsm_command, 
+		int param_len, int timeout);
+
 #endif
+

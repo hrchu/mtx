@@ -520,4 +520,32 @@ typedef struct scsi_id {
 
 #define MEDIUM_CHANGER_TYPE 8  /* what type bits are set for medium changers. */
 
+/* The following two structs are used for the brain-dead functions of the
+ * NSM jukebox. 
+ */
+
+typedef struct NSM_Param {
+  unsigned char page_code;
+  unsigned char reserved;
+  unsigned char page_len_msb;
+  unsigned char page_len_lsb;
+  unsigned char allocation_msb;
+  unsigned char allocation_lsb;
+  unsigned char reserved2[2];
+  unsigned char command_code[4];
+  unsigned char command_params[2048]; /* egregious overkill. */
+} NSM_Param_T;
+
+extern RequestSense_T scsi_error_sense; 
+
+typedef struct NSM_Result {
+  unsigned char page_code;
+  unsigned char reserved;
+  unsigned char page_len_msb;
+  unsigned char page_len_lsb;
+  unsigned char command_code[4];
+  unsigned char ces_code[2]; 
+  unsigned char return_data[0xffff]; /* egregioius overkill */
+} NSM_Result_T;
+
 #endif  /* of multi-include protection. */
