@@ -533,7 +533,13 @@ unsigned char *SendElementStatusRequest(DEVICE_TYPE MediumChangerFD,
       /* clear out our sense buffer first... */
       slow_bzero((char *)RequestSense,sizeof(RequestSense_T));
 
-      CDB[1]=0;    /* no bar codes! */
+#ifdef HAVE_GET_ID_LUN
+  CDB[1] = (scsi_id->lun << 5) | flags->elementtype;  /* Lun + VolTag + Type code */
+  free(scsi_id);
+#else
+  CDB[1] = flags->elementtype;		* Element Type Code = 0, VolTag = 1 */
+#endif
+
 #ifdef DEBUG_BARCODE
       {
 	int i;
@@ -1204,6 +1210,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.5  2001/06/24 06:59:19  elgreen
+ * Kai found bug in the barcode backoff.
+ *
  * Revision 1.4  2001/06/15 18:56:54  elgreen
  * Arg, it doesn't help to check for 0 robot arms if you force it to 1!
  *
