@@ -5,65 +5,6 @@
         or die("Could not connect");
    mysql_select_db($mysql_dbms) or die("Could not select database");
 
-  /* Okay, see if they submitted anything: */
-  if ( "$l_enabled" != "" ) {
-     /* create a MySQL insert statement: */
-     $ld_enabled=(int)$l_enabled;
-     $ld_worked=(int)$l_worked;
-     $ld_osname=mysql_escape_string($l_osname);
-     $ld_osversion=mysql_escape_string($l_osversion);
-     $ld_description=mysql_escape_string($l_description);
-     $ld_vendorid=mysql_escape_string($l_vendorid);
-     $ld_productid=mysql_escape_string($l_productid);
-     $ld_revision=mysql_escape_string($l_revision);
-     $ld_barcodes=mysql_escape_string($l_barcodes);
-     $ld_eaap=mysql_escape_string($l_eaap);
-     $ld_transports=(int)$l_transports;
-     $ld_slots=(int)$l_slots;
-     $ld_transfers=(int)$l_transfers;
-     $ld_imports=(int)$l_imports;
-     $ld_tgdp=mysql_escape_string($l_tgdp);
-     $ld_canxfer=mysql_escape_string($l_canxfer);
-     $ld_serialnum=mysql_escape_string($l_serialnum);
-     $ld_email=mysql_escape_string($l_email);
-     $ld_name=mysql_escape_string($l_name);
-      /* 'contributed' is calculated by 'now()' function */
-
-     if ($ld_canxfer=="Yes") {
-        $ld_canxfer=1;
-     } else {
-        $ld_canxfer=0;
-     }
-
-     if ($ld_eaap=="Yes") {
-       $ld_eaap=1;
-     } else {
-        $ld_eaap=0;
-     }	 
-     if ($ld_tgdp=="Yes") {
-	$ld_tgdp=1;
-     } else {
-        $ld_tgdp=0;
-     }
-     if ($ld_barcodes=="Yes") {
-        $ld_barcodes=1;
-     } else { 
-        $ld_barcodes=0;
-     } 
-
-     $query_str="insert into loaders (enabled, worked,osname,osversion,description,vendorid,productid,revision,barcodes,eaap,transports,slots,imports,transfers,tgdp,canxfer,serialnum,email,name,contributed) values ( 1, 1, '$ld_osname', '$ld_osversion', '$ld_description', '$ld_vendorid', '$ld_productid', '$ld_revision', $ld_barcodes, $ld_eaap, $ld_transports, $ld_slots, $ld_imports, $ld_transfers, $ld_tgdp, $ld_canxfer, '$ld_serialnum', '$ld_email', '$ld_name', now())";
- 
-    /* now to insert it: */
-    
-    $result=mysql_query($query_str,$link);
-
-    /* Now send mail to Eric telling him that it's been added.  */
-    mail("eric@badtux.org","New Addition to MTX Compatibility List",$query_str);
-    /* Now to go back to index.html: */
-     header("Location: http://mtx.badtux.net/");
-     exit();  
-
-  }
    
 ?><!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
@@ -105,7 +46,7 @@ on Linux, or "uname -v" on FreeBSD)
 Note that your EMAIL address will *NOT* be published, but will only be used
 by me if I have a question about your entry. 
 <p>
-<form action="contrib.php" method="POST">
+<form action="verify.php" method="POST">
 <input type="hidden" name="l_enabled" value="1">
 <input type="hidden" name="l_worked" value="1">
 
@@ -189,9 +130,9 @@ by me if I have a question about your entry.
          </select>
      </td>
    <th align="right" bgcolor="cyan">Can Transfer: </th>
-    <td> <select name="l_tgdp">
-         <option value="Yes" <?php if ($ld_tgdp==1) { print "SELECTED"; } ?> >Yes</a>
-         <option value="No" <?php if ($ld_tgdp==0) { print "SELECTED"; } ?> >No</a>
+    <td> <select name="l_canxfer">
+         <option value="Yes" <?php if ($ld_canxfer==1) { print "SELECTED"; } ?> >Yes</a>
+         <option value="No" <?php if ($ld_canxfer==0) { print "SELECTED"; } ?> >No</a>
          </select>
      </td>
   </tr>
