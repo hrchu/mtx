@@ -169,7 +169,7 @@ by me if I have a question about your entry.
     <td colspan=2 align="right">
        <input type="submit" name="Save" value="Save">
      </td> </form>
-     <form action="index.html" method="POST"> 
+     <form action="index.html" method="GET"> 
      <td>
      <input type="submit" name="Cancel" value="Cancel">
     </td>
