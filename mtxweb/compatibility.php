@@ -152,7 +152,7 @@ benefit. Also see the <a href="COMPATIBILITY">old compatibility list</a>.
          <table>
           <tr>
             <th bgcolor="cyan" align="right"> Element Address Assignment Page (EAAP) </th>
-            <td> <?php if (eaap == "1") { ?>
+            <td> <?php if ($eaap == "1") { ?>
                       Yes
                  <?php } else { ?>
                       No
@@ -161,7 +161,7 @@ benefit. Also see the <a href="COMPATIBILITY">old compatibility list</a>.
           </tr>
           <tr>
             <th bgcolor="cyan" align="right">Transfer Geometry Descriptor Page (TGDP) </th>
-            <td> <?php if (tgdp=="1") { ?>
+            <td> <?php if ($tgdp=="1") { ?>
                     Yes 
                  <?php } else { ?>
                     No
@@ -170,7 +170,7 @@ benefit. Also see the <a href="COMPATIBILITY">old compatibility list</a>.
           </tr>
           <tr>
             <th bgcolor="cyan" align="right">Can Transfer </th>
-            <td> <?php if (canxfer == "1") { ?>
+            <td> <?php if ($canxfer == "1") { ?>
                          Yes
                   <?php } else { ?>
                          No
