@@ -82,7 +82,14 @@ static char **argv;
 
 
 static char *device=NULL; /* the device name passed as argument */
+
+/* Unfortunately this must be true for SGI, because SGI does not
+   use an int :-(. 
+*/
+
 static DEVICE_TYPE MediumChangerFD = (DEVICE_TYPE) 0;
+static int device_opened = 0;  /* okay, replace check here. */
+
 /* was: static int MediumChangerFD=-1; *//* open filehandle to that device */
 static int arg1=-1;       /* first arg to command */
 static int arg2=-1;       /* second arg to command */
@@ -431,7 +438,7 @@ static void Load(void) {
   }
   arg1--;  /* we use zero-based arrays, sigh, not 1 base like some lusers */
   /* check for filehandle: */
-  if (MediumChangerFD == 0) {
+  if (!device_opened) {
     FatalError("No Media Changer Device Specified\n");
   } 
   /* okay, we should be there: */
@@ -494,7 +501,7 @@ static void Unload(void) {
     arg2 = 0; /* default to 1st drive :-( */
   }
   /* check for filehandle: */
-  if (MediumChangerFD == 0) {
+  if (!device_opened) {
     FatalError("No Media Changer Device Specified\n");
   } 
   /* okay, we should be there: */
@@ -574,12 +581,12 @@ int get_arg(int idx) {
 void open_device(void) {
 
 
-  if (MediumChangerFD) {
+  if (device_opened) {
     SCSI_CloseDevice("Unknown",MediumChangerFD);  /* close it, sigh...  new device now! */
   }
 
   MediumChangerFD = SCSI_OpenDevice(device);
-
+  device_opened=1; /* SCSI_OpenDevice does an exit() if not. */
 }
   
 
@@ -688,6 +695,8 @@ int main(int ArgCount,
 	 char *ArgVector[],
 	 char *Environment[])
 {
+
+
 #ifdef VMS
   RequestSense_T RequestSense;
 #endif
@@ -697,6 +706,9 @@ int main(int ArgCount,
   argv=ArgVector;
 
   argv0=argv[0];
+
+   
+
 
   parse_args();  /* also executes them as it sees them, sigh. */
 
@@ -721,6 +733,12 @@ int main(int ArgCount,
 }
 /*
  *$Log$
+ *Revision 1.3  2001/11/06 21:21:31  elgreen
+ *Hopefully fix for the from-crontab problem
+ *
+ *Revision 1.2.2.1  2001/11/06 21:20:40  elgreen
+ *Hopefully a fix to the problem with the 0 return for open in crontabs
+ *
  *Revision 1.2  2001/06/09 17:26:26  elgreen
  *Added 'nobarcode' command to mtx (to skip the initial request asking for
  *barcodes for mtx status purposes).
