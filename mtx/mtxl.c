@@ -319,9 +319,12 @@ ElementModeSense_T *ReadAssignmentPage(DEVICE_TYPE MediumChangerFD) {
     sense_page->NumMediumTransportLo;
 
   /* HACK! Some HP autochangers don't report NumMediumTransport right! */
+  /* ARG! TAKE OUT THE %#@!# HACK! */
+#ifdef STUPID_DUMB_IDIOTIC_HP_LOADER_HACK
   if (!retval->NumMediumTransport) {
     retval->NumMediumTransport=1;
   }
+#endif
 
 #ifdef DEBUG_MODE_SENSE
   fprintf(stderr,"rawNumStorage= %d %d    rawNumImportExport= %d %d\n",
@@ -1201,6 +1204,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.4  2001/06/15 18:56:54  elgreen
+ * Arg, it doesn't help to check for 0 robot arms if you force it to 1!
+ *
  * Revision 1.3  2001/06/15 14:26:09  elgreen
  * Fixed brain-dead case of HP loaders that report they have no robot arms.
  *
