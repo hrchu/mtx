@@ -1223,6 +1223,30 @@ ElementStatus_T *ReadElementStatus(DEVICE_TYPE MediumChangerFD, RequestSense_T *
 
 /*************************************************************************/
 
+RequestSense_T *PositionElement(DEVICE_TYPE MediumChangerFD,
+		int DestinationAddress,
+		ElementStatus_T *ElementStatus)
+{
+	RequestSense_T *RequestSense = xmalloc(sizeof(RequestSense_T));
+	CDB_T CDB;
+	CDB[0] = 0x2b;
+	CDB[1] = 0;
+	CDB[2] = (ElementStatus->TransportElementAddress >> 8) & 0xFF;
+	CDB[3] = (ElementStatus->TransportElementAddress) & 0xFF;
+	CDB[4] = (DestinationAddress >> 8) & 0xFF;
+	CDB[5] = DestinationAddress & 0xFF;
+	CDB[6] = 0;
+	CDB[7] = 0;
+	CDB[8] = 0;
+	CDB[9] = 0;
+
+	if(SCSI_ExecuteCommand(MediumChangerFD, Output, &CDB, 10,
+				NULL, 0, RequestSense) != 0) {
+		return RequestSense;
+	}
+	free(RequestSense);
+	return NULL; /* success */
+}
 
 
 /* Now the actual media movement routine! */
@@ -1359,6 +1383,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.13  2002/08/14 22:05:29  mahlonstacy
+ * Added position command
+ *
  * Revision 1.12  2002/01/22 16:52:43  elgreen
  * Forward-port buffer overflow bug fix from 1.2.16pre series
  *

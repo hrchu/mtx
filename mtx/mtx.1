@@ -131,6 +131,10 @@ the drive if there is already a tape in it.
 .B next [<drivenum>]
 Unloads the drive and loads the next tape in sequence. If the drive was
 empty, loads the first tape into the drive.
+.TP 10
+.B position <slotnum>
+Positions the robot at a specific slot. Needed by some changers to
+move to and open the import/export, or mailbox, slot.
 
 .SH AUTHORS
 The original 'mtx' program was written by Leonard Zubkoff and extensively
