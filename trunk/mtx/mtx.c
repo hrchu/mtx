@@ -487,12 +487,12 @@ static void Load(void) {
   /* okay, we should be there: */
   if (arg1 < 0 || arg1 >= ElementStatus->StorageElementCount) {
     	FatalError(
-	  "illegal <storage-element-number> argument '%s' to 'load' command\n",
+	  "illegal <storage-element-number> argument '%d' to 'load' command\n",
 	  arg1+1);
   }
   if (arg2 < 0 || arg2 >= ElementStatus->DataTransferElementCount) {
     FatalError(
-	       "illegal <drive-number> argument '%s' to 'load' command\n",
+	       "illegal <drive-number> argument '%d' to 'load' command\n",
 	       arg2);
   }
   if (ElementStatus->DataTransferElementFull[arg2])  {
@@ -606,7 +606,7 @@ static void Unload(void) {
   if (arg1 < 0) {
     arg1 = ElementStatus->DataTransferElementSourceStorageElementNumber[arg2];
     if (arg1 < 0) {
-      FatalError("No Source for tape in drive %d!\n");
+      FatalError("No Source for tape in drive %d!\n",arg2);
     }
   } else {
     arg1--; /* go from bogus 1-base to zero-base */
@@ -614,13 +614,13 @@ static void Unload(void) {
 
   if (arg1 >= ElementStatus->StorageElementCount) {
     	FatalError(
-	  "illegal <storage-element-number> argument '%s' to 'unload' command\n",
+	  "illegal <storage-element-number> argument '%d' to 'unload' command\n",
 	  arg1+1);
   }
     
   if (arg2 < 0 || arg2 >= ElementStatus->DataTransferElementCount) {
     FatalError(
-	       "illegal <drive-number> argument '%s' to 'unload' command\n",
+	       "illegal <drive-number> argument '%d' to 'unload' command\n",
 	       arg2);
   }
   if (ElementStatus->DataTransferElementFull[arg2] < 0 ) {
@@ -839,6 +839,9 @@ int main(int ArgCount,
 }
 /*
  *$Log$
+ *Revision 1.9  2003/06/26 15:59:21  elgreen
+ *ci
+ *
  *Revision 1.8  2003/03/12 23:45:52  elgreen
  *mtx 1.3.4
  *
