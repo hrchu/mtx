@@ -91,7 +91,7 @@
 You entered the following values. If they are correct, click on "Save". 
 If they are not correct, hit the BACK button on your browser:
 
-<form action="verify.php">
+<form action="verify.php" method="POST">
 <input type="hidden" name="l_verified" value="1">
 <input type="hidden" name="l_enabled" value="<?php print "$l_enabled"?>">
 <input type="hidden" name="l_worked" value="<?php print "$l_enabled"?>">
