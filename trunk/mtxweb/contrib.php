@@ -59,7 +59,10 @@
 
     /* Now send mail to Eric telling him that it's been added.  */
     mail("eric@badtux.org","New Addition to MTX Compatibility List",$query_str);
-    
+    /* Now to go back to index.html: */
+     header("Location: http://mtx.badtux.net/");
+     exit();  
+
   }
    
 ?><!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
@@ -206,14 +209,27 @@ by me if I have a question about your entry.
    <td> <input name="l_transfers" type="text" value="<?php print "$l_transfers"; ?>" size=15> </td>  
   </tr>
   <tr>
-  <td> &nbsp; </td>
+    <th colspan=4>Personal Data</a>
+
   </tr>
   <tr>
-    <td colspan=4 align="center">
+   <th align="right" bgcolor="cyan">Your Name: </th> 
+   <td> <input name="l_name" type="text" value="<?php print "$l_name"; ?>" size=30> </td>  
+   <th align="right" bgcolor="cyan">Your EMAIL Address: </th> 
+   <td> <input name="l_email" type="text" value="<?php print "$l_email"; ?>" size=30> </td>     
+  </tr>
+  <tr>
+    <td colspan=2 align="right">
        <input type="submit" name="Save" value="Save">
-   </td>
+     </td> </form>
+     <form action="index.html" method="POST"> 
+     <td>
+     <input type="submit" name="Cancel" value="Cancel">
+    </td>
+    </form>
   </tr>
 </table>
+
        
 </body>
 </html>
