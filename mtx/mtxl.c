@@ -533,12 +533,7 @@ unsigned char *SendElementStatusRequest(DEVICE_TYPE MediumChangerFD,
       /* clear out our sense buffer first... */
       slow_bzero((char *)RequestSense,sizeof(RequestSense_T));
 
-#ifdef HAVE_GET_ID_LUN
-  CDB[1] = (scsi_id->lun << 5) | flags->elementtype;  /* Lun + VolTag + Type code */
-  free(scsi_id);
-#else
-  CDB[1] = flags->elementtype;		* Element Type Code = 0, VolTag = 1 */
-#endif
+      CDB[1] &=~10; /* clear bar code flag! */
 
 #ifdef DEBUG_BARCODE
       {
@@ -1210,6 +1205,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.6  2001/06/24 07:02:01  elgreen
+ * Kai's fix was better than mine.
+ *
  * Revision 1.5  2001/06/24 06:59:19  elgreen
  * Kai found bug in the barcode backoff.
  *
