@@ -192,6 +192,27 @@ by me if I have a question about your entry.
          </select>
      </td>
   </tr>
+  <tr> 
+   <th align="right" bgcolor="cyan">Number of Medium Transport Elements: </th>
+   <td> <input name="l_transports" type="text" value="<?php print "$l_transports"; ?>" size=15> </td>
+   <th align="right" bgcolor="cyan">Number of Storage Elements: </th>       
+   <td> <input name="l_slots" type="text" value="<?php print "$l_slots"; ?>" size=15> </td>
+  </tr>
+  <tr>
+   <th align="right" bgcolor="cyan">Number of Import/Export Elements: </th> 
+   <td> <input name="l_imports" type="text" value="<?php print "$l_imports"; ?>" size=15> </td>  
+ 
+   <th align="right" bgcolor="cyan">Number of Data Transfer Elements: </th> 
+   <td> <input name="l_transfers" type="text" value="<?php print "$l_transfers"; ?>" size=15> </td>  
+  </tr>
+  <tr>
+  <td> &nbsp; </td>
+  </tr>
+  <tr>
+    <td colspan=4 align="center">
+       <input type="submit" name="Save" value="Save">
+   </td>
+  </tr>
 </table>
        
 </body>
