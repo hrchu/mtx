@@ -1,3 +1,12 @@
+CHANGES, mtx 1.2.15:
+- Some Solaris fixes, courtesy of Matt Ward
+- Fix URL in .spec file
+
+CHANGES, mtx 1.2.14:
+- Fix so it'll work if 0 is result of SCSI open (e.g., in cron jobs on Linux)
+- Move changelog to end of .spec file for easier reading
+- Added a bit of text to beginning of COMPATIBILITY file
+
 CHANGES, mtx 1.2.13:
 - Fixed some autoloader bugs w/autoloaders that don't report an arm. 
 - Fixed barcode backoff.
