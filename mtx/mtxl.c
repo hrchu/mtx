@@ -111,7 +111,7 @@ Inquiry_T *RequestInquiry(DEVICE_TYPE fd, RequestSense_T *RequestSense) {
 
 
 /* DEBUG */
-static void dump_cdb(char *CDB, int len) {
+static void dump_cdb(unsigned char *CDB, int len) {
   int i;
   fprintf(stderr,"CDB:");
   for (i=0;i<len;i++) {
@@ -122,7 +122,7 @@ static void dump_cdb(char *CDB, int len) {
 
 
 /* DEBUG */
-static void dump_data(char *data, int len) {
+static void dump_data(unsigned char *data, int len) {
   int i;
   if (!len) {
     fprintf(stderr,"**NO DATA**\n");
@@ -1432,6 +1432,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.19  2003/02/21 17:48:20  elgreen
+ * fixed some data types on debug routines
+ *
  * Revision 1.18  2003/02/20 19:41:54  elgreen
  * Merge James Dugal's fixes, alter Makefile
  *
