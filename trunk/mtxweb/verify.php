@@ -1,3 +1,4 @@
+<?php
   /* Okay, see if they submitted anything: */
   if ( "$l_verified" != "" ) {
      /* create a MySQL insert statement: */
