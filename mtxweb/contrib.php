@@ -109,6 +109,10 @@ by me if I have a question about your entry.
 <!-- now for the table: -->
 <table border=1 width="100%">
 <tr>
+   <th colspan=4 bgcolor="cyan">
+         MTX Compatibility Input
+    </th>
+      
     <!-- do a pulldown for operating system name:  -->
    <th align="right" bgcolor="cyan">Operating System:   
    <?php 
@@ -132,9 +136,16 @@ by me if I have a question about your entry.
      </td>
      <th align="right" bgcolor="cyan">OS Version: </th>
      <td>
-      <input name="l_osversion' type="text" value="<?php print "$l_osversion"; ?>" width="40">
+      <input name="l_osversion' type="text" value="<?php print "$l_osversion"; ?>" size="40">
      </td>
    </tr>
+   <tr> 
+     <th align="right" bgcolor="cyan"> Loader Description:</th>
+     <td colspan=3>
+         <input name="l_description' type="text" value="<?php print "$l_description"; ?>" size="80">
+     </td>
+   </tr>
+   
 </table>
        
 </body>
