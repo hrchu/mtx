@@ -112,7 +112,8 @@ by me if I have a question about your entry.
    <th colspan=4 bgcolor="cyan">
          MTX Compatibility Input
     </th>
-      
+</tr>      
+<tr>
     <!-- do a pulldown for operating system name:  -->
    <th align="right" bgcolor="cyan">Operating System:   
    <?php 
