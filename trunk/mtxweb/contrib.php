@@ -33,7 +33,9 @@
 
 WARNING: This application is currently in beta test, and may be buggy. 
 Please only use it to submit entries that you have verified as being
-compatible with 'mtx'. 
+compatible with 'mtx'.  <b>Please note that your EMAIL address will *NOT*
+be published, and will be used only in the event that I have questions about
+your entry. </b>
 <p>
 You will need the following information:
 <ol> 
@@ -43,8 +45,11 @@ on Linux, or "uname -v" on FreeBSD)
 <li> The result of 'tapeinfo' on your loader
 <li> The result of 'loaderinfo' on your loader
 </ol> 
-Note that your EMAIL address will *NOT* be published, but will only be used
-by me if I have a question about your entry. 
+
+Please note that the 'barcode' output from 'loaderinfo' is not accurate for
+most loaders. Please report whether barcodes actually show up when you do
+'mtx status'. 
+
 <p>
 <form action="verify.php" method="POST">
 <input type="hidden" name="l_enabled" value="1">
@@ -121,7 +126,7 @@ by me if I have a question about your entry.
          <option value="No" <?php if ($ld_barcodes==0) { print "SELECTED"; } ?> >No</a>
          </select>
     </td>
-     <th align="right" bgcolor="cyan">Element Address Assignment Page: </th>
+     <th align="right" bgcolor="cyan">Element Address Assignment Page (EAAP): </th>
     <td> <select name="l_eaap">
          <option value="Yes" <?php if ($ld_eaap==1) { print "SELECTED"; } ?> >Yes</a>
          <option value="No" <?php if ($ld_eaap==0) { print "SELECTED"; } ?> >No</a>
@@ -165,6 +170,12 @@ by me if I have a question about your entry.
    <th align="right" bgcolor="cyan">Your EMAIL Address: </th> 
    <td> <input name="l_email" type="text" value="<?php print "$l_email"; ?>" size=30> </td>     
   </tr>
+  <tr>
+     <th colspan=4>Comments</a>
+  </tr>
+  <tr>
+     <td colspan=4 align="center"> <textarea name="l_comments" cols="70" rows="4" wrap="virtual"><?php print "$l_comments"; ?></textarea> </td> 
+  </tr>     
   <tr>
     <td colspan=2 align="right">
        <input type="submit" name="Save" value="Save">

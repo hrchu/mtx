@@ -29,6 +29,7 @@
      $ld_serialnum=mysql_escape_string($l_serialnum);
      $ld_email=mysql_escape_string($l_email);
      $ld_name=mysql_escape_string($l_name);
+     $ld_comments=mysql_escape_string($l_comments);
       /* 'contributed' is calculated by 'now()' function */
 
      if ($ld_canxfer=="Yes") {
@@ -53,7 +54,7 @@
         $ld_barcodes=0;
      } 
 
-     $query_str="insert into loaders (enabled, worked,osname,osversion,mtxversion,description,vendorid,productid,revision,barcodes,eaap,transports,slots,imports,transfers,tgdp,canxfer,serialnum,email,name,contributed) values ( 1, 1, '$ld_osname', '$ld_osversion', '$ld_mtxversion', '$ld_description', '$ld_vendorid', '$ld_productid', '$ld_revision', $ld_barcodes, $ld_eaap, $ld_transports, $ld_slots, $ld_imports, $ld_transfers, $ld_tgdp, $ld_canxfer, '$ld_serialnum', '$ld_email', '$ld_name', now())";
+     $query_str="insert into loaders (enabled, worked,osname,osversion,mtxversion,description,vendorid,productid,revision,barcodes,eaap,transports,slots,imports,transfers,tgdp,canxfer,serialnum,email,name,contributed,comments) values ( 1, 1, '$ld_osname', '$ld_osversion', '$ld_mtxversion', '$ld_description', '$ld_vendorid', '$ld_productid', '$ld_revision', $ld_barcodes, $ld_eaap, $ld_transports, $ld_slots, $ld_imports, $ld_transfers, $ld_tgdp, $ld_canxfer, '$ld_serialnum', '$ld_email', '$ld_name', now(), '$ld_comments') ";
  
     /* now to insert it: */
     
@@ -113,6 +114,7 @@ If they are not correct, hit the BACK button on your browser:
 <input type="hidden" name="l_serialnum" value="<?php print "$l_serialnum"?>">
 <input type="hidden" name="l_email" value="<?php print "$l_email"?>">
 <input type="hidden" name="l_name" value="<?php print "$l_name"?>">
+<input type="hidden" name="l_comments" value="<?php print "$l_comments"?>">
 
 <table border=1>
 <tr>
@@ -191,6 +193,12 @@ If they are not correct, hit the BACK button on your browser:
    <th align="right" bgcolor="cyan">Your EMAIL Address: </th> 
    <td> <?php print "$l_email"; ?>  </td>     
   </tr>
+  <tr>
+     <th colspan=4>Comments</a>
+  </tr>
+  <tr>
+     <td colspan=4"> <?php print "$l_comments"; ?> </td> 
+  </tr>     
   <tr>
     <td colspan=4 align="center">
        <input type="submit" name="Save" value="Save">
