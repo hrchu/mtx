@@ -12,6 +12,7 @@ create table loaders (
      worked integer, /* 0=no, 1=yes */
      osname text,
      osversion text,
+     mtxversion text,
  
      description text,
      /* loaderinfo output */

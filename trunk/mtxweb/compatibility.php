@@ -104,7 +104,8 @@ benefit. Also see the <a href="COMPATIBILITY.html">old compatibility list</a>.
 	
 ?>
       <tr>
-      <td valign="top"> <?php print "$osname <br> $osversion"; ?> </td>
+      <td valign="top"> <?php print "$osname <br> $osversion"; ?> <br>
+                         MTX version <?php print "$mtxversion"; ?> </td>
       <td valign="top">
         <table>
            <tr>

@@ -84,6 +84,12 @@ by me if I have a question about your entry.
       <input name="l_osversion" type="text" value="<?php print "$l_osversion"; ?>" size="40">
      </td>
    </tr>
+   <tr>
+     <th align="right" bgcolor="cyan">MTX Version (mtx --version):</th>
+     <td>
+       <input name="l_mtxversion" type="text" value="<?php print "$l_mtxversion"; ?>" size="15">
+     </td>
+   <tr>
    <tr> 
      <th align="right" bgcolor="cyan"> Loader Description:</th>
      <td colspan=3>
