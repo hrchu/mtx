@@ -101,7 +101,7 @@ benefit.
 	
 ?>
       <tr>
-      <td valign="top"> <?php print "$osname $osversion"; ?> </td>
+      <td valign="top"> <?php print "$osname <br> $osversion"; ?> </td>
       <td valign="top">
         <table>
            <tr>
