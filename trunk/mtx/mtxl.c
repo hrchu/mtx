@@ -5,7 +5,7 @@
 $Date$
 $Revision$
 
-  This file created Feb 2000 by Eric Lee Green <eric@estinc.com> from pieces
+  This file created Feb 2000 by Eric Lee Green <eric@badtux.org> from pieces
   extracted from mtx.c, plus some additional routines. 
 
   This program is free software; you may redistribute and/or modify it under
@@ -766,7 +766,10 @@ static void ParseElementStatus(int *EmptyStorageElementAddress,
 	{
 	  /* TransportElementDescriptor =
 	     (TransportElementDescriptor_T *) DataPointer; */
-          memcpy(&TEBuf, DataPointer, TransportElementDescriptorLength);
+          memcpy(&TEBuf, DataPointer, 
+			(TransportElementDescriptorLength <= sizeof(TEBuf)) ?
+				TransportElementDescriptorLength  :
+				sizeof(TEBuf));
           TransportElementDescriptor = &TEBuf;
 
 	  DataPointer += TransportElementDescriptorLength;
@@ -1356,6 +1359,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.12  2002/01/22 16:52:43  elgreen
+ * Forward-port buffer overflow bug fix from 1.2.16pre series
+ *
  * Revision 1.11  2002/01/17 17:04:20  elgreen
  * More ADIC debugging (ADIC is starting to tick me off)
  *
