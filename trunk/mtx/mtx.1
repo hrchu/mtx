@@ -22,7 +22,7 @@
 .\" Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
 .\" USA.
 .\"
-.TH MTX 1 MTX1.4
+.TH MTX 1 MTX1.2
 .SH NAME
 mtx \- control SCSI media changer devices 
 .SH SYNOPSIS
@@ -132,7 +132,7 @@ empty, loads the first tape into the drive.
 .SH AUTHORS
 The original 'mtx' program was written by Leonard Zubkoff and extensively
 revised for large multi-drive libraries with bar code readers 
-by Eric Lee Green <eric@estinc.com>, to whom all problems should
+by Eric Lee Green <eric@badtux.org>, to whom all problems should
 be reported for this revision. See 'mtx.c' for other contributors. 
 .SH BUGS AND LIMITATIONS
 .P
@@ -188,7 +188,7 @@ reader and 21 slots, an Exabyte EZ-17 7-slot autoloader, and a Seagate
 DDS-4 autochanger with 6 slots). It may not work on other operating systems 
 with larger libraries,
 due to the big SCSI request size. 
-Report problems to Eric Lee Green <eric@estinc.com>.  
+Report problems to Eric Lee Green <eric@badtux.org>.  
 .SH HINTS
 Under Linux, 
 .B cat /proc/scsi/scsi
@@ -233,10 +233,11 @@ to make multi-tape backups.
 .SH AVAILABILITY
 This version of 
 .B mtx
-is currently being maintained by Eric Lee Green <eric@estinc.com> of
+is currently being maintained by Eric Lee Green <eric@badtux.org> formerly of
 Enhanced Software Technologies Inc. The 'mtx' home page is
 http://mtx.sourceforge.net and the actual code
-is currently available
-via FTP from ftp://ftp.estinc.com/pub/unsupported/ .
+is currently available there and via CVS from 
+http://sourceforge.net/projects/mtx/ . 
+
 .SH SEE ALSO
-.BR mt (1)
+.BR mt (1), tapeinfo (1), scsitape(1), loaderinfo(1)
