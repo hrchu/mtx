@@ -1,9 +1,12 @@
 <?php
    /* set these to what you need for your installation */
+   include('dbms.data');
+/*
    $mysql_host="dbms.inhouse";
    $mysql_user="bloguser";
    $mysql_password="password";
    $mysql_dbms="mtx";
+*/
 
    $link = mysql_connect($mysql_host,$mysql_user,$mysql_password)
         or die("Could not connect");
@@ -66,7 +69,7 @@ Sorted by: <?php
 This application is currently in beta test, and may be buggy. The database
 that it feeds off of is currently very incomplete. Please 
 <a href="contrib.php">contribute</a> new entries so that others can
-benefit. 
+benefit. Also see the <a href="COMPATIBILITY">old compatibility list</a>.
 <p>
 <table border=1 width=100%">
 <tr>
