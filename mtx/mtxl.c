@@ -473,10 +473,10 @@ unsigned char *SendElementStatusRequest(DEVICE_TYPE MediumChangerFD,
     CDB[0] = 0xB4;  /* whoops, READ_ELEMENT_STATUS_ATTACHED! */ 
   }
 #ifdef HAVE_GET_ID_LUN
-  CDB[1] = (scsi_id->lun << 5) | 0x10 | flags->elementtype;  /* Lun + VolTag + Type code */
+  CDB[1] = (scsi_id->lun << 5) | ((flags->no_barcodes) ? 0 : 0x10) | flags->elementtype;  /* Lun + VolTag + Type code */
   free(scsi_id);
 #else
-  CDB[1] = 0x10 | flags->elementtype;		/* Element Type Code = 0, VolTag = 1 */
+  CDB[1] = ((flags->no_barcodes) ? 0 : 0x10) | flags->elementtype;		/* Element Type Code = 0, VolTag = 1 */
 #endif
   CDB[2] = (ElementStart >> 8) & 0xff;	/* Starting Element Address MSB */
   CDB[3] = ElementStart & 0xff;		/* Starting Element Address LSB */
@@ -1198,8 +1198,12 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
- * Revision 1.1  2001/06/05 17:10:25  elgreen
- * Initial revision
+ * Revision 1.2  2001/06/09 17:26:26  elgreen
+ * Added 'nobarcode' command to mtx (to skip the initial request asking for
+ * barcodes for mtx status purposes).
+ *
+ * Revision 1.1.1.1  2001/06/05 17:10:25  elgreen
+ * Initial import into SourceForge
  *
  * Revision 1.29  2001/05/01 01:39:23  eric
  * Remove the Exabyte special case code, which seemed to be barfing me :-(.

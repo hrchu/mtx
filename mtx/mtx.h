@@ -175,6 +175,7 @@ typedef struct SCSI_Flags_Struct {
   unsigned char eepos;
   unsigned char invert;
   unsigned char no_attached; /* ignore _attached bit */
+  unsigned char no_barcodes;  /* don't try to get barcodes. */
   int numbytes;
   int elementtype;
   int numelements;
