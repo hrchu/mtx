@@ -30,7 +30,8 @@ create table loaders (
      serialnum text,
     
      email text,
-     name text
+     name text,
+     contributed datetime
 );
      
      
