@@ -11,6 +11,7 @@
      /* create a MySQL insert statement: */
      $ld_enabled=(int)$l_enabled;
      $ld_worked=(int)$l_worked;
+     $ld_mtxversion=mysql_escape_string($l_mtxversion);
      $ld_osname=mysql_escape_string($l_osname);
      $ld_osversion=mysql_escape_string($l_osversion);
      $ld_description=mysql_escape_string($l_description);
@@ -52,7 +53,7 @@
         $ld_barcodes=0;
      } 
 
-     $query_str="insert into loaders (enabled, worked,osname,osversion,description,vendorid,productid,revision,barcodes,eaap,transports,slots,imports,transfers,tgdp,canxfer,serialnum,email,name,contributed) values ( 1, 1, '$ld_osname', '$ld_osversion', '$ld_description', '$ld_vendorid', '$ld_productid', '$ld_revision', $ld_barcodes, $ld_eaap, $ld_transports, $ld_slots, $ld_imports, $ld_transfers, $ld_tgdp, $ld_canxfer, '$ld_serialnum', '$ld_email', '$ld_name', now())";
+     $query_str="insert into loaders (enabled, worked,osname,osversion,mtxversion,description,vendorid,productid,revision,barcodes,eaap,transports,slots,imports,transfers,tgdp,canxfer,serialnum,email,name,contributed) values ( 1, 1, '$ld_osname', '$ld_osversion', '$ld_mtxversion', '$ld_description', '$ld_vendorid', '$ld_productid', '$ld_revision', $ld_barcodes, $ld_eaap, $ld_transports, $ld_slots, $ld_imports, $ld_transfers, $ld_tgdp, $ld_canxfer, '$ld_serialnum', '$ld_email', '$ld_name', now())";
  
     /* now to insert it: */
     
@@ -96,6 +97,7 @@ If they are not correct, hit the BACK button on your browser:
 <input type="hidden" name="l_worked" value="<?php print "$l_enabled"?>">
 <input type="hidden" name="l_osname" value="<?php print "$l_osname"?>">
 <input type="hidden" name="l_osversion" value="<?php print "$l_osversion"?>">
+<input type="hidden" name="l_mtxversion" value="<?php print "$l_mtxversion"?>">
 <input type="hidden" name="l_description" value="<?php print "$l_description"?>">
 <input type="hidden" name="l_vendorid" value="<?php print "$l_vendorid"?>">
 <input type="hidden" name="l_productid" value="<?php print "$l_productid"?>">
@@ -125,6 +127,10 @@ If they are not correct, hit the BACK button on your browser:
     <td> <?php print "$l_osname" ?> </td>
      <th align="right" bgcolor="cyan">OS Version: </th>
      <td>  <?php print "$l_osversion" ?> </td>
+   </tr>
+   <tr>
+      <th align="right" bgcolor="cyan">MTX Version: </th>
+      <td> <?php print "$l_mtxversion" ?> </td> 
    </tr>
    <tr> 
      <th align="right" bgcolor="cyan"> Loader Description:</th>
