@@ -4,6 +4,11 @@
 1 Add IES command (sets CDB[5] to something in routine Inventory() ).
 1 Increase the timeout for Inventory() commands to something *BIG*.
 1 Fix 'scsitape' READ and WRITE so that block counts work.
+1 Add EXCHANGE command so that we can exchange media between slots in
+  NSM/DISC optical jukeboxes.
+1 If moving media to/from import/export slot, try to do it even if the slot
+  reports that it's empty or full, this will let us stick our tongue out
+  on NSM/DISC optical jukeboxes for importing media. 
 2 Fix ports to other Unixes/VMS.
 2 Port to AIX (no longer care about SCO Unix).
 2 Add a range to 'mtx status' so that we request status only of 
@@ -11,4 +16,3 @@
   (nice for the very big loaders!). 
 3 Better Import/Export port support?
 3 Create a TCL/TK GUI front end (otherwise managing big libraries is HARD!).
-

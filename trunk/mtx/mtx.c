@@ -490,7 +490,11 @@ static void Load(void) {
   /* Now look up the actual devices: */
   dest=ElementStatus->DataTransferElementAddress[arg2];
   src=ElementStatus->StorageElementAddress[arg1];
+  fprintf(stdout, "Loading media from Storage Element %d into drive %d...",arg1+1,arg2);
+  fflush(stdout);
   Move(src,dest);  /* load it into the particular slot, if possible! */
+  fprintf(stdout,"done\n");
+  fflush(stdout);
   /* now set the status for further command son this line... */
   ElementStatus->StorageElementFull[arg1] = false;
   ElementStatus->DataTransferElementFull[arg2] = true;
@@ -573,10 +577,11 @@ static void Unload(void) {
   if (dest < 0) { /* we STILL don't know, sigh... */
     FatalError("Do not know which slot to unload tape into!\n");
   }
-  fprintf(stderr, "Unloading Data Transfer Element into Storage Element %d...", arg1+1);
-  fflush(stderr); /* make it real-time :-( */ 
+  fprintf(stdout, "Unloading drive %d into Storage Element %d...",arg2, arg1+1);
+  fflush(stdout); /* make it real-time :-( */ 
   Move(src,dest);
-  fprintf(stderr, "done\n");
+  fprintf(stdout, "done\n");
+  fflush(stdout);
   ElementStatus->StorageElementFull[arg1] = true;
   ElementStatus->DataTransferElementFull[arg2] = false;
 }
@@ -764,6 +769,9 @@ int main(int ArgCount,
 }
 /*
  *$Log$
+ *Revision 1.6  2002/09/27 21:30:16  elgreen
+ *CVS 1.3
+ *
  *Revision 1.5  2002/08/14 22:05:29  mahlonstacy
  *Added position command
  *

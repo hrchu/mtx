@@ -9,7 +9,7 @@
 # GNU Autoconf. 
 
 # Version # for 'make dist'...
-VERSION=1.3.0pre3
+VERSION=1.3.0
 
 BINS = mtx tapeinfo loaderinfo scsitape nsmhack
 

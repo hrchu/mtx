@@ -6,6 +6,8 @@ CHANGES, mtx 1.3.0
   eject the tape in the drive prior to unloading it, under certain
   conditions. 
 - Started work on 'nsmhack' for controlling NSM jukeboxes. 
+- copy_barcode was off by one. 
+- 'position to element' command now added, courtesy of Mahlon Stacy
 
 CHANGES, mtx 1.2.15:
 - Some Solaris fixes, courtesy of Matt Ward
