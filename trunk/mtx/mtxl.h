@@ -1,0 +1,68 @@
+/* 
+  MTX -- SCSI Tape Attached Medium Changer Control Program
+
+  Copyright 1997-1998 Leonard N. Zubkoff <lnz@dandelion.com>
+  This file created by Eric Lee Green <eric@estinc.com>
+  
+  This program is free software; you may redistribute and/or modify it under
+  the terms of the GNU General Public License Version 2 as published by the
+  Free Software Foundation.
+
+  This program is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY, without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+  for complete details.
+
+  $Date$
+  $Revision$
+*/
+
+/* Much of the guts of mtx.c has been extracted to mtxl.c, a library file
+ * full of utility routines. This file is the header file for that library.
+ *   -E
+ */
+
+#ifndef MTXL_H
+#define MTXL_H 1
+
+#include "mtx.h"
+
+void FatalError(char *ErrorMessage, ...);
+void *xmalloc(size_t Size);
+void *xzmalloc(size_t Size);
+void slow_bzero(char *buffer, int numchars);
+
+DEVICE_TYPE SCSI_OpenDevice(char *DeviceName);
+void SCSI_CloseDevice(char *DeviceName, DEVICE_TYPE DeviceFD);
+int SCSI_ExecuteCommand(DEVICE_TYPE DeviceFD,
+			       Direction_T Direction,
+			       CDB_T *CDB,
+			       int CDB_Length,
+			       void *DataBuffer,
+			       int DataBufferLength,
+			       RequestSense_T *RequestSense);
+
+void PrintRequestSense(RequestSense_T *RequestSense);
+
+int BigEndian16(unsigned char *BigEndianData);
+int BigEndian24(unsigned char *BigEndianData);
+int min(int x, int y);
+int max(int x, int y);
+
+ElementStatus_T *ReadElementStatus(DEVICE_TYPE MediumChangerFD, RequestSense_T *RequestSense, Inquiry_T *inquiry_info, SCSI_Flags_T *flags);
+
+Inquiry_T *RequestInquiry(DEVICE_TYPE fd, RequestSense_T *RequestSense);
+
+RequestSense_T *MoveMedium(DEVICE_TYPE MediumChangerFD, int SourceAddress,
+		       int DestinationAddress, 
+		       ElementStatus_T *ElementStatus, 
+			   Inquiry_T *inquiry_info, SCSI_Flags_T *flags);
+
+int Inventory(DEVICE_TYPE MediumChangerFD);  /* inventory library */
+int Eject(DEVICE_TYPE fd);                  /* unload tape or magazine */
+RequestSense_T *Erase(DEVICE_TYPE fd);        /* send SHORT erase to drive */
+
+void SCSI_Set_Timeout(int secs); /* set the SCSI timeout */
+void SCSI_Default_Timeout(void);  /* go back to default timeout */
+
+#endif

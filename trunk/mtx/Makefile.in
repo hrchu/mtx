@@ -1,0 +1,138 @@
+# WARNING -- THIS HAS BEEN RE-WRITTEN TO USE GNU MAKE. DO NOT
+# TRY TO PROCESS THIS WITH A NORMAL MAKE! (FREEBSD GUYS, THIS MEANS
+# USE GMAKE, NOT REGULAR BSD MAKE!)
+#
+# Valid targets:
+#  linux86 freebsd86 solarissparc sgi dec vms 
+#
+# Makefile changes by Lars Kellogg-Stedman for better integration with
+# GNU Autoconf. 
+
+# Version # for 'make dist'...
+VERSION=1.2.12
+BINS = mtx tapeinfo loaderinfo scsitape
+
+TARGET	= @TARGET@
+CPU	= @CPU@
+CC	= @CC@
+INSTALL	= @INSTALL@
+
+CFLAGS		= @CFLAGS@
+CPPFLAGS	= @CPPFLAGS@ -DVERSION="\"$(VERSION)\""
+LDFLAGS		= @LDFLAGS@
+LIBS		= @LIBS@
+
+INSTALL_DOC = $(INSTALL) -m 644
+INSTALL_BIN = $(INSTALL) -m 755
+INSTALL_DIR = $(INSTALL) -m 755 -d
+
+prefix		= @prefix@
+exec_prefix	= @exec_prefix@
+sbindir		= @sbindir@
+mandir		= @mandir@
+
+#
+# Linux on x86...
+#
+ifeq ($(TARGET),linux)
+CFLAGS += -Wall
+CPPFLAGS	+= -I/usr/src/linux/include -DLONG_PRINT_REQUEST_SENSE=1
+endif
+
+#
+# FreeBSD on x86...
+#
+ifeq ($(TARGET),freebsd86)
+CFLAGS		+= -m486
+CPPFLAGS	+= -I/usr/src/linux/include -DLONG_PRINT_REQUEST_SENSE=1
+LIBS		+= -lcam
+endif
+
+ifeq ($(TARGET),hpux)
+CFLAGS += -O -D_HPUX_SOURCE -D __hpux__ 
+endif
+
+#
+# Solaris/SPARC
+#
+ifeq ($(TARGET),solarissparc)
+CFLAGS		+= -O6
+endif
+
+#
+# SGI IRIX
+#
+ifeq ($(TARGET),sgi)
+CFLAGS		+= -O6
+LIBS		+= -lds
+endif
+
+#
+# Digital Unix
+#
+ifeq ($(TARGET),dec)
+CFLAGS		+= -O
+endif
+
+#
+# OpenVMS (see vms/000readme)
+#
+ifeq ($(TARGET),vms)
+See vms/000readme for information.
+endif
+
+all:	$(BINS)
+
+install: $(BINS)
+	for file in $(BINS); do \
+	strip $$file;	\
+	done	
+	$(INSTALL_DIR) $(sbindir)
+	$(INSTALL_BIN) $(BINS) $(sbindir)
+	$(INSTALL_DIR) $(mandir) $(mandir)/man1
+	$(INSTALL_DOC) mtx.1 tapeinfo.1 scsitape.1 loaderinfo.1 $(mandir)/man1
+	
+	
+clean:
+	rm -f *.o *~
+	rm -f $(BINS)
+	rm -f mam2debug mam2debug2
+
+distclean: clean
+	rm -f Makefile config.log config.cache config.status
+
+dist: distclean
+	./makedist $(VERSION)	
+
+loaderinfo: loaderinfo.o mtxl.o mtxl.h mtx.h $(EXTRA)
+	$(CC) $(LDFLAGS) -o loaderinfo loaderinfo.o mtxl.o $(EXTRA) $(LIBS)
+
+
+mtx: mtx.o mtxl.o mtxl.h mtx.h $(EXTRA)
+	$(CC) $(LDFLAGS) -o mtx mtx.o mtxl.o $(EXTRA) $(LIBS)
+
+mam2debug: mtxl.o mam2debug.o mtx.h $(EXTRA)	
+	$(CC) $(LDFLAGS) -o mam2debug mtxl.o mam2debug.o $(EXTRA) $(LIBS)
+
+tapeinfo: tapeinfo.o mtxl.o mtx.h mtxl.h $(EXTRA)
+	$(CC) $(LDFLAGS) -o tapeinfo tapeinfo.o mtxl.o $(EXTRA) $(LIBS)
+
+mam2debug2: mtxl.o mam2debug2.o mtx.h $(EXTRA)
+	$(CC) $(LDFLAGS) -o mam2debug2 mtxl.o mam2debug2.o $(EXTRA) $(LIBS)
+
+scsitape: scsitape.o mtxl.o mtxl.h mtx.h $(EXTRA)
+	$(CC) $(LDFLAGS) -o scsitape scsitape.o mtxl.o $(EXTRA) $(LIBS)
+
+scsitape.o: scsitape.c mtx.h mtxl.h
+
+loaderinfo.o: loaderinfo.c mtx.h mtxl.h
+
+tapeinfo.o: tapeinfo.c mtx.h mtxl.h
+
+mam2debug.o: mam2debug.c mtx.h mtxl.h
+
+mam2debug2.o: mam2debug2.c mtx.h mtxl.h
+
+mtx.o: mtx.c mtx.h mtxl.h
+
+mtxl.o: mtxl.c mtxl.h scsi_linux.c 

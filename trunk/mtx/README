@@ -1,0 +1,33 @@
+MTX
+
+Programs:
+  mtx is the media changer control program
+  tapeinfo dumps some interesting stuff out of tape drives' mode pages and
+sense pages. 
+
+INSTALLATION:
+
+WARNING: MUST HAVE GNU 'make' TO DO THIS! (e.g. use 'gmake' on freebsd, not
+BSD 'make'!).
+
+Edit 'Makefile' to set the appropriate target (e.g. "freebsd86" or "linux86"),
+and to set install location for the binary and man page. Type 'make', then
+'make install'. Type 'man mtx' for info about mtx, and 'man tapeinfo'
+for info about tapeinfo. Enjoy.
+
+Credits:
+
+The original 'mtx' program is copyright 1996-1997 by Leonard Zubkoff
+<lnz@dandelion.com>. This version was modified for multi-drive,
+optical changer, and tape library support by Eric Lee Green
+<eric@estinc.com>. Also added FreeBSD support. Please see the man page
+for current info, and the file 'mtx.doc' for historical info.
+
+My thanks to Doug Bonnell of Breece Hill for suggestions on
+dynamically allocating element info, Tien That Ton of Tandberg for
+being the original tester of the Import/Export Element stuff, Ken
+Porter for RPM's, William D. Smith for the HP/UX port,
+ and to all the other people out there who have used it, found
+ problems with it, and let me know about it (you know who you are).
+  
+   -- Eric Lee Green <eric@estinc.com>
