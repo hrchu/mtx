@@ -30,8 +30,9 @@ for current info, and the file 'mtx.doc' for historical info.
 My thanks to Doug Bonnell of Breece Hill for suggestions on
 dynamically allocating element info, Tien That Ton of Tandberg for
 being the original tester of the Import/Export Element stuff, Ken
-Porter for RPM's, William D. Smith for the HP/UX port,
- and to all the other people out there who have used it, found
- problems with it, and let me know about it (you know who you are).
+Porter for RPM's, William D. Smith for the HP/UX port, Kai Makisara
+for the barcode backoff fix, and to all the other people out there who
+have used it, found problems with it, and let me know about it (you
+know who you are).
   
    -- Eric Lee Green <eric@estinc.com>

@@ -91,6 +91,10 @@ Inquiry_T *RequestInquiry(DEVICE_TYPE fd, RequestSense_T *RequestSense) {
   CDB[3] = 0;			/* Reserved */
   CDB[4] = sizeof(Inquiry_T);	/* Allocation Length */
   CDB[5] = 0;			/* Control */
+
+  /* set us a very short timeout, sigh... */
+  SCSI_Set_Timeout(30); /* 30 seconds, sigh! */
+
   if (SCSI_ExecuteCommand(fd, Input, &CDB, 6,
 			  Inquiry, sizeof(Inquiry_T), RequestSense) != 0)
     {
@@ -227,6 +231,9 @@ int Inventory(DEVICE_TYPE MediumChangerFD) {
   /* okay, now for the command: */
   CDB[0]=0x07; 
   CDB[1]=CDB[2]=CDB[3]=CDB[4]=CDB[5]=0;
+
+  /* set us a very long timeout, sigh... */
+  SCSI_Set_Timeout(30*60); /* 30 minutes, sigh! */
   
   if (SCSI_ExecuteCommand(MediumChangerFD,Input,&CDB,6,NULL,0,&RequestSense) != 0) {
     return -1;  /* could not do! */
@@ -1205,6 +1212,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.8  2001/06/25 23:06:22  elgreen
+ * Readying this for 1.2.13 release
+ *
  * Revision 1.7  2001/06/25 04:56:35  elgreen
  * Kai to the rescue *again* :-)
  *

@@ -44,6 +44,13 @@ The following has been directly tested:
     re-run /sbin/lilo):
          append="max_scsi_luns=2" 
 
+* DISC D-40 optical library (2 drives, 40 slots, 1 import/export): Yes,
+  it really does report that it's a Maxoptix!
+   Product Type: Medium Changer
+   Vendor ID: 'Maxoptix'
+   Product ID: 'MAXLYB          '
+   Revision: '3.04'
+   Attached Changer: No
 
 The following have been tested by others, and information may be
 incomplete or in error even.
@@ -134,3 +141,20 @@ incomplete or in error even.
   Product ID: 'P1000    6220070'
   Revision: '2.01'
   Attached Changer: No
+
+* NSM DVD Jukebox:
+ Storage Changer /dev/sg4:4 Drives, 561 Slots ( 1 Import/Export )
+Product Type: Medium Changer
+ Vendor ID: 'NSM     '
+ Product ID: 'NSM6000         '
+ Revision: '1120'
+ Attached Changer: No
+ 
+* Spectralogic Treefrog/Bullfrog:
+  Storage Changer /dev/sg0:2 Drives, 15 Slots ( 0 Import/Export )   
+Product Type: Medium Changer
+Vendor ID: 'SPECTRA '
+Product ID: '10000           '
+Revision: 'X010'
+Attached Changer: No
+
