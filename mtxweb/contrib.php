@@ -140,7 +140,7 @@ by me if I have a question about your entry.
      </td>
      <th align="right" bgcolor="cyan">OS Version: </th>
      <td>
-      <input name="l_osversion' type="text" value="<?php print "$l_osversion"; ?>" size="40">
+      <input name="l_osversion" type="text" value="<?php print "$l_osversion"; ?>" size="40">
      </td>
    </tr>
    <tr> 
