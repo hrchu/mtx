@@ -122,9 +122,9 @@ static void ReportInquiry(DEVICE_TYPE MediumChangerFD)
     printf("%c", Inquiry->ProductRevisionLevel[i]);
   printf("'\n");\
   if (Inquiry->MChngr) {  /* check the attached-media-changer bit... */
-    printf("Attached Changer: Yes\n");
+    printf("Attached Changer API: Yes\n");
   } else {
-    printf("Attached Changer: No\n");
+    printf("Attached Changer API: No\n");
   }
   free(Inquiry);  /* well, we're about to exit, but ... */
 }
@@ -203,6 +203,111 @@ static char *tapealert_messages[]= {
   "Undefined", /* 0x3f */
   "Undefined" /* 0x40 */
 };
+
+typedef struct TapeCapacityStruct {
+  unsigned int partition0_remaining;
+  unsigned int partition1_remaining;
+  unsigned int partition0_size;
+  unsigned int partition1_size;
+} TapeCapacity;
+
+/* DEBUG */
+static void dump_data(unsigned char *data, int len) {
+  int i;
+  if (!len) {
+    fprintf(stderr,"**NO DATA**\n");
+    return;
+  }
+
+  for (i=0;i<len;i++) {
+    if ((i % 10) == 0) {
+      if (i) {
+	fprintf(stderr,"\n");
+      }
+      fprintf(stderr,"DATA:");
+    }
+    fprintf(stderr,"%02x ",(unsigned int)*data++);
+  }
+  fprintf(stderr,"\n");
+}
+
+
+
+/* Request the tape capacity page defined by some DAT autoloaders. */
+
+static TapeCapacity *RequestTapeCapacity(DEVICE_TYPE fd, RequestSense_T *sense) {
+
+  CDB_T CDB;
+  TapeCapacity *result;
+  int i,result_len,result_idx;
+  
+  unsigned char buffer[TAPEALERT_SIZE]; /* Overkill, but ... */
+
+  slow_bzero(buffer,TAPEALERT_SIZE); /*zero it... */
+
+  /* now to create the CDB block: */
+  CDB[0]=0x4d;   /* Log Sense */
+  CDB[1]=0;   
+  CDB[2]=0x31;   /* Tape Capacity Page. */
+  CDB[3]=0;
+  CDB[4]=0;
+  CDB[5]=0;
+  CDB[6]=0;
+  CDB[7]=TAPEALERT_SIZE>>8 & 0xff;  /* hi byte, allocation size */
+  CDB[8]=TAPEALERT_SIZE & 0xff;     /* lo byte, allocation size */
+  CDB[9]=0;  /* reserved */ 
+
+  if (SCSI_ExecuteCommand(fd,Input,&CDB,10,buffer,TAPEALERT_SIZE,sense)!=0){
+    /*    fprintf(stderr,"RequestTapeCapacity: Command failed: Log Sense\n"); */
+    return NULL;
+  }
+
+  /* dump_data(buffer,64); */
+
+  /* okay, we have stuff in the result buffer: the first 4 bytes are a header:
+   * byte 0 should be 0x31, byte 1 == 0, bytes 2,3 tell how long the
+   * log page is. 
+   */
+  if ((buffer[0]&0x3f) != 0x31) {
+    /*    fprintf(stderr,"RequestTapeCapacity: Invalid header for page (not 0x31).\n"); */
+    return NULL;
+  }
+
+  result_len=(((int)buffer[2])<<8) + buffer[3];
+
+  if (result_len != 32) {
+    /*   fprintf(stderr,"RequestTapeCapacity: Page was %d bytes long, not 32 bytes\n",result_len); */
+    return NULL; /* This Is Not The Page You're Looking For */
+  }
+
+  result=xmalloc(sizeof(TapeCapacity));
+
+  /* okay, now allocate data and move the buffer over there: */
+
+  /* 0  1  2  3  4  5  6  7  8  9
+DATA:31 00 00 20 00 01 4c 04 01 3a
+     10 11 12 13 14 15 16 17 18 19
+DATA:81 0c 00 02 4c 04 00 00 00 00
+     20 21 22 23 24 25 26 27 28 29
+DATA:00 03 4c 04 01 3f 4b 1f 00 04
+    30  31 32 33 34 35
+DATA:4c 04 00 00 00 00 00 00 00 00
+DATA:00 00 00 00 00 00 00 00 00 00
+DATA:00 00 00 00 00 00 00 00 00 00
+DATA:00 00 00 00
+  */
+  
+  result->partition0_remaining = (((unsigned int)buffer[8])<<24) + (((unsigned int)buffer[9])<<16) + (((unsigned int)buffer[10])<<8) + buffer[11];
+  result->partition1_remaining = (((unsigned int)buffer[16])<<24) + (((unsigned int)buffer[17])<<16) + (((unsigned int)buffer[18])<<8) + buffer[19];  
+  result->partition0_size = (((unsigned int)buffer[24])<<24) + (((unsigned int)buffer[25])<<16) + (((unsigned int)buffer[26])<<8) + buffer[27];  
+  result->partition1_size = (((unsigned int)buffer[32])<<24) + (((unsigned int)buffer[33])<<16) + (((unsigned int)buffer[34])<<8) + buffer[35]; 
+
+
+    
+  
+  return result;
+}
+
 
 
 struct tapealert_struct {
@@ -287,6 +392,32 @@ static struct tapealert_struct *RequestTapeAlert(DEVICE_TYPE fd, RequestSense_T 
   }
   return result;
 }
+
+static void ReportTapeCapacity(DEVICE_TYPE fd) {
+  /* we actually ignore a bad sense reading, like might happen if the 
+   * tape drive does not support the tape capacity page. 
+   */
+  
+  RequestSense_T RequestSense;
+  
+  TapeCapacity *result;
+  int i;
+
+  result=RequestTapeCapacity(fd,&RequestSense);
+  
+  if (!result) return;
+
+  printf("Partition 0 Remaining Kbytes: %d\n", result->partition0_remaining);
+  printf("Partition 0 Size in Kbytes: %d\n", result->partition0_size);
+  if (result->partition1_size) {
+    printf("Partition 1 Remaining Kbytes: %d\n", result->partition1_remaining);
+    printf("Partition 1 Size in Kbytes: %d\n", result->partition1_size);
+  }
+  free(result);
+  return;
+}
+
+
 
 static void ReportTapeAlert(DEVICE_TYPE fd) {
   /* we actually ignore a bad sense reading, like might happen if the 
@@ -745,6 +876,7 @@ int main(int argc, char **argv) {
   if (TestUnitReady(fd)) {
     ReportCompressionPage(fd); 
     ReadPosition(fd); 
+    ReportTapeCapacity(fd); /* only if we have it */
   }
 
 

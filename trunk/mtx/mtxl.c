@@ -800,6 +800,11 @@ static void ParseElementStatus(int *EmptyStorageElementAddress,
 #ifdef DEBUG
 	      fprintf(stderr,"StorageElementCount=%d  ElementAddress = %d ",ElementStatus->StorageElementCount,BigEndian16(TransportElementDescriptor->ElementAddress));
 #endif
+	      /* ATL/Exabyte kludge -- skip slots that aren't installed :-( */
+	      if (TransportElementDescriptor->AdditionalSenseCode==0x83 && 
+		  TransportElementDescriptor->AdditionalSenseCodeQualifier==0x02) 
+		continue;  
+
 	      ElementStatus->StorageElementAddress[ElementStatus->StorageElementCount] =
 		BigEndian16(TransportElementDescriptor->ElementAddress);
 	      ElementStatus->StorageElementFull[ElementStatus->StorageElementCount] =
@@ -858,11 +863,10 @@ static void ParseElementStatus(int *EmptyStorageElementAddress,
 		 do so failed with dual-drive Exabyte tape libraries that
 		 *DID* have the second drive. Sigh. 
 	      */
-	      /* No longer need this test due to code restructuring? */
-	      /* if (TransportElementDescriptor->AdditionalSenseCode==0x83 && 
+	      if (TransportElementDescriptor->AdditionalSenseCode==0x83 && 
 		  TransportElementDescriptor->AdditionalSenseCodeQualifier==0x04) 
 		continue;
-	      */ 
+
 	      /* generalize it. Does it work? Let's try it! */
 	      /* No, dammit, following does not work on dual-drive Exabyte
 		 'cause if a tape is in the drive, it sets the AdditionalSense
@@ -1432,6 +1436,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.20  2003/03/12 23:45:52  elgreen
+ * mtx 1.3.4
+ *
  * Revision 1.19  2003/02/21 17:48:20  elgreen
  * fixed some data types on debug routines
  *

@@ -370,9 +370,9 @@ static void ReportInquiry(void)
     printf("%c", Inquiry->ProductRevisionLevel[i]);
   printf("'\n");\
   if (Inquiry->MChngr) {  /* check the attached-media-changer bit... */
-    printf("Attached Changer: Yes\n");
+    printf("Attached Changer API: Yes\n");
   } else {
-    printf("Attached Changer: No\n");
+    printf("Attached Changer API: No\n");
   }
   free(Inquiry);  /* well, we're about to exit, but ... */
 }
@@ -839,6 +839,9 @@ int main(int ArgCount,
 }
 /*
  *$Log$
+ *Revision 1.8  2003/03/12 23:45:52  elgreen
+ *mtx 1.3.4
+ *
  *Revision 1.7  2002/10/01 19:36:08  elgreen
  *mtx 1.3.1
  *
