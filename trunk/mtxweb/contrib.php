@@ -146,7 +146,7 @@ by me if I have a question about your entry.
    <tr> 
      <th align="right" bgcolor="cyan"> Loader Description:</th>
      <td colspan=3>
-         <input name="l_description' type="text" value="<?php print "$l_description"; ?>" size="80">
+         <input name="l_description" type="text" value="<?php print "$l_description"; ?>" size="80">
      </td>
    </tr>
    <tr>
