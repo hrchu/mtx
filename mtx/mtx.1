@@ -22,7 +22,7 @@
 .\" Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
 .\" USA.
 .\"
-.TH MTX 1 MTX1.2
+.TH MTX 1 MTX1.3
 .SH NAME
 mtx \- control SCSI media changer devices 
 .SH SYNOPSIS
@@ -117,16 +117,25 @@ are 0 (do nothing to the import/export tray), 1, and 2 (what 1 and 2 do varies
 depending upon the library, consult your library's SCSI-level 
 documentation). 
 .TP 10
+.B [eepos <operation>] [invert] [invert2] exchange <slotnum> <slotnum> [<slotnum>]
+Move medium from the first slot to the second slot, placing the medium
+currently in the second slot either back into the first slot or into the
+optional third slot. 
+
+.TP 10
 .B first  [<drivenum>]
-Loads drive <drivenum> from the first slot in the media changer. Unloads
-the drive if there is already media in it.  Note that
-this command may not be what you want on large tape libraries -- e.g. on Exabyte 220, the first slot is
-usually a cleaning tape. If <drivenum> is omitted, defaults to first drive.
+Loads drive <drivenum> from the first slot in the media
+changer. Unloads the drive if there is already media in it (note: you
+may need to eject the tape using your OS's tape control commands
+first).  Note that this command may not be what you want on large
+tape libraries -- e.g. on Exabyte 220, the first slot is usually a
+cleaning tape. If <drivenum> is omitted, defaults to first drive.
 
 .TP 10
 .B last [<drivenum>]
 Loads drive <drivenum> from the last slot in the media changer. Unloads
-the drive if there is already a tape in it. 
+the drive if there is already a tape in it. (Note: you may need to eject
+the tape using your OS's tape control commands first).  
 .TP 10
 .B next [<drivenum>]
 Unloads the drive and loads the next tape in sequence. If the drive was
@@ -240,11 +249,11 @@ to make multi-tape backups.
 .SH AVAILABILITY
 This version of 
 .B mtx
-is currently being maintained by Eric Lee Green <eric@badtux.org> formerly of
-Enhanced Software Technologies Inc. The 'mtx' home page is
-http://mtx.sourceforge.net and the actual code
-is currently available there and via CVS from 
-http://sourceforge.net/projects/mtx/ . 
+is currently being maintained by Eric Lee Green <eric@badtux.org>
+formerly of Enhanced Software Technologies Inc. The 'mtx' home page is
+http://mtx.sourceforge.net and the actual code is currently available
+from ftp://ftp.badtux.net/pub/storage/mtx and via CVS from
+http://sourceforge.net/projects/mtx/ .
 
 .SH SEE ALSO
 .BR mt (1), tapeinfo (1), scsitape(1), loaderinfo(1)

@@ -182,6 +182,7 @@ typedef struct SCSI_Flags_Struct {
   int numelements;
   int attached;
   int has_barcodes;
+  unsigned char invert2; /* used for EXCHANGE command, sigh. */
 } SCSI_Flags_T;
 
 typedef enum { false, true } boolean;

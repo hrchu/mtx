@@ -1292,6 +1292,52 @@ RequestSense_T *MoveMedium(DEVICE_TYPE MediumChangerFD, int SourceAddress,
   return NULL; /* success! */
 }
 
+
+/* Now the actual Exchange Medium routine! */
+RequestSense_T *ExchangeMedium(DEVICE_TYPE MediumChangerFD, int SourceAddress,
+			       int DestinationAddress, int Dest2Address,
+		       ElementStatus_T *ElementStatus,
+		       Inquiry_T *inquiry_info, SCSI_Flags_T *flags)
+{
+  RequestSense_T *RequestSense = xmalloc(sizeof(RequestSense_T));
+  CDB_T CDB;
+  CDB[0]=0xA6;   /* EXCHANGE MEDIUM */
+  CDB[1] = 0;			/* Reserved */
+  CDB[2] = (ElementStatus->TransportElementAddress >> 8) & 0xFF;  /* Transport Element Address MSB */
+  CDB[3] = (ElementStatus->TransportElementAddress) & 0xff;   /* Transport Element Address LSB */
+  CDB[4] = (SourceAddress >> 8) & 0xFF;	/* Source Address MSB */
+  CDB[5] = SourceAddress & 0xFF; /* Source Address MSB */
+  CDB[6] = (DestinationAddress >> 8) & 0xFF; /* Destination Address MSB */
+  CDB[7] = DestinationAddress & 0xFF; /* Destination Address MSB */
+  CDB[8] = (Dest2Address>>8) & 0xFF; /* move destination back to source? */
+  CDB[9] = Dest2Address & 0xFF; /* move destination back to source? */
+  CDB[10]=0;
+
+  if (flags->invert) {
+    CDB[10] |= 2;			/* INV2 */
+  }
+
+  if (flags->invert2) {
+    CDB[1] |= 1;                  /* INV1 */
+  }
+  
+  /* eepos controls the tray for import/export elements, sometimes. */
+  CDB[11] = 0 | (flags->eepos <<6);			/* Control */
+
+#ifdef DEBUG_EXCHANGE
+  dump_cdb(&CDB,12);
+#endif  
+
+  if (SCSI_ExecuteCommand(MediumChangerFD, Output, &CDB, 12,
+			  NULL, 0, RequestSense) != 0) {
+    return RequestSense;
+  }
+  free(RequestSense);
+  return NULL; /* success! */
+}
+
+
+
 /* for Linux, this creates a way to do a short erase... the @#$%@ st.c
  * driver defaults to doing a long erase!
  */
@@ -1388,6 +1434,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.17  2002/10/01 19:36:08  elgreen
+ * mtx 1.3.1
+ *
  * Revision 1.16  2002/09/27 17:22:57  elgreen
  * don't dereference pointer in barcode stuff
  *

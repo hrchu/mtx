@@ -1,3 +1,6 @@
+CHANGES, mtx 1.3.1
+- add an Exchange command
+
 CHANGES, mtx 1.3.0
 - New Linux SCSI subsystem interface for 2.4 kernels, ripped boldly 
   from sgtools by Doug Gilbert
