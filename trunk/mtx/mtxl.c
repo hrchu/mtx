@@ -683,7 +683,7 @@ unsigned char *SendElementStatusRequest(DEVICE_TYPE MediumChangerFD,
     int i;
     fprintf(stderr,"Data:");
     for (i=0;i<40;i++) {
-      fprint(stderr,"%02x ",DataBuffer[i]);
+      fprintf(stderr,"%02x ",DataBuffer[i]);
     }
     fprintf(stderr,"\n");
   }
@@ -715,10 +715,6 @@ static void ParseElementStatus(int *EmptyStorageElementAddress,
     int TransportElementDescriptorLength;
     int BytesAvailable; 
     
-    ElementStatusDataHeader = (ElementStatusDataHeader_T *) DataBuffer;
-
-    
-
   ElementStatusDataHeader = (ElementStatusDataHeader_T *) DataPointer;
   DataPointer += sizeof(ElementStatusDataHeader_T);
   ElementCount =
@@ -809,6 +805,8 @@ static void ParseElementStatus(int *EmptyStorageElementAddress,
 	      ElementStatus->StorageElementFull[ElementStatus->StorageElementCount] =
 		TransportElementDescriptor->Full;
 #ifdef DEBUG
+	      if (TransportElementDescriptor->Except)
+		fprintf(stderr,"ASC,ASCQ = 0x%x,0x%x ",TransportElementDescriptor->AdditionalSenseCode,TransportElementDescriptor->AdditionalSenseCodeQualifier);
 	      fprintf(stderr,"TransportElement->Full = %d\n",TransportElementDescriptor->Full);
 #endif
 	      if (!TransportElementDescriptor->Full)
@@ -1434,6 +1432,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.18  2003/02/20 19:41:54  elgreen
+ * Merge James Dugal's fixes, alter Makefile
+ *
  * Revision 1.17  2002/10/01 19:36:08  elgreen
  * mtx 1.3.1
  *

@@ -446,6 +446,7 @@ typedef struct TransportElementDescriptorShort
   unsigned char :6;					/* Byte 9 Bits 0-5 */
 #endif
   unsigned char SourceStorageElementAddress[2];		/* Bytes 10-11 */
+  unsigned char Reserved[4];                            /* Bytes 12-15 */
 }
 TransportElementDescriptorShort_T;
 
@@ -481,9 +482,12 @@ typedef struct TransportElementDescriptor
 #endif
   unsigned char SourceStorageElementAddress[2];		/* Bytes 10-11 */
   unsigned char PrimaryVolumeTag[36];          /* barcode */
-  unsigned char AlternateVolumeTag[36];        
+  unsigned char AlternateVolumeTag[36];   
+  unsigned char Reserved[4];				/* 4 extra bytes? */
+     
 }
 TransportElementDescriptor_T;
+
 
 
 
