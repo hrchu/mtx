@@ -260,7 +260,7 @@ int SCSI_ExecuteCommand(DEVICE_TYPE DeviceFD,
 		   CDB_Length, DataBufferLength,
 		   0, NULL,  RequestSense);
   }  else {
-    res= sg_read((int)DeviceFD, (unsigned char *)CDB, (unsigned char *)DataBuffer,
+    res= sg_write((int)DeviceFD, (unsigned char *)CDB, (unsigned char *)DataBuffer,
 		   CDB_Length, DataBufferLength,
 		   0, NULL,  RequestSense);
   }
