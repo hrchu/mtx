@@ -17,14 +17,14 @@
     * invalid content into the sort order field, default back to
     * vendorid for sort order.
    */ 
-/*
-   if ( $SORT_ORDER != "vendorid" &&
-        $SORT_ORDER != "osname,osversion" &&
-        $SORT_ORDER != "description" &&
-        $SORT_ORDER != "slots" &&
-        $SORT_ORDER != "worked"  ) {
-	$SORT_ORDER="vendorid"; 
-  */    
+
+   if ( "$SORT_ORDER" != "vendorid" &&
+        "$SORT_ORDER" != "osname,osversion" &&
+        "$SORT_ORDER" != "description" &&
+        "$SORT_ORDER" != "slots" &&
+        "$SORT_ORDER" != "worked"  ) {
+	"$SORT_ORDER" ="vendorid"; 
+
    $query_str="select * from loaders order by $SORT_ORDER";
    $result=mysql_query($query_str,$link) or die("Invalid query '$query_str'");
    $num_rows=mysql_num_rows($result);   
@@ -163,14 +163,6 @@ benefit.
                     No
                   <?php } ?>
             </td>
-          </tr>
-          <tr>    
-            <td> <?php if (canxfer == "1") { ?>
-                         Yes
-                  <?php } else { ?>
-                         No
-                  <?php } ?>
-            </td> 
           </tr>
           <tr>
             <th bgcolor="cyan" align="right">Can Transfer </th>
