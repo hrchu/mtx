@@ -1,3 +1,15 @@
+CHANGES, mtx 1.2.13:
+- Fixed some autoloader bugs w/autoloaders that don't report an arm. 
+- Fixed barcode backoff.
+- Added "nobarcode" option
+- Increased timeout for 'mtx inventory' to 30 minutes
+  (note: may increase this even more if needed, please let me know!)
+- Shortened timeout for 'mtx inquiry' to 30 seconds
+- tapeinfo now prints SCSI ID/LUN info if available (only on Linux at the
+  moment, sigh). 
+- update documentation w/new email addresses, updated compile directions,
+  various fixes. 
+
 CHANGES, mtx 1.2.12:
 - Fix FreeBSD compile bugs
 - Fix SGI compile bugs

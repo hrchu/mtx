@@ -26,7 +26,7 @@
 .SH NAME
 mtx \- control SCSI media changer devices 
 .SH SYNOPSIS
-mtx [-f <scsi-generic-device>] [invert] [noattach] command [ command ... ]
+mtx [-f <scsi-generic-device>] [nobarcode] [invert] [noattach] command [ command ... ]
 .SH DESCRIPTION
 The 
 .B mtx
@@ -50,7 +50,10 @@ storage slot.
 .P
 The 'noattach' option forces the regular media changer API even if the
 media changer incorrectly reported that it uses the 'ATTACHED' API. 
-.P 
+.P
+The 'nobarcode' option forces the loader to not request barcodes even if
+the loader is capable of reporting them.  
+.P
 Following these options there may follow
 one or more robotics control
 commands. Note that the 'invert' and 'noattach'
