@@ -26,6 +26,8 @@ $Revision$
 #include "mtx.h"
 #include "mtxl.h"
 
+/* #define DEBUG_NSM 1 */
+
 /* #define DEBUG_MODE_SENSE 1 */
 /* #define DEBUG */
 /* #define DEBUG_SCSI */
@@ -77,6 +79,9 @@ $Revision$
 
 extern char *argv0; /* something to let us do good error messages. */
 
+/* create a global RequestSenseT value. */
+RequestSense_T scsi_error_sense;
+
 /* Now for some low-level SCSI stuff: */
 
 Inquiry_T *RequestInquiry(DEVICE_TYPE fd, RequestSense_T *RequestSense) {
@@ -105,6 +110,38 @@ Inquiry_T *RequestInquiry(DEVICE_TYPE fd, RequestSense_T *RequestSense) {
 }
 
 
+/* DEBUG */
+static void dump_cdb(char *CDB, int len) {
+  int i;
+  fprintf(stderr,"CDB:");
+  for (i=0;i<len;i++) {
+    fprintf(stderr,"%02x ",CDB[i]);
+  }
+  fprintf(stderr,"\n");
+}
+
+
+/* DEBUG */
+static void dump_data(char *data, int len) {
+  int i;
+  if (!len) {
+    fprintf(stderr,"**NO DATA**\n");
+    return;
+  }
+
+  for (i=0;i<len;i++) {
+    if ((i % 10) == 0) {
+      if (i) {
+	fprintf(stderr,"\n");
+      }
+      fprintf(stderr,"DATA:");
+    }
+    fprintf(stderr,"%02x ",(unsigned int)*data++);
+  }
+  fprintf(stderr,"\n");
+}
+
+
 int BigEndian16(unsigned char *BigEndianData)
 {
   return (BigEndianData[0] << 8) + BigEndianData[1];
@@ -115,9 +152,6 @@ int BigEndian24(unsigned char *BigEndianData)
 {
   return (BigEndianData[0] << 16) + (BigEndianData[1] << 8) + BigEndianData[2];
 }
-
-
-
 
 
 void FatalError(char *ErrorMessage, ...)
@@ -219,6 +253,82 @@ int max(int x, int y)
 }
 
 
+/* Okay, this is a hack for the NSM modular jukebox series, which
+ * uses the "SEND DIAGNOSTIC" command do to shit. 
+ */
+
+int SendNSMHack(DEVICE_TYPE MediumChangerFD, NSM_Param_T *nsm_command, 
+		int param_len, int timeout) {
+  CDB_T CDB;
+  int list_len = param_len + sizeof(NSM_Param_T) - 2048;
+  
+
+  /* Okay, now for the command: */
+  CDB[0]=0x1d;
+  CDB[1]=0x10;
+  CDB[2]=0;
+  CDB[3]=(list_len >> 8) & 0xff;
+  CDB[4]=(list_len) & 0xff;
+  CDB[5]=0;
+
+#ifdef DEBUG_NSM
+  dump_cdb(&CDB,6);
+  dump_data(nsm_command,list_len);
+#endif
+  fflush(stderr);
+  /* Don't set us any timeout unless timeout is > 0 */
+  if (timeout > 0) 
+    SCSI_Set_Timeout(timeout); /* 30 minutes, sigh! */
+  
+  /* Now send the command: */
+  if (SCSI_ExecuteCommand(MediumChangerFD, Output, &CDB, 6, nsm_command, list_len, &scsi_error_sense)) {
+    
+    return -1; /* we failed */
+  }
+  return 0; /* Did it! */
+}
+
+
+NSM_Result_T *RecNSMHack(DEVICE_TYPE MediumChangerFD, 
+			  int param_len, int timeout) {
+  CDB_T CDB;
+
+  NSM_Result_T *retval = (NSM_Result_T *) xzmalloc(sizeof(NSM_Result_T));
+  
+  int list_len = param_len + sizeof(NSM_Result_T) - 0xffff;
+
+
+  /* Okay, now for the command: */
+  CDB[0]=0x1c;
+  CDB[1]=0x00;
+  CDB[2]=0;
+  CDB[3]=((list_len) >> 8) & 0xff;
+  CDB[4]=(list_len) & 0xff;
+  CDB[5]=0; 
+
+#ifdef DEBUG_NSM
+  dump_cdb(&CDB,6);
+#endif
+
+  /* Don't set us any timeout unless timeout is > 0 */
+  if (timeout > 0) 
+    SCSI_Set_Timeout(timeout); 
+  
+  /* Now send the command: */
+  if (SCSI_ExecuteCommand(MediumChangerFD, Input, &CDB, 6, retval, list_len, &scsi_error_sense)) {
+    
+    return NULL; /* we failed */
+  }
+#ifdef DEBUG_NSM
+  fprintf(stderr,"page_code=%02x page_len=%d command_code=%s\n",
+	  retval->page_code,
+	  (int) ((retval->page_len_msb<<8)+retval->page_len_lsb),
+	  retval->command_code);
+#endif
+
+  return retval; /* Did it! (maybe!)*/
+}
+
 /* Routine to inventory the library. Needed by, e.g., some Breece Hill
  * loaders. Sends an INITIALIZE_ELEMENT_STATUS command. This command
  * has no parameters, such as a range to scan :-(. 
@@ -226,7 +336,6 @@ int max(int x, int y)
 
 int Inventory(DEVICE_TYPE MediumChangerFD) {
   CDB_T CDB;
-  RequestSense_T RequestSense;
  
   /* okay, now for the command: */
   CDB[0]=0x07; 
@@ -235,7 +344,7 @@ int Inventory(DEVICE_TYPE MediumChangerFD) {
   /* set us a very long timeout, sigh... */
   SCSI_Set_Timeout(30*60); /* 30 minutes, sigh! */
   
-  if (SCSI_ExecuteCommand(MediumChangerFD,Input,&CDB,6,NULL,0,&RequestSense) != 0) {
+  if (SCSI_ExecuteCommand(MediumChangerFD,Input,&CDB,6,NULL,0,&scsi_error_sense) != 0) {
     return -1;  /* could not do! */
   }
   return 0; /* did do! */
@@ -248,13 +357,12 @@ int Inventory(DEVICE_TYPE MediumChangerFD) {
 
 int Eject(DEVICE_TYPE fd) {
   CDB_T CDB;
-  RequestSense_T RequestSense;
   /* okay, now for the command: */
   
   CDB[0]=0x1b;
   CDB[1]=CDB[2]=CDB[3]=CDB[4]=CDB[5]=0;
   
-  if (SCSI_ExecuteCommand(fd,Input,&CDB,6,NULL,0,&RequestSense) != 0) {
+  if (SCSI_ExecuteCommand(fd,Input,&CDB,6,NULL,0,&scsi_error_sense) != 0) {
     return -1;  /* could not do! */
   }
   return 0; /* did do! */
@@ -270,7 +378,7 @@ ElementModeSense_T *ReadAssignmentPage(DEVICE_TYPE MediumChangerFD) {
   ElementModeSense_T *retval;  /* processed SCSI. */
   unsigned char input_buffer[136];
   ElementModeSensePage_T *sense_page; /* raw SCSI. */
-  RequestSense_T RequestSense;       /* see what retval of raw SCSI was... */
+
   
   /* okay, now for the command: */
   CDB[0]=0x1a; /* Mode Sense(6) */
@@ -281,11 +389,11 @@ ElementModeSense_T *ReadAssignmentPage(DEVICE_TYPE MediumChangerFD) {
   CDB[5]=0;
 
   /* clear the data buffer: */
-  slow_bzero((char *)&RequestSense,sizeof(RequestSense_T));
+  slow_bzero((char *)&scsi_error_sense,sizeof(RequestSense_T));
   slow_bzero((char *)input_buffer,sizeof(input_buffer));
 
   if (SCSI_ExecuteCommand(MediumChangerFD,Input,&CDB,6,
-			  &input_buffer,sizeof(input_buffer),&RequestSense) != 0) {
+			  &input_buffer,sizeof(input_buffer),&scsi_error_sense) != 0) {
 #ifdef DEBUG_MODE_SENSE
     fprintf(stderr,"Could not execute mode sense...\n");
     fflush(stderr);
@@ -470,7 +578,7 @@ unsigned char *SendElementStatusRequest(DEVICE_TYPE MediumChangerFD,
     is_attached=false;
   }
 
-  DataBuffer=(unsigned char *) xmalloc(NumBytes+1);
+  DataBuffer=(unsigned char *) xzmalloc(NumBytes+1);
 
   slow_bzero((char *)RequestSense,sizeof(RequestSense_T));
 #ifdef HAVE_GET_ID_LUN
@@ -1212,6 +1320,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.9  2002/01/05 00:49:15  elgreen
+ * Added some NSMHack stuff for dealing with weirdo NSM jukeboxes
+ *
  * Revision 1.8  2001/06/25 23:06:22  elgreen
  * Readying this for 1.2.13 release
  *
