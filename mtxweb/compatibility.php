@@ -36,7 +36,7 @@
 ?><!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
   <head>
-
+   <meta http-equiv="Pragma" content="no-cache">
     <title>MTX compatibility list</title>
 
 <style type="text/css">
@@ -79,7 +79,9 @@ benefit. Also see the <a href="COMPATIBILITY.html">old compatibility list</a>.
 <td> <a href="compatibility.php?SORT_ORDER=osname,osversion">OS</a></td>
 <td> <a href="compatibility.php?SORT_ORDER=description">Description</a></td>
 <td> <a href="compatibility.php?SORT_ORDER=slots">Number of Slots</a></td>
+<!--
 <td> <a href="compatibility.php?SORT_ORDER=worked">Compatible</a></td>
+-->
 </tr>
 </table>
 <p>
@@ -104,8 +106,12 @@ benefit. Also see the <a href="COMPATIBILITY.html">old compatibility list</a>.
 	
 ?>
       <tr>
-      <td valign="top"> <?php print "$osname <br> $osversion"; ?> <br>
-                         MTX version <?php print "$mtxversion"; ?> </td>
+      <td valign="top"> 
+                 <table> 
+                     <tr><td> <?php print "$osname <br> $osversion"; ?> </td></tr>
+                     <tr><td>   MTX version: <?php print "$mtxversion"; ?> </td></tr>
+                 </table>
+      </td>
       <td valign="top">
         <table>
            <tr>
@@ -188,6 +194,10 @@ benefit. Also see the <a href="COMPATIBILITY.html">old compatibility list</a>.
            <tr> 
             <th bgcolor="cyan" align="right">On date </th>
             <td> <?php print "$contributed"; ?> </td>
+           </tr>
+           <tr>
+             <th bgcolor="cyan" align="right">Comments </th>
+             <td>  <?php print "$comments"; ?> </td>
            </tr>
          </table>
      </td>

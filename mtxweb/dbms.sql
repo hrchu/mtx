@@ -32,7 +32,8 @@ create table loaders (
     
      email text,
      name text,
-     contributed datetime
+     contributed datetime,
+     comments text
 );
      
      
