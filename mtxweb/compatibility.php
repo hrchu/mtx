@@ -1,7 +1,7 @@
 <?php
    /* set these to what you need for your installation */
    $mysql_host="dbms.inhouse";
-   $mysql_user="mtxuser";
+   $mysql_user="bloguser";
    $mysql_password="password";
    $mysql_dbms="mtx";
 
@@ -91,7 +91,7 @@ Sort by:<p>
       <td>
         <table>
            <tr>
-	             <th colspan=2 bgcolor="cyan"> $description </th>
+	             <th colspan=2 bgcolor="cyan"> <?php print "$description"; ?> </th>
            </tr>
            <tr>
              <th bgcolor="cyan" align="right"> Vendor ID: </th>
@@ -132,6 +132,7 @@ Sort by:<p>
         </table>
       </td>
       <td> <!--  <th bgcolor="cyan">Loader Capabilities</th> -->
+         <table>
           <tr>
             <th bgcolor="cyan" align="right"> Element Address Assignment Page (EAAP) </th>
             <td> <?php if (eaap == "1") { ?>
@@ -141,6 +142,7 @@ Sort by:<p>
                  <?php } ?>
             </td>
           </tr>
+         </table>
       </td>
   </tr>
   <?php }
