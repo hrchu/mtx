@@ -110,7 +110,7 @@ by me if I have a question about your entry.
 <table border=1 width="100%">
 <tr>
    <th colspan=4 bgcolor="cyan">
-         MTX Compatibility Input
+         OS Info
     </th>
 </tr>      
 <tr>
@@ -146,7 +146,21 @@ by me if I have a question about your entry.
          <input name="l_description' type="text" value="<?php print "$l_description"; ?>" size="80">
      </td>
    </tr>
-   
+   <tr>
+      <th colspan=4 bgcolor="cyan">TapeInfo info</th>
+   </tr>
+   <tr>
+       <th align="right" bgcolor="cyan">Vendor ID: </th>
+       <td> <input name="l_vendorid" type="text" value="<?php print "$l_vendorid"; ?>" size="40"> </td>
+       <th align="right" bgcolor="cyan">Product ID: </th>
+          <td> <input name="l_productid" type="text" value="<?php print "$l_productid"; ?>" size="40"> </td>
+    </tr>
+    <tr>
+       <th align="right" bgcolor="cyan">Revision: </th>
+       <td> <input name="l_revision" type="text" value="<?php print "$l_revision"; ?>" size="40"> </td>
+       <th align="right" bgcolor="cyan">SerialNumber: </th>
+       <td> <input name="l_serialnum" type="text" value="<?php print "$l_serialnum"; ?>" size="40"> </td>
+    </tr>
 </table>
        
 </body>
