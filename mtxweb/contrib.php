@@ -164,8 +164,20 @@ by me if I have a question about your entry.
     <tr>
        <th colspan=4 bgcolor="cyan">LoaderInfo output</th>
     </tr>
+    <tr>
     <th align="right" bgcolor="cyan">Barcode Reader: </th>
-    <td> <select name="l_osname">
+    <td> <select name="l_barcodes">
+         <option value="Yes" <?php if ($ld_barcodes==1) { print "SELECTED"; }>Yes</a>
+         <option value="No" <?php if ($ld_barcodes==0) { print "SELECTED"; }>No</a>
+         </select>
+    </td>
+     <th align="right" bgcolor="cyan">Element Address Assignment Page: </th>
+    <td> <select name="l_eaap">
+         <option value="Yes" <?php if ($ld_eaap==1) { print "SELECTED"; }>Yes</a>
+         <option value="No" <?php if ($ld_eaap==0) { print "SELECTED"; }>No</a>
+         </select>
+     </td>
+   </tr>     
 </table>
        
 </body>
