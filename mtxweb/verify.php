@@ -1,4 +1,11 @@
 <?php
+
+   include('dbms.data');
+
+   $link = mysql_connect($mysql_host,$mysql_user,$mysql_password)
+        or die("Could not connect");
+   mysql_select_db($mysql_dbms) or die("Could not select database");
+
   /* Okay, see if they submitted anything: */
   if ( "$l_verified" != "" ) {
      /* create a MySQL insert statement: */
