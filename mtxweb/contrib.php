@@ -110,7 +110,7 @@ by me if I have a question about your entry.
 <table border=1 width="100%">
 <tr>
    <th colspan=4 bgcolor="cyan">
-         OS Info
+         OS and General Info
     </th>
 </tr>      
 <tr>
@@ -121,11 +121,11 @@ by me if I have a question about your entry.
          $result=mysql_query($query_str,$link) or die("</th></tr></table>Invalid query string '$query_str'");
     ?>
     </th>          
-    <td> <select name="ld_osname">
+    <td> <select name="l_osname">
          <?php 
             while ($row=mysql_fetch_assoc($result)) {
                extract($row);
-               if ("$osname" == "$ld_osname") {
+               if ("$osname" == "$l_osname") {
 	           $selected="SELECTED";
                } else { 
                    $selected="";
@@ -147,7 +147,7 @@ by me if I have a question about your entry.
      </td>
    </tr>
    <tr>
-      <th colspan=4 bgcolor="cyan">TapeInfo info</th>
+      <th colspan=4 bgcolor="cyan">TapeInfo output</th>
    </tr>
    <tr>
        <th align="right" bgcolor="cyan">Vendor ID: </th>
@@ -161,6 +161,11 @@ by me if I have a question about your entry.
        <th align="right" bgcolor="cyan">SerialNumber: </th>
        <td> <input name="l_serialnum" type="text" value="<?php print "$l_serialnum"; ?>" size="40"> </td>
     </tr>
+    <tr>
+       <th colspan=4 bgcolor="cyan">LoaderInfo output</th>
+    </tr>
+    <th align="right" bgcolor="cyan">Barcode Reader: </th>
+    <td> <select name="l_osname">
 </table>
        
 </body>
