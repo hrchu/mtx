@@ -4,16 +4,20 @@ Programs:
   mtx is the media changer control program
   tapeinfo dumps some interesting stuff out of tape drives' mode pages and
 sense pages. 
+  loaderinfo dumps some interesting stuff out of loaders' mode pages and
+sense pages.
+  scsitape sends raw SCSI commands to tape drives. Do not use this unless
+you know exactly what you're doing, because you can easily get into a feud
+with the system's own tape driver and end up locking up the whole system.
 
 INSTALLATION:
 
 WARNING: MUST HAVE GNU 'make' TO DO THIS! (e.g. use 'gmake' on freebsd, not
 BSD 'make'!).
 
-Edit 'Makefile' to set the appropriate target (e.g. "freebsd86" or "linux86"),
-and to set install location for the binary and man page. Type 'make', then
-'make install'. Type 'man mtx' for info about mtx, and 'man tapeinfo'
-for info about tapeinfo. Enjoy.
+Type ./configure to create a Makefile. Type 'make', then 'make
+install'. Type 'man mtx' for info about mtx, and 'man tapeinfo' for
+info about tapeinfo. Enjoy.
 
 Credits:
 
