@@ -1,14 +1,11 @@
-1 Try to compile on Solaris, SGI, Alpha Linux platforms to see if it works.
 1 Add a 'timeout' command to adjust the timeout (timeout will be in seconds!).
 1 Adjust timeout lenghts for various operations now that the low level
  SCSI routines now support timeouts. 
 1 Add IES command (sets CDB[5] to something in routine Inventory() ).
 1 Increase the timeout for Inventory() commands to something *BIG*.
-1 Possibly ignore all elements in ReadElementStatus that the EAAP does
-  not report (for loaders that support the EAAP). 
 1 Fix 'scsitape' READ and WRITE so that block counts work.
 2 Fix ports to other Unixes/VMS.
-2 Port to AIX, HP/UX (no longer care about SCO Unix).
+2 Port to AIX (no longer care about SCO Unix).
 2 Add a range to 'mtx status' so that we request status only of 
   the elements we're interested in, rather than of all of them.
   (nice for the very big loaders!). 
