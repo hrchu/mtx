@@ -756,6 +756,12 @@ static void ParseElementStatus(int *EmptyStorageElementAddress,
 #endif
       BytesAvailable =
 	BigEndian24(ElementStatusPage->ByteCountOfDescriptorDataAvailable);
+#ifdef DEBUG
+      fprintf(stderr,"%d bytes of descriptor data available in descriptor\n",
+	      BytesAvailable);
+#endif
+      /* work around a bug in ADIC DAT loaders */
+      if (BytesAvailable <=0) ElementCount--; /* sorry :-( */
       while (BytesAvailable > 0)
 	{
 	  /* TransportElementDescriptor =
@@ -1032,6 +1038,9 @@ ElementStatus_T *ReadElementStatus(DEVICE_TYPE MediumChangerFD, RequestSense_T *
     } 
 #ifdef DEBUG
     fprintf(stderr,"Parsing inport/export element status\n");
+#endif
+#ifdef DEBUG_ADIC
+    dump_data(DataBuffer,100); /* dump some data :-(. */
 #endif
     ParseElementStatus(EmptyStorageElementAddress,&EmptyStorageElementCount,
 		     DataBuffer,ElementStatus,mode_sense);
@@ -1347,6 +1356,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.11  2002/01/17 17:04:20  elgreen
+ * More ADIC debugging (ADIC is starting to tick me off)
+ *
  * Revision 1.10  2002/01/16 23:59:32  elgreen
  * Debugging data
  *
