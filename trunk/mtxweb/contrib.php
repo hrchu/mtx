@@ -45,7 +45,7 @@
      } else {
         $ld_tgdp=0;
      }
-     if ($ld_barcodes=="Yes" {
+     if ($ld_barcodes=="Yes") {
         $ld_barcodes=1;
      } else { 
         $ld_barcodes=0;
