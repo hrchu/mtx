@@ -100,6 +100,7 @@ static SCSI_Flags_T SCSI_Flags = { 0, 0, 0,0 };
 /* static int eepos=0;     */  /* the extend thingy for import/export. */
 static Inquiry_T *inquiry_info;  /* needed by MoveMedium etc... */
 static ElementStatus_T *ElementStatus = NULL;
+void Position(int dest);
 
 
 /* pre-defined commands: */
@@ -120,6 +121,7 @@ static void do_Inventory(void);
 static void do_Unload(void);
 static void do_Erase(void);
 static void NoBarCode(void);
+static void do_Position(void);
 
 struct command_table_struct {
   int num_args;
@@ -144,6 +146,7 @@ struct command_table_struct {
   { 0, "eject", do_Unload, 1, 0},
   { 0, "erase", do_Erase, 1, 0},
   { 0, "nobarcode", NoBarCode, 0,0},
+  { 1,"position", do_Position, 1, 1},
   { 0, NULL, NULL }
 };
 
@@ -161,7 +164,9 @@ static void Usage()
   mtx [ -f <loader-dev> ] [invert] load <storage-element-number> [<drive#>]\n\
   mtx [ -f <loader-dev> ] [invert] unload [<storage-element-number>][<drive#>]\n\
   mtx [ -f <loader-dev> ] [eepos eepos-number] transfer <storage-element-number> <storage-element-number>\n\
+  mtx [ -f <device> ] position <storage-element-number>\n\
   mtx [ -f <device> ] eject\n");
+
 
 #ifndef VMS
   exit(1);
@@ -189,6 +194,16 @@ static void InvertCommand(void) {
 static void NoBarCode(void) {
   SCSI_Flags.no_barcodes=1;  /* don't request barcodes, sigh! */
 } 
+static void do_Position(void) {
+	int driveno,src;
+	if(arg1 >= 0 && arg1 <= ElementStatus->StorageElementCount) {
+		driveno = arg1-1;
+	} else {
+		driveno = 0;
+	}
+	src = ElementStatus->StorageElementAddress[driveno];
+	Position(src);
+}
 
 /* First and Last are easy. Next is the bitch. */
 static void First(void){
@@ -403,6 +418,15 @@ static void Status(void)
 #ifdef VMS
   VMS_DefineStatusSymbols();
 #endif
+}
+
+void Position(int dest) {
+	RequestSense_T *result;
+	result = PositionElement(MediumChangerFD,dest,ElementStatus);
+	if(result) /* We have an error */
+	{
+		FatalError("Could not position transport\n");
+	}
 }
 
 void Move(int src, int dest) {
@@ -740,6 +764,9 @@ int main(int ArgCount,
 }
 /*
  *$Log$
+ *Revision 1.5  2002/08/14 22:05:29  mahlonstacy
+ *Added position command
+ *
  *Revision 1.4  2002/02/05 16:33:18  elgreen
  *added Christopher McCrory's patches to mtx.c (see CHANGES)
  *
