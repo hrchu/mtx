@@ -65,4 +65,9 @@ RequestSense_T *Erase(DEVICE_TYPE fd);        /* send SHORT erase to drive */
 void SCSI_Set_Timeout(int secs); /* set the SCSI timeout */
 void SCSI_Default_Timeout(void);  /* go back to default timeout */
 
+/* we may not have this function :-(. */
+#ifdef HAVE_GET_ID_LUN
+   scsi_id_t *SCSI_GetIDLun(DEVICE_TYPE fd);
+#endif
+
 #endif

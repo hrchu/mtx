@@ -85,7 +85,6 @@ void SCSI_CloseDevice(char *DeviceName,
     FatalError("cannot close SCSI device '%s' - %m\n", DeviceName);
 }
 
-#define HAVE_GET_ID_LUN 1  /* signal that we have it... */
 
 /* Added by Eric Green <eric@estinc.com> to deal with burping
  * Seagate autoloader (hopefully!). 

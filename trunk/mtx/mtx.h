@@ -66,6 +66,7 @@
 #  include <scsi/scsi_ioctl.h>
 #  include <scsi/sg.h>
 typedef int DEVICE_TYPE; /* the sg interface uses this. */
+#  define HAVE_GET_ID_LUN 1  /* signal that we have it... */
 #endif
 
 /* The 'cam' interface, like FreeBSD: */

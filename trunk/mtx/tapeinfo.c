@@ -695,6 +695,22 @@ int WriteFileMarks(DEVICE_TYPE fd,int count) {
 }
 
 
+/* This will get the SCSI ID and LUN of the target device, if such
+ * is available from the OS. Currently only Linux supports this,
+ * but other drivers could, if someone wants to write a 
+ * SCSI_GetIDLun function for them. 
+ */
+#ifdef HAVE_GET_ID_LUN
+
+static void ReportIDLun(DEVICE_TYPE fd) {
+  scsi_id_t *scsi_id;
+
+  scsi_id=SCSI_GetIDLun(fd);
+  printf("SCSI ID: %d\nSCSI LUN: %d\n",scsi_id->id,scsi_id->lun);
+}
+
+#endif
+
 /* we only have one argument: "-f <device>". */
 int main(int argc, char **argv) {
   DEVICE_TYPE fd;
@@ -721,12 +737,16 @@ int main(int argc, char **argv) {
   /* ReportConfigPage(fd);  */
   /* ReportPartitionPage(fd); */
   ReportBlockLimits(fd); 
+#ifdef HAVE_GET_ID_LUN
+  ReportIDLun(fd);
+#endif
 
   /* okay, we should only report position if the unit is ready :-(. */
   if (TestUnitReady(fd)) {
     ReportCompressionPage(fd); 
     ReadPosition(fd); 
   }
+
 
   exit(0);
 }
