@@ -69,7 +69,7 @@ Sorted by: <?php
 This application is currently in beta test, and may be buggy. The database
 that it feeds off of is currently very incomplete. Please 
 <a href="contrib.php">contribute</a> new entries so that others can
-benefit. Also see the <a href="COMPATIBILITY">old compatibility list</a>.
+benefit. Also see the <a href="COMPATIBILITY.html">old compatibility list</a>.
 <p>
 <table border=1 width=100%">
 <tr>
