@@ -932,25 +932,28 @@ ElementStatus_T *ReadElementStatus(DEVICE_TYPE MediumChangerFD, RequestSense_T *
 
   /* ----------------- Robot Arm(s) -------------------------- */
 
-  /******FIXME**** READ THE GODDAMN ROBOT ARM */
-  flags->elementtype=MediumTransportElement; /* sigh! */
-  DataBuffer=SendElementStatusRequest(MediumChangerFD,RequestSense,
+    /* grr, damned brain dead HP doesn't report that it has any! */
+  if (!mode_sense->NumMediumTransport) { 
+    ElementStatus->TransportElementAddress=0; /* default it sensibly :-(. */
+  } else {
+     flags->elementtype=MediumTransportElement; /* sigh! */
+     DataBuffer=SendElementStatusRequest(MediumChangerFD,RequestSense,
 				      inquiry_info,flags,
 				      mode_sense->MediumTransportStart,
 				      1, /* only get 1, sigh. */
 				      mode_sense->MaxReadElementStatusData);
-  if (!DataBuffer) {
-    /* darn. Free up stuff and return. */
-    /****FIXME**** do a free on element data! */
-    FreeElementData(ElementStatus);
-    return NULL; 
-  } 
+     if (!DataBuffer) {
+       /* darn. Free up stuff and return. */
+       /****FIXME**** do a free on element data! */
+       FreeElementData(ElementStatus);
+       return NULL; 
+     } 
+   
+     ParseElementStatus(EmptyStorageElementAddress,&EmptyStorageElementCount,
+   		     DataBuffer,ElementStatus,mode_sense);
 
-  ParseElementStatus(EmptyStorageElementAddress,&EmptyStorageElementCount,
-		     DataBuffer,ElementStatus,mode_sense);
-
-  free(DataBuffer); /* sigh! */
-
+     free(DataBuffer); /* sigh! */
+  }
 
   /*---------------------- Sanity Checking ------------------- */
 
@@ -1198,6 +1201,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.3  2001/06/15 14:26:09  elgreen
+ * Fixed brain-dead case of HP loaders that report they have no robot arms.
+ *
  * Revision 1.2  2001/06/09 17:26:26  elgreen
  * Added 'nobarcode' command to mtx (to skip the initial request asking for
  * barcodes for mtx status purposes).
