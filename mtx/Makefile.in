@@ -11,7 +11,7 @@
 # Version # for 'make dist'...
 VERSION=1.3.0pre1
 
-BINS = mtx tapeinfo loaderinfo scsitape
+BINS = mtx tapeinfo loaderinfo scsitape nsmhack
 
 TARGET	= @TARGET@
 CPU	= @CPU@
@@ -108,6 +108,9 @@ loaderinfo: loaderinfo.o mtxl.o mtxl.h mtx.h $(EXTRA)
 	$(CC) $(LDFLAGS) -o loaderinfo loaderinfo.o mtxl.o $(EXTRA) $(LIBS)
 
 
+nsmhack: nsmhack.o mtxl.o $(EXTRA)
+	$(CC) $(LDFLAGS) -o nsmhack nsmhack.o mtxl.o $(EXTRA) $(LIBS)
+
 mtx: mtx.o mtxl.o mtxl.h mtx.h $(EXTRA)
 	$(CC) $(LDFLAGS) -o mtx mtx.o mtxl.o $(EXTRA) $(LIBS)
 
@@ -135,4 +138,6 @@ mam2debug2.o: mam2debug2.c mtx.h mtxl.h
 
 mtx.o: mtx.c mtx.h mtxl.h
 
-mtxl.o: mtxl.c mtxl.h scsi_linux.c 
+mtxl.o: mtxl.c mtx.h mtxl.h scsi_linux.c 
+
+nsmhack.o: nsmhack.c mtxl.h mtx.h
