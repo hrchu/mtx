@@ -57,6 +57,10 @@ RequestSense_T *MoveMedium(DEVICE_TYPE MediumChangerFD, int SourceAddress,
 		       int DestinationAddress, 
 		       ElementStatus_T *ElementStatus, 
 			   Inquiry_T *inquiry_info, SCSI_Flags_T *flags);
+RequestSense_T *ExchangeMedium(DEVICE_TYPE MediumChangerFD, int SourceAddress,
+			       int DestinationAddress, int Dest2Address,
+		       ElementStatus_T *ElementStatus, 
+			   Inquiry_T *inquiry_info, SCSI_Flags_T *flags);
 RequestSense_T *PositionElement(DEVICE_TYPE MediumChangerFD,
 		int DestinationAddress, ElementStatus_T *ElementStatus);
 int Inventory(DEVICE_TYPE MediumChangerFD);  /* inventory library */

@@ -93,11 +93,10 @@ static int device_opened = 0;  /* okay, replace check here. */
 /* was: static int MediumChangerFD=-1; *//* open filehandle to that device */
 static int arg1=-1;       /* first arg to command */
 static int arg2=-1;       /* second arg to command */
+static int arg3=-1;       /* third arg to command, if exchange. */
 
-static SCSI_Flags_T SCSI_Flags = { 0, 0, 0,0 };
+static SCSI_Flags_T SCSI_Flags = { 0, 0, 0,0,0,0,0,0,0,0 };
   
-/* static int invert_bit=0;*/  /* we by default do not invert... */
-/* static int eepos=0;     */  /* the extend thingy for import/export. */
 static Inquiry_T *inquiry_info;  /* needed by MoveMedium etc... */
 static ElementStatus_T *ElementStatus = NULL;
 void Position(int dest);
@@ -122,6 +121,8 @@ static void do_Unload(void);
 static void do_Erase(void);
 static void NoBarCode(void);
 static void do_Position(void);
+static void Invert2(void);
+static void Exchange(void);
 
 struct command_table_struct {
   int num_args;
@@ -147,6 +148,8 @@ struct command_table_struct {
   { 0, "erase", do_Erase, 1, 0},
   { 0, "nobarcode", NoBarCode, 0,0},
   { 1,"position", do_Position, 1, 1},
+  { 0, "invert2", Invert2, 0, 0}, 
+  { 3, "exchange", Exchange, 1, 1 },
   { 0, NULL, NULL }
 };
 
@@ -164,6 +167,7 @@ static void Usage()
   mtx [ -f <loader-dev> ] [invert] load <storage-element-number> [<drive#>]\n\
   mtx [ -f <loader-dev> ] [invert] unload [<storage-element-number>][<drive#>]\n\
   mtx [ -f <loader-dev> ] [eepos eepos-number] transfer <storage-element-number> <storage-element-number>\n\
+  mtx [ -f <loader-dev> ] [eepos eepos-number][invert][invert2] exchange <storage-element-number> <storage-element-number>\n\
   mtx [ -f <device> ] position <storage-element-number>\n\
   mtx [ -f <device> ] eject\n");
 
@@ -190,6 +194,12 @@ static void InvertCommand(void) {
   SCSI_Flags.invert=1;
   /* invert_bit=1;*/
 }
+
+static void Invert2(void) {
+  SCSI_Flags.invert2=1;
+  /* invert2_bit=1;*/
+}
+
 
 static void NoBarCode(void) {
   SCSI_Flags.no_barcodes=1;  /* don't request barcodes, sigh! */
@@ -456,6 +466,8 @@ void Move(int src, int dest) {
     }
 }   
 
+
+
 /* okay, now for the Load, Unload, etc. logic: */
 
 static void Load(void) {
@@ -521,6 +533,57 @@ static void Transfer(void) {
   dest=ElementStatus->StorageElementAddress[arg2-1];
   Move(src,dest);
 }
+
+/****************************************************************
+ * Exchange() -- exchange medium in two slots, if so
+ * supported by the jukebox in question.
+ ***************************************************************/
+
+static void Exchange(void) {
+  RequestSense_T *result; /* from ExchangeMedium */
+  int src,dest,dest2;
+  if (arg1 < 1 ) {
+    FatalError("No source specified\n");
+  } 
+  if (arg2 < 1) {
+    FatalError("No destination specified\n");
+  }
+  if (arg1 > ElementStatus->StorageElementCount) {
+    FatalError("Invalid source\n");
+  }
+  if (arg2 > ElementStatus->StorageElementCount) {
+    FatalError("Invalid destination\n");
+  }
+  if (arg3==-1) {
+    arg3=arg1;  /* true exchange of medium */
+  }
+  /* okay, that's done... */
+  src=ElementStatus->StorageElementAddress[arg1-1];
+  dest=ElementStatus->StorageElementAddress[arg2-1];
+  dest2=ElementStatus->StorageElementAddress[arg3-1];
+  
+  result=ExchangeMedium(MediumChangerFD,src,dest,dest2,ElementStatus,inquiry_info,&SCSI_Flags);
+  if (result) {  /* we have an error! */
+    if (result->AdditionalSenseCode == 0x3B &&
+	result->AdditionalSenseCodeQualifier == 0x0E)
+      FatalError("source Element Address %d is Empty\n", src);
+    
+    if (result->AdditionalSenseCode == 0x3A &&
+	result->AdditionalSenseCodeQualifier == 0x00)
+      FatalError("Drive needs offline before move\n");  
+    
+    if (result->AdditionalSenseCode == 0x3B &&
+	result->AdditionalSenseCodeQualifier == 0x0D)
+      FatalError("destination Element Address %d is Already Full\n",
+		 dest);
+    if (result->AdditionalSenseCode == 0x30 &&
+	result->AdditionalSenseCodeQualifier == 0x03)
+      FatalError("Cleaning Cartridge Installed and Ejected\n");
+    PrintRequestSense(result);
+    FatalError("EXCHANGE MEDIUM from Element Address %d to %d Failed\n",
+	       src,dest);
+  }
+}   
 
 static void Eepos(void) {
   if (arg1 < 0 || arg1 > 3) {
@@ -710,16 +773,23 @@ int parse_args(void) {
 	if (arg1 != -1) {
 	  i++;  /* next! */
 	}
-	if (command->num_args==2 && arg1 != -1) {
+	if (command->num_args>=2 && arg1 != -1) {
 	  arg2=get_arg(i); 
 	  if (arg2 != -1) {
 	    i++;
+	  }
+	  if (command->num_args==3 && arg2 != -1) {
+	    arg3=get_arg(i);
+	    if (arg3 != -1) {
+	      i++;
+	    }
 	  }
 	}
 	execute_command(command);
       }
       arg1=-1;
       arg2=-1;
+      arg3=-1;
     }
   }
   return 0; /* should never get here. */
@@ -769,6 +839,9 @@ int main(int ArgCount,
 }
 /*
  *$Log$
+ *Revision 1.7  2002/10/01 19:36:08  elgreen
+ *mtx 1.3.1
+ *
  *Revision 1.6  2002/09/27 21:30:16  elgreen
  *CVS 1.3
  *
