@@ -57,7 +57,7 @@
      header("Location: http://mtx.badtux.net/");
      exit();  
 
-  }<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+  }?> <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
   <head>
 
     <title>Entry Verification</title>
