@@ -604,9 +604,7 @@ unsigned char *SendElementStatusRequest(DEVICE_TYPE MediumChangerFD,
   CDB[5]= NumElements & 0xff ;        /* Number of elements LSB */
 
   /*  CDB[5]=127; */ /* test */
-#ifdef DEBUG
-  fprintf(stderr,"CDB[5]=%d\n" , CDB[5]);
-#endif
+
   CDB[6] = 0;			/* Reserved */
 
   CDB[7]= (NumBytes >> 16) & 0xff; /* allocation length MSB */
@@ -993,12 +991,18 @@ ElementStatus_T *ReadElementStatus(DEVICE_TYPE MediumChangerFD, RequestSense_T *
 				      mode_sense->NumStorage-mode_sense->NumImportExport,
 				      mode_sense->MaxReadElementStatusData);
   if (!DataBuffer) {
+#ifdef DEBUG
+    fprintf(stderr,"Had no elements!\n");
+#endif
     /* darn. Free up stuff and return. */
     /****FIXME**** do a free on element data! */
     FreeElementData(ElementStatus);
     return NULL; 
   } 
 
+#ifdef DEBUG
+  fprintf(stderr, "Parsing storage elements\n");
+#endif  
   ParseElementStatus(EmptyStorageElementAddress,&EmptyStorageElementCount,
 		     DataBuffer,ElementStatus,mode_sense);
 
@@ -1007,6 +1011,9 @@ ElementStatus_T *ReadElementStatus(DEVICE_TYPE MediumChangerFD, RequestSense_T *
   /* --------------IMPORT/EXPORT--------------- */
   /* Next let's see if we need to do Import/Export: */
   if (mode_sense->NumImportExport > 0) {
+#ifdef DEBUG
+    fprintf(stderr,"Sending request for Import/Export status\n");
+#endif  
     flags->elementtype=ImportExportElement;
     DataBuffer=SendElementStatusRequest(MediumChangerFD,RequestSense,
 					inquiry_info,flags,
@@ -1015,21 +1022,27 @@ ElementStatus_T *ReadElementStatus(DEVICE_TYPE MediumChangerFD, RequestSense_T *
 					mode_sense->MaxReadElementStatusData);
     
     if (!DataBuffer) {
+#ifdef DEBUG
+      fprintf(stderr,"Had no input/export element!\n");
+#endif
       /* darn. Free up stuff and return. */
       /****FIXME**** do a free on element data! */
       FreeElementData(ElementStatus);
       return NULL; 
     } 
+#ifdef DEBUG
+    fprintf(stderr,"Parsing inport/export element status\n");
+#endif
     ParseElementStatus(EmptyStorageElementAddress,&EmptyStorageElementCount,
 		     DataBuffer,ElementStatus,mode_sense);
 
   }
   
-
-
   /* ----------------- DRIVES ---------------------- */
 
-
+#ifdef DEBUG
+  fprintf(stderr,"Sending request for data transfer element (drive) status\n");
+#endif
   flags->elementtype=DataTransferElement; /* sigh! */
   DataBuffer=SendElementStatusRequest(MediumChangerFD,RequestSense,
 				      inquiry_info,flags,
@@ -1037,12 +1050,18 @@ ElementStatus_T *ReadElementStatus(DEVICE_TYPE MediumChangerFD, RequestSense_T *
 				      mode_sense->NumDataTransfer,
 				      mode_sense->MaxReadElementStatusData);
   if (!DataBuffer) {
+#ifdef DEBUG
+    fprintf(stderr,"No data transfer element status.");
+#endif
     /* darn. Free up stuff and return. */
     /****FIXME**** do a free on element data! */
     FreeElementData(ElementStatus);
     return NULL; 
   } 
 
+#ifdef DEBUG
+  fprintf(stderr,"Parsing data for data transfer element (drive) status\n");
+#endif
   ParseElementStatus(EmptyStorageElementAddress,&EmptyStorageElementCount,
 		     DataBuffer,ElementStatus,mode_sense);
 
@@ -1055,6 +1074,9 @@ ElementStatus_T *ReadElementStatus(DEVICE_TYPE MediumChangerFD, RequestSense_T *
   if (!mode_sense->NumMediumTransport) { 
     ElementStatus->TransportElementAddress=0; /* default it sensibly :-(. */
   } else {
+#ifdef DEBUG
+     fprintf(stderr,"Sending request for robot arm status\n");
+#endif
      flags->elementtype=MediumTransportElement; /* sigh! */
      DataBuffer=SendElementStatusRequest(MediumChangerFD,RequestSense,
 				      inquiry_info,flags,
@@ -1062,12 +1084,17 @@ ElementStatus_T *ReadElementStatus(DEVICE_TYPE MediumChangerFD, RequestSense_T *
 				      1, /* only get 1, sigh. */
 				      mode_sense->MaxReadElementStatusData);
      if (!DataBuffer) {
+#ifdef DEBUG
+       fprintf(stderr,"Loader reports no robot arm!\n");
+#endif
        /* darn. Free up stuff and return. */
        /****FIXME**** do a free on element data! */
        FreeElementData(ElementStatus);
        return NULL; 
      } 
-   
+#ifdef DEBUG
+     fprintf(stderr,"Parsing robot arm data\n");
+#endif   
      ParseElementStatus(EmptyStorageElementAddress,&EmptyStorageElementCount,
    		     DataBuffer,ElementStatus,mode_sense);
 
@@ -1320,6 +1347,9 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
+ * Revision 1.10  2002/01/16 23:59:32  elgreen
+ * Debugging data
+ *
  * Revision 1.9  2002/01/05 00:49:15  elgreen
  * Added some NSMHack stuff for dealing with weirdo NSM jukeboxes
  *
