@@ -1,5 +1,5 @@
 /* Copyright 1997, 1998 Leonard Zubkoff <lnz@dandelion.com>
-   Changes copyright 2000 Eric Green <eric@estinc.com>
+   Changes copyright 2000 Eric Green <eric@badtux.org>
 
 $Date$
 $Revision$

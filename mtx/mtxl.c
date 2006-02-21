@@ -6,7 +6,7 @@ $Date$
 $Revision$
 
   This file created Feb 2000 by Eric Lee Green <eric@badtux.org> from pieces
-  extracted from mtx.c, plus some additional routines. 
+  extracted from mtx.c, plus a near total re-write of most of the beast.
 
   This program is free software; you may redistribute and/or modify it under
   the terms of the GNU General Public License Version 2 as published by the
@@ -19,7 +19,7 @@ $Revision$
 */
 
 
-/* FatalError: changed Feb. 2000 elg@estinc.com to eliminate a buffer
+/* FatalError: changed Feb. 2000 elg@badtux.org to eliminate a buffer
    overflow :-(. That could be important if mtxl is SUID for some reason. 
 */
 
@@ -31,6 +31,7 @@ $Revision$
 /* #define DEBUG_MODE_SENSE 1 */
 /* #define DEBUG */
 /* #define DEBUG_SCSI */
+#define __WEIRD_CHAR_SUPPRESS 1 
 
 /* zap the following define when we finally add real import/export support */
 #define IMPORT_EXPORT_HACK 1 /* for the moment, import/export == storage */
@@ -557,9 +558,8 @@ void copy_barcode(unsigned char *src, unsigned char *dest) {
   *dest=0; /* null-terminate, sigh. */ 
 }
 
-
 /* This #%!@# routine has more parameters than I can count! */
-unsigned char *SendElementStatusRequest(DEVICE_TYPE MediumChangerFD,
+static unsigned char *SendElementStatusRequestActual(DEVICE_TYPE MediumChangerFD,
 					RequestSense_T *RequestSense,
 					Inquiry_T *inquiry_info, 
 					SCSI_Flags_T *flags,
@@ -690,6 +690,70 @@ unsigned char *SendElementStatusRequest(DEVICE_TYPE MediumChangerFD,
 #endif  
   return DataBuffer; /* we succeeded! */
 }
+
+
+
+unsigned char *SendElementStatusRequest(DEVICE_TYPE MediumChangerFD,
+					RequestSense_T *RequestSense,
+					Inquiry_T *inquiry_info, 
+					SCSI_Flags_T *flags,
+					int ElementStart,
+					int NumElements,
+					int NumBytes
+					) {
+
+  unsigned char *DataBuffer; /* size of data... */
+  unsigned int real_numbytes;
+
+  
+  DataBuffer=SendElementStatusRequestActual(MediumChangerFD,
+					    RequestSense,
+					    inquiry_info,
+					    flags,
+					    ElementStart,
+					    NumElements,
+					    NumBytes
+					    );
+  /* One weird loader wants either 8 or BYTE_COUNT_OF_REPORT
+     values for the ALLOCATION_LENGTH. Give it what it wants
+     if we get an Sense Key of 05 Illegal Request with a 
+     CDB position of 7 as the field in error.
+  */
+  if (DataBuffer == NULL &&
+      RequestSense->SenseKey==5 && RequestSense->CommandData && 
+      RequestSense->BitPointer==7) {
+    NumBytes=8; /* send an 8 byte request */
+    DataBuffer=SendElementStatusRequestActual(MediumChangerFD,
+					      RequestSense,
+					      inquiry_info,
+					      flags,
+					      ElementStart,
+					      NumElements,
+					      NumBytes
+					      );
+  }
+
+  /* the above code falls thru into this: */
+  if (DataBuffer != NULL) {
+    /* see if we need to retry with a bigger NumBytes: */
+    real_numbytes= (((int)DataBuffer[5])<<16)+
+      (((int)DataBuffer[6])<<8)+(int)DataBuffer[7]+8 ;  /* whoops, forgot header */
+    if (real_numbytes > NumBytes) { /* uh-oh, retry! */
+      free(DataBuffer); /* solve memory leak */
+      DataBuffer=SendElementStatusRequestActual(MediumChangerFD,
+						RequestSense,
+						inquiry_info,
+						flags,
+						ElementStart,
+						NumElements,
+						real_numbytes
+						);
+    }
+  }
+  return DataBuffer;
+}
+
+
 
 /******************* ParseElementStatus ***********************************/
 /* This does the actual grunt work of parsing element status data. It fills
@@ -1436,8 +1500,8 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 
 /* $Date$
  * $Log$
- * Revision 1.21  2003/06/27 00:28:26  elgreen
- * added AIX support
+ * Revision 1.22  2006/02/21 03:08:53  elgreen
+ * mtx 1.3.9 checkin
  *
  * Revision 1.20  2003/03/12 23:45:52  elgreen
  * mtx 1.3.4

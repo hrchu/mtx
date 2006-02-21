@@ -1,5 +1,5 @@
 /* Copyright 2000 Enhanced Software Technologies Inc. (http://www.estinc.com)
-   Written by Eric Lee Green <eric@estinc.com>
+   Written by Eric Lee Green <eric@badtux.org>
 
 $Date$
 $Revision$

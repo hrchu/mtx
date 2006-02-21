@@ -1,5 +1,5 @@
 /* Copyright 1997, 1998 Leonard Zubkoff <lnz@dandelion.com>
-   Changes copyright 2000 Eric Green <eric@estinc.com>
+   Changes copyright 2000 Eric Green <eric@badtux.org>
 
   This program is free software; you may redistribute and/or modify it under
   the terms of the GNU General Public License Version 2 as published by the

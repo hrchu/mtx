@@ -239,7 +239,7 @@ static TapeCapacity *RequestTapeCapacity(DEVICE_TYPE fd, RequestSense_T *sense) 
 
   CDB_T CDB;
   TapeCapacity *result;
-  int i,result_len,result_idx;
+  int result_len;
   
   unsigned char buffer[TAPEALERT_SIZE]; /* Overkill, but ... */
 
@@ -401,7 +401,6 @@ static void ReportTapeCapacity(DEVICE_TYPE fd) {
   RequestSense_T RequestSense;
   
   TapeCapacity *result;
-  int i;
 
   result=RequestTapeCapacity(fd,&RequestSense);
   
@@ -865,8 +864,6 @@ int main(int argc, char **argv) {
   ReportInquiry(fd);
   ReportSerialNumber(fd);
   ReportTapeAlert(fd);
-  /* ReportConfigPage(fd);  */
-  /* ReportPartitionPage(fd); */
   ReportBlockLimits(fd); 
 #ifdef HAVE_GET_ID_LUN
   ReportIDLun(fd);
@@ -877,6 +874,8 @@ int main(int argc, char **argv) {
     ReportCompressionPage(fd); 
     ReadPosition(fd); 
     ReportTapeCapacity(fd); /* only if we have it */
+    ReportConfigPage(fd);  /* only valid if unit is ready. */
+    ReportPartitionPage(fd); 
   }
 
 

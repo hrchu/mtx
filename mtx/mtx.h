@@ -84,12 +84,6 @@ typedef struct cam_device *DEVICE_TYPE;
 typedef int DEVICE_TYPE;
 #endif
 
-/* the 'gsc' interface, as used on AIX: */
-#if HAVE_SYS_GSCDDS_H
-#  include <sys/gscdds.h>
-   typedef int DEVICE_TYPE;
-#endif
-
 /* the scsi_ctl interface, as used on HP/UX: */
 #if HAVE_SYS_SCSI_CTL_H
 #  include <sys/wsio.h>
@@ -100,6 +94,12 @@ typedef int DEVICE_TYPE;
 #  ifndef VERSION
 #     define VERSION "1.2.12 hbb"
 #  endif
+#endif
+
+/* the 'gsc' interface, as used on AIX: */
+#if HAVE_SYS_GSCDDS_H
+#   include <sys/gscdds.h>
+    typedef int DEVICE_TYPE;
 #endif
 
    /* the 'dslib' interface, as used on SGI.  */
