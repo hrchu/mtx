@@ -2,7 +2,7 @@
   MTX -- SCSI Tape Attached Medium Changer Control Program
 
   Copyright 1997-1998 Leonard N. Zubkoff <lnz@dandelion.com>
-  This file created by Eric Lee Green <eric@estinc.com>
+  This file created by Eric Lee Green <eric@badtux.org>
   
   This program is free software; you may redistribute and/or modify it under
   the terms of the GNU General Public License Version 2 as published by the

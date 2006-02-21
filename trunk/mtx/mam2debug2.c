@@ -4,7 +4,7 @@
 $Date$
 $Revision$
 
-   Written by Eric Lee Green <eric@estinc.com>
+   Written by Eric Lee Green <eric@badtux.org>
    Released under the terms of the GNU General Public License v2 or
     above.
 

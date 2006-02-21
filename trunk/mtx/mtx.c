@@ -27,7 +27,7 @@
   Thanks to TECSys Development, Inc. for porting MTX to Digital Unix and
   OpenVMS.
 
-  Changes Feb 2000 Eric Lee Green <eric@estinc.com> to add support for
+  Near complete re-write Feb 2000 Eric Lee Green <eric@badtux.org> to add support for
   multi-drive tape changers, extract out library stuff into mtxl.c,
   and otherwise bring things up to date for dealing with LARGE tape jukeboxes
   and other such enterprise-class storage subsystems. 
@@ -839,8 +839,8 @@ int main(int ArgCount,
 }
 /*
  *$Log$
- *Revision 1.10  2003/06/27 00:28:26  elgreen
- *added AIX support
+ *Revision 1.11  2006/02/21 03:08:53  elgreen
+ *mtx 1.3.9 checkin
  *
  *Revision 1.9  2003/06/26 15:59:21  elgreen
  *ci

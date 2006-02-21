@@ -1,7 +1,43 @@
+CHANGES, mtx 1.3.9
+- Cleaned up scsi_linux.c a little to eliminate around 40 lines of code. 
+- Change to using SG_IO ioctl rather than write-read interface. This
+  should make us a little safer, as well as (on 2.6.x) letting us issue SCSI 
+  commands to regular block devices as well as to /dev/sgXX devices. 
+  WARNING: Can cause the system to *CRASH* if the SCSI device is in use, due 
+  to brokenness inside the Linux kernel! It's always preferable to use the 
+  /dev/sgXX device, which has specialness in its buffer handling that bypasses
+  some of the brokenness elsewhere in the SCSI subsystem.
+- Check SG version before using SG_IO interface, so that if we're run on a
+  Linux 2.2 system and we were compiled on Linux 2.4 or above, 
+- If a tape is in the drive, make tapeinfo print out its partition info. Seems
+  to work on my DAT drive, anyhow (shrug). 
+- Minor cleanups in mtxl.c (other cleanups necessary in tapeinfo and etc.). 
 
+CHANGES, mtx 1.3.8
+- Forgot about 8 bytes for header
+- Handle pedantic loader whose firmware writer spends too much time
+  parsing phrases in the SCSI spec and not enough time in the
+  real world. 
+
+CHANGES, mtx 1.3.6
+- The You Gotta Be F'ing Kidding Release (see rant on mailing list)
+- Added AIX support with http://fz.eryx.net/aix/ GSC driver, courtesy
+  of Steve Heck. 
+- Make __WEIRD_CHAR_SUPPRESS the default to stop barcode garbling
+- Fix core dump on invalid inputs in mtx.c
+- Add retry with bigger ALLOCATION_LENGTH if 
+  BYTE_COUNT_OF_REPORT_AVAILABLE is > than our original estimate. (see rant
+  on mailing list). 
+- Shut up the low-level SCSI sg_read and sg_write routines, which were poofting
+  all over the place on innocuous things like no EAAP. 
 
 CHANGES, mtx 1.3.5
-- Forward-ported the core dump fixes from 1.2.18pre4
+- The I-Need-A-Job Release (see http://badtux.org) :-}
+- Change Makefile so that it works w/systems whose 'install' program
+  accepts only one argument. That's it. 
+- Uncomment the Exabyte hack in the drive parsing code so that it works
+  with ATL loaders again. 
+- Add hack for ATL stacked loaders to keep them from reporting ghost slots
 
 CHANGES, mtx 1.3.4
 - Forward-ported the ATL/Exabyte patches from mtx 1.2

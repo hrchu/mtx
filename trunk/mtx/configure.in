@@ -20,6 +20,8 @@ case "$host_os" in
 	 ;;
   *freebsd*) TARGET=freebsd86
 	;;
+  *aix*) TARGET=aix
+       ;;
   *irix*) TARGET=sgi
       ;;
   *hp*) TARGET=hpux
@@ -60,6 +62,7 @@ AC_CHECK_HEADERS(\
 	scsi/scsi.h \
 	scsi/scsi_ioctl.h \
 	scsi/sg.h \
+	sys/gscdds.h \
 	camlib.h \
 	cam/cam_ccb.h \
 	cam/scsi/scsi_message.h \

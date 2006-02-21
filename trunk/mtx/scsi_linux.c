@@ -1,5 +1,5 @@
 /* Copyright 1997, 1998 Leonard Zubkoff <lnz@dandelion.com>
-   Changes in Feb 2000 Eric Green <eric@estinc.com>
+   Changes in Feb 2000 Eric Green <eric@badtux.org>
 
 $Date$
 $Revision$
@@ -15,7 +15,7 @@ $Revision$
 
 */
 
-/* this is the SCSI commands for Linux. Note that <eric@estinc.com> changed 
+/* this is the SCSI commands for Linux. Note that <eric@badtux.org> changed 
  * it from using SCSI_IOCTL_SEND_COMMAND to using the SCSI generic interface.
  */
 
@@ -59,9 +59,20 @@ static int pack_id;
 DEVICE_TYPE SCSI_OpenDevice(char *DeviceName)
 {
   int timeout=SG_SCSI_DEFAULT_TIMEOUT;      /* 5 minutes */
+#ifdef SG_IO
+  int k; /* version */
+#endif
   int DeviceFD = open(DeviceName, O_RDWR);
   if (DeviceFD < 0)
     FatalError("cannot open SCSI device '%s' - %m\n", DeviceName);
+
+
+#ifdef SG_IO
+  /* It is prudent to check we have a sg device by trying an ioctl */
+  if ((ioctl(DeviceFD, SG_GET_VERSION_NUM, &k) < 0) || (k < 30000)) {
+    FatalError("%s is not an sg device, or old sg driver\n", DeviceName);
+  }
+#endif
 
   if(ioctl(DeviceFD, SG_SET_TIMEOUT, &timeout)) {
     FatalError("failed to set sg timeout - %m\n");
@@ -122,129 +133,8 @@ scsi_id_t *SCSI_GetIDLun(DEVICE_TYPE fd) {
  */
 
 #ifdef SG_IO
-
 #include "sg_err.h"  /* error stuff. */
 #include "sg_err.c"  /* some of Doug Gilbert's routines */
-
-/* Swiped these routines from Doug Gilbert, mucho modified. 
-  -1 -> unrecoverable error, 0 -> successful, 1 -> recoverable (ENOMEM),
-   2 -> try again */
-int sg_write(int sg_fd, unsigned char *wrCmd, unsigned char * buff, int cmdlen, int buflen,
-             int bs, int * diop, RequestSense_T *RequestSense)
-{
-    sg_io_hdr_t io_hdr;
-    int res;
-
-    memset(&io_hdr, 0, sizeof(sg_io_hdr_t));
-    io_hdr.interface_id = 'S';
-    io_hdr.cmd_len = cmdlen;
-    io_hdr.cmdp = wrCmd;
-    io_hdr.dxfer_direction = SG_DXFER_TO_DEV;
-    io_hdr.dxfer_len = buflen;
-    io_hdr.dxferp = buff;
-    io_hdr.mx_sb_len = sizeof(RequestSense_T);
-    io_hdr.sbp = RequestSense;
-    io_hdr.timeout = sg_timeout;
-    io_hdr.pack_id = pack_id++;
-    if (diop && *diop)
-        io_hdr.flags |= SG_FLAG_DIRECT_IO;
-
-    while (((res = write(sg_fd, &io_hdr, sizeof(io_hdr))) < 0) &&
-           (EINTR == errno))
-        ;
-    if (res < 0) {
-        if (ENOMEM == errno)
-            return 1;
-        perror("writing (wr) on sg device, error");
-        return -1;
-    }
-
-    while (((res = read(sg_fd, &io_hdr, sizeof(io_hdr))) < 0) &&
-           (EINTR == errno))
-        ;
-    if (res < 0) {
-        perror("writing (rd) on sg device, error");
-        return -1;
-    }
-    switch (sg_err_category3(&io_hdr)) {
-  case SG_ERR_CAT_CLEAN:
-        break;
-    case SG_ERR_CAT_RECOVERED:
-        fprintf(stderr, "Recovered error while writing\n");
-        break;
-    case SG_ERR_CAT_MEDIA_CHANGED:
-        return 2;
-    default:
-        sg_chk_n_print3("writing", &io_hdr);
-        return -1;
-    }
-    if (diop && *diop &&
-        ((io_hdr.info & SG_INFO_DIRECT_IO_MASK) != SG_INFO_DIRECT_IO))
-        *diop = 0;      /* flag that dio not done (completely) */
-    return 0;
-}
-
-/* -1 -> unrecoverable error, 0 -> successful, 1 -> recoverable (ENOMEM),
-   2 -> try again */
-int sg_read(int sg_fd, unsigned char *rdCmd, unsigned char * buff, int cmdlen, int buflen,
-            int bs, int * diop,  RequestSense_T *RequestSense)
-{
-
-    sg_io_hdr_t io_hdr;
-    int res;
-
-    memset(&io_hdr, 0, sizeof(sg_io_hdr_t));
-    io_hdr.interface_id = 'S';
-    io_hdr.cmd_len = cmdlen;
-    io_hdr.cmdp = rdCmd;
-    io_hdr.dxfer_direction = SG_DXFER_FROM_DEV;
-    io_hdr.dxfer_len = buflen;
-    io_hdr.dxferp = buff;
-    io_hdr.mx_sb_len = sizeof(RequestSense_T);
-    io_hdr.sbp = RequestSense;
-    io_hdr.timeout = sg_timeout;
-    io_hdr.pack_id = pack_id++;
-    if (diop && *diop)
-        io_hdr.flags |= SG_FLAG_DIRECT_IO;
-
-    while (((res = write(sg_fd, &io_hdr, sizeof(io_hdr))) < 0) &&
-           (EINTR == errno))
-        ;
-    if (res < 0) {
-        if (ENOMEM == errno)
-            return 1;
-        perror("reading (wr) on sg device, error");
-        return -1;
-    }
-
-    while (((res = read(sg_fd, &io_hdr, sizeof(io_hdr))) < 0) &&
-           (EINTR == errno))
-        ;
-    if (res < 0) {
-        perror("reading (rd) on sg device, error");
-        return -1;
-    }
-    switch (sg_err_category3(&io_hdr)) {
-    case SG_ERR_CAT_CLEAN:
-        break;
-    case SG_ERR_CAT_RECOVERED:
-        fprintf(stderr, "Recovered error while reading\n");
-        break;
-    case SG_ERR_CAT_MEDIA_CHANGED:
-        return 2;
-    default:
-        sg_chk_n_print3("reading", &io_hdr);
-        return -1;
-    }
-    if (diop && *diop &&
-        ((io_hdr.info & SG_INFO_DIRECT_IO_MASK) != SG_INFO_DIRECT_IO))
-        *diop = 0;      /* flag that dio not done (completely) */
-
-#if SG_DEBUG
-    fprintf(stderr, "duration=%u ms\n", io_hdr.duration);
-#endif
-    return 0;
-}
 
 /* Use the new SG_IO structure */
 int SCSI_ExecuteCommand(DEVICE_TYPE DeviceFD,
@@ -254,17 +144,58 @@ int SCSI_ExecuteCommand(DEVICE_TYPE DeviceFD,
 			       void *DataBuffer,
 			       int DataBufferLength,
 			RequestSense_T *RequestSense) {
-  int res;
-  if (Direction==Input) {
-    res=sg_read((int)DeviceFD, (unsigned char *)CDB, (unsigned char *)DataBuffer,
-		   CDB_Length, DataBufferLength,
-		   0, NULL,  RequestSense);
-  }  else {
-    res= sg_write((int)DeviceFD, (unsigned char *)CDB, (unsigned char *)DataBuffer,
-		   CDB_Length, DataBufferLength,
-		   0, NULL,  RequestSense);
+
+  unsigned int status;
+  sg_io_hdr_t io_hdr;
+
+  memset(&io_hdr, 0, sizeof(sg_io_hdr_t));
+  memset(RequestSense,0,sizeof(RequestSense_T));  
+
+  /* Fill in the common stuff... */
+  io_hdr.interface_id='S';
+  io_hdr.cmd_len=CDB_Length;
+  io_hdr.mx_sb_len=sizeof(RequestSense_T);
+  io_hdr.dxfer_len=DataBufferLength;
+  io_hdr.cmdp=(unsigned char *) CDB;
+  io_hdr.sbp=(unsigned char *) RequestSense;
+  io_hdr.dxferp=DataBuffer;
+  io_hdr.timeout=sg_timeout; /* default timeout. */
+
+   if (Direction==Input) {
+     /* fprintf(stderr,"direction=input\n"); */
+    io_hdr.dxfer_direction=SG_DXFER_FROM_DEV;
+  } else {
+     /* fprintf(stderr,"direction=output\n"); */
+    io_hdr.dxfer_direction=SG_DXFER_TO_DEV;
   }
+
+  /* Now do it:  */
+  if ((status = ioctl(DeviceFD, SG_IO , &io_hdr))||io_hdr.masked_status) {
+    /* fprintf(stderr, "smt_scsi_cmd: Rval=%d Status=%d, errno=%d [%s]\n",status, io_hdr.masked_status,
+	    errno, 
+	    strerror(errno)); */
+
+    switch (sg_err_category3(&io_hdr)) {
+    case SG_ERR_CAT_CLEAN:
+      break;
+    case SG_ERR_CAT_RECOVERED:
+      break;
+    case SG_ERR_CAT_MEDIA_CHANGED:
+      return 2;
+    default:
+      return -1;
+    }
+
+    /*  fprintf(stderr,"host_status=%d driver_status=%d residual=%d writelen=%d\n",io_hdr.host_status,io_hdr.driver_status,io_hdr.resid,io_hdr.sb_len_wr ); */
+
+    return -errno;
+  }
+
+  /* Now check the returned statuses: */
+  /* fprintf(stderr,"host_status=%d driver_status=%d residual=%d writelen=%d\n",io_hdr.host_status,io_hdr.driver_status,io_hdr.resid,io_hdr.sb_len_wr ); */
+  
   SCSI_Default_Timeout();  /* reset back to default timeout, sigh. */
+  return 0;
 }
 
 #else

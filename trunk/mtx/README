@@ -24,7 +24,7 @@ Credits:
 The original 'mtx' program is copyright 1996-1997 by Leonard Zubkoff
 <lnz@dandelion.com>. This version was modified for multi-drive,
 optical changer, and tape library support by Eric Lee Green
-<eric@estinc.com>. Also added FreeBSD support. Please see the man page
+<eric@badtux.org>. Also added FreeBSD support. Please see the man page
 for current info, and the file 'mtx.doc' for historical info.
 
 My thanks to Doug Bonnell of Breece Hill for suggestions on
@@ -35,4 +35,4 @@ for the barcode backoff fix, and to all the other people out there who
 have used it, found problems with it, and let me know about it (you
 know who you are).
   
-   -- Eric Lee Green <eric@estinc.com>
+   -- Eric Lee Green <eric@badtux.org>
