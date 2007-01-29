@@ -1,5 +1,4 @@
-/* Copyright 1997, 1998 Leonard Zubkoff <lnz@dandelion.com>
-   Changes in Feb 2000 Eric Green <eric@estinc.com>
+/* Copyright 2006 Robert Nelson <robertn@the-nelsons.org>
 
 $Date$
 $Revision$
@@ -15,8 +14,8 @@ $Revision$
 
 */
 
-/* this is the SCSI commands for Linux. Note that <eric@estinc.com> changed 
- * it from using SCSI_IOCTL_SEND_COMMAND to using the SCSI generic interface.
+/*
+ * This is the SCSI commands for Windows.
  */
 
 #include <stdio.h>
@@ -28,40 +27,8 @@ $Revision$
 #include <ddk/ntddscsi.h>
 #endif
 
-#ifndef HZ
-#define HZ 1000
-#endif
-
-/* These are copied out of BRU 16.1, with all the boolean masks changed
- * to our bitmasks.
-*/
-#define S_NO_SENSE(s) ((s)->SenseKey == 0x0)
-#define S_RECOVERED_ERROR(s) ((s)->SenseKey == 0x1)
-
-#define S_NOT_READY(s) ((s)->SenseKey == 0x2)
-#define S_MEDIUM_ERROR(s) ((s)->SenseKey == 0x3)
-#define S_HARDWARE_ERROR(s) ((s)->SenseKey == 0x4)
-#define S_UNIT_ATTENTION(s) ((s)->SenseKey == 0x6)
-#define S_BLANK_CHECK(s) ((s)->SenseKey == 0x8)
-#define S_VOLUME_OVERFLOW(s) ((s)->SenseKey == 0xd)
-
-#define DEFAULT_TIMEOUT 3 * 60  /* 3 minutes here */
-
-/* Sigh, the T-10 SSC spec says all of the following is needed to
- * detect a short read while in variable block mode, and that even
- * though we got a BLANK_CHECK or MEDIUM_ERROR, it's still a valid read.
- */
-
-#define HIT_FILEMARK(s) (S_NO_SENSE((s)) && (s)->Filemark && (s)->Valid)
-#define SHORT_READ(s) (S_NO_SENSE((s)) && (s)->ILI && (s)->Valid &&  (s)->AdditionalSenseCode==0  && (s)->AdditionalSenseCodeQualifier==0)
-#define HIT_EOD(s) (S_BLANK_CHECK((s)) && (s)->Valid)
-#define HIT_EOP(s) (S_MEDIUM_ERROR((s)) && (s)->EOM && (s)->Valid)
-#define HIT_EOM(s) ((s)->EOM && (s)->Valid)
-
-#define STILL_A_VALID_READ(s) (HIT_FILEMARK(s) || SHORT_READ(s) || HIT_EOD(s) || HIT_EOP(s) || HIT_EOM(s))
-
-#define SCSI_DEFAULT_TIMEOUT  60    /* 1 minute */
-#define SCSI_MAX_TIMEOUT      108   /* 1 minute 48 seconds */
+#define SCSI_DEFAULT_TIMEOUT  300     /* 1 minutes */
+#define SCSI_MAX_TIMEOUT      108000  /* 30 hours */
 
 typedef	struct	_HANDLE_ENTRY {
   HANDLE  hDevice;
@@ -205,12 +172,13 @@ void SCSI_Set_Timeout(int secs)
   if (secs > SCSI_MAX_TIMEOUT) {
     secs = SCSI_MAX_TIMEOUT;
   }
-  scsi_timeout = secs * HZ;
+
+  scsi_timeout = secs;
 }
  
 void SCSI_Default_Timeout(void)
 {
-  scsi_timeout = SCSI_DEFAULT_TIMEOUT * HZ;
+  scsi_timeout = SCSI_DEFAULT_TIMEOUT;
 }
 
 void SCSI_CloseDevice(char *DeviceName, DEVICE_TYPE DeviceFD)
