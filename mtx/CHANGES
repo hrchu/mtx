@@ -1,3 +1,14 @@
+CHANGES, mtx 1.3.10
+- Add support for Microsoft Windows.
+- Add support for Sony VGP-XL1B(2) Media Changer.
+  Thanks to Will (nodenet at hotmail dot com)
+- Add build support for Microsoft Windows using MinGW native and Linux
+  cross-compile.
+- Add build support for Microsoft Windows using Microsoft Visual Studio 2005.
+- Add support for building on x86_64.
+- Add more debugging information.
+- Eliminate compiler warnings.
+
 CHANGES, mtx 1.3.9
 - Cleaned up scsi_linux.c a little to eliminate around 40 lines of code. 
 - Change to using SG_IO ioctl rather than write-read interface. This
