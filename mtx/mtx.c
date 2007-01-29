@@ -87,7 +87,7 @@ static char *device=NULL; /* the device name passed as argument */
    use an int :-(. 
 */
 
-static DEVICE_TYPE MediumChangerFD = (DEVICE_TYPE) 0;
+static DEVICE_TYPE MediumChangerFD = (DEVICE_TYPE) -1;
 static int device_opened = 0;  /* okay, replace check here. */
 
 /* was: static int MediumChangerFD=-1; *//* open filehandle to that device */
@@ -123,6 +123,7 @@ static void NoBarCode(void);
 static void do_Position(void);
 static void Invert2(void);
 static void Exchange(void);
+static void AltReadElementStatus(void);
 
 struct command_table_struct {
   int num_args;
@@ -147,9 +148,10 @@ struct command_table_struct {
   { 0, "eject", do_Unload, 1, 0},
   { 0, "erase", do_Erase, 1, 0},
   { 0, "nobarcode", NoBarCode, 0,0},
-  { 1,"position", do_Position, 1, 1},
+  { 1, "position", do_Position, 1, 1},
   { 0, "invert2", Invert2, 0, 0}, 
   { 3, "exchange", Exchange, 1, 1 },
+  { 0, "altres", AltReadElementStatus, 0,0},
   { 0, NULL, NULL }
 };
 
@@ -159,17 +161,18 @@ static void Usage()
   mtx --version\n\
   mtx [ -f <loader-dev> ] noattach <more commands>\n\
   mtx [ -f <loader-dev> ] inquiry | inventory \n\
-  mtx [ -f <loader-dev> ] [nobarcode] status\n\
-  mtx [ -f <loader-dev> ] first [<drive#>]\n\
-  mtx [ -f <loader-dev> ] last [<drive#>]\n\
-  mtx [ -f <loader-dev> ] next [<drive#>]\n\
-  mtx [ -f <loader-dev> ] previous [<drive#>]\n\
-  mtx [ -f <loader-dev> ] [invert] load <storage-element-number> [<drive#>]\n\
-  mtx [ -f <loader-dev> ] [invert] unload [<storage-element-number>][<drive#>]\n\
-  mtx [ -f <loader-dev> ] [eepos eepos-number] transfer <storage-element-number> <storage-element-number>\n\
-  mtx [ -f <loader-dev> ] [eepos eepos-number][invert][invert2] exchange <storage-element-number> <storage-element-number>\n\
-  mtx [ -f <device> ] position <storage-element-number>\n\
-  mtx [ -f <device> ] eject\n");
+  mtx [ -f <loader-dev> ] [altres] [nobarcode] status\n\
+  mtx [ -f <loader-dev> ] [altres] [nobarcode] drivestatus [<drive#>]\n\
+  mtx [ -f <loader-dev> ] [altres] first [<drive#>]\n\
+  mtx [ -f <loader-dev> ] [altres] last [<drive#>]\n\
+  mtx [ -f <loader-dev> ] [altres] next [<drive#>]\n\
+  mtx [ -f <loader-dev> ] [altres] previous [<drive#>]\n\
+  mtx [ -f <loader-dev> ] [altres] [invert] load <storage-element-number> [<drive#>]\n\
+  mtx [ -f <loader-dev> ] [altres] [invert] unload [<storage-element-number>][<drive#>]\n\
+  mtx [ -f <loader-dev> ] [altres] [eepos eepos-number] transfer <storage-element-number> <storage-element-number>\n\
+  mtx [ -f <loader-dev> ] [altres] [eepos eepos-number][invert][invert2] exchange <storage-element-number> <storage-element-number>\n\
+  mtx [ -f <loader-dev> ] [altres] position <storage-element-number>\n\
+  mtx [ -f <loader-dev> ] eject\n");
 
 
 #ifndef VMS
@@ -213,6 +216,10 @@ static void do_Position(void) {
 	}
 	src = ElementStatus->StorageElementAddress[driveno];
 	Position(src);
+}
+
+static void AltReadElementStatus(void) {
+  SCSI_Flags.querytype=MTX_ELEMENTSTATUS_READALL;  /* use alternative way to read element status from device - used to support XL1B2 */
 }
 
 /* First and Last are easy. Next is the bitch. */
@@ -623,7 +630,7 @@ static void Unload(void) {
 	       "illegal <drive-number> argument '%d' to 'unload' command\n",
 	       arg2);
   }
-  if (ElementStatus->DataTransferElementFull[arg2] < 0 ) {
+  if (!ElementStatus->DataTransferElementFull[arg2]) {
     FatalError("Data Transfer Element %d is Empty\n", arg2);
   }    
   /* Now see if something already lives where  we wanna go... */
@@ -715,7 +722,7 @@ void execute_command(struct command_table_struct *command) {
     }
     ElementStatus = ReadElementStatus(MediumChangerFD,&RequestSense,inquiry_info,&SCSI_Flags);
     if (!ElementStatus) {
-      PrintRequestSense(&RequestSense);                   
+      PrintRequestSense(&RequestSense);
       FatalError("READ ELEMENT STATUS Command Failed\n"); 
     }
   }
@@ -813,9 +820,6 @@ int main(int ArgCount,
 
   argv0=argv[0];
 
-   
-
-
   parse_args();  /* also executes them as it sees them, sigh. */
 
 #ifndef VMS
@@ -839,6 +843,19 @@ int main(int ArgCount,
 }
 /*
  *$Log$
+ *Revision 1.12  2007/01/29 03:22:45  robertnelson
+ *Add support for Windows.
+ *
+ *Add build support for Windows using MinGW native and Linux cross-compile.
+ *
+ *Add build support for Windows using Microsoft Visual Studio 2005.
+ *
+ *Add support for building on x86_64.
+ *
+ *Add more debugging information.
+ *
+ *Eliminate compiler warnings.
+ *
  *Revision 1.11  2006/02/21 03:08:53  elgreen
  *mtx 1.3.9 checkin
  *

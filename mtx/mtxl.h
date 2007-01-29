@@ -27,6 +27,9 @@
 
 #include "mtx.h"
 
+#undef min
+#undef max
+
 void FatalError(char *ErrorMessage, ...);
 void *xmalloc(size_t Size);
 void *xzmalloc(size_t Size);
