@@ -33,13 +33,13 @@
 
 #include "mtxl.h"  /* get the SCSI routines out of the main file */
 
-/*****************************************************************
+/****************************************************************/
 /* Variables:  */
 /****************************************************************/   
 
 /* the device handle we're operating upon, sigh. */
-static unsigned char *device;  /* the text of the device thingy. */
-static DEVICE_TYPE MediumChangerFD = (DEVICE_TYPE) 0;
+static char *device;  /* the text of the device thingy. */
+static DEVICE_TYPE MediumChangerFD = (DEVICE_TYPE) -1;
 char *argv0;
 int arg[4]; /* arguments for the command. */
 #define arg1 (arg[0])  /* for backward compatibility, sigh */
@@ -74,7 +74,7 @@ struct command_table_struct {
 /* open_device() -- set the 'fh' variable.... */
 void open_device(void) {
 
-  if (MediumChangerFD) {
+  if (MediumChangerFD != -1) {
     SCSI_CloseDevice("Unknown",MediumChangerFD);  /* close it, sigh...  new device now! */
   }
 
@@ -101,7 +101,7 @@ int execute_command(struct command_table_struct *command) {
   /* if the device is not already open, then open it from the 
    * environment.
    */
-  if (!MediumChangerFD) {
+  if (MediumChangerFD == -1) {
     /* try to get it from STAPE or TAPE environment variable... */
     device=getenv("STAPE");
     if (device==NULL) {
@@ -302,7 +302,7 @@ static int S_slotinfo(void) {
 }
 
 static int S_tongue_in(void) {
-
+  return 0;
 }
 
 /* okay, stick our tongue out. We need a slot ID to grab a caddy from. */
@@ -326,6 +326,7 @@ static int S_tongue_out(void) {
   }
   
   /* Okay, we have element status, so now let's assume that */
+  return 0;
 }
 
 /* See parse_args for the scoop. parse_args does all. */

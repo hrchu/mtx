@@ -41,10 +41,25 @@
 #include "mtx.h"
 #include "mtxl.h"
 
+#if HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#if HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+
+#if HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
+#endif
+
+#if HAVE_SYS_MTIO_H
 #include <sys/mtio.h> /* will try issuing some ioctls for Solaris, sigh. */
+#endif
+
+#ifdef _MSC_VER
+#include <io.h>
+#endif
 
 void Usage(void) {
   FatalError("Usage: scsitape -f <generic-device> <command> where <command> is:\n setblk <n> | fsf <n> | bsf <n> | eod | rewind | eject | mark <n> |\n  seek <n> | read [<blksize> [<numblocks]] | write [<blocksize>] \n");
@@ -54,7 +69,7 @@ void Usage(void) {
 static int arg[4];  /* the argument for the command, sigh. */
 
 /* the device handle we're operating upon, sigh. */
-static unsigned char *device;  /* the text of the device thingy. */
+static char *device;  /* the text of the device thingy. */
 static DEVICE_TYPE MediumChangerFD = (DEVICE_TYPE) 0;
 
 
@@ -95,42 +110,6 @@ struct command_table_struct {
 };
 
 char *argv0;
-
-/* A table for printing out the peripheral device type as ASCII. */ 
-static char *PeripheralDeviceType[32] = {
-  "Disk Drive",
-  "Tape Drive",
-  "Printer",
-  "Processor",
-  "Write-once",
-  "CD-ROM",
-  "Scanner",
-  "Optical",
-  "Medium Changer",
-  "Communications",
-  "ASC IT8",
-  "ASC IT8",
-  "RAID Array",
-  "Enclosure Services",
-  "OCR/W",
-  "Bridging Expander", /* 0x10 */
-  "Reserved",  /* 0x11 */
-  "Reserved", /* 0x12 */
-  "Reserved",  /* 0x13 */
-  "Reserved",  /* 0x14 */
-  "Reserved",  /* 0x15 */
-  "Reserved",  /* 0x16 */
-  "Reserved",  /* 0x17 */
-  "Reserved",  /* 0x18 */
-  "Reserved",  /* 0x19 */
-  "Reserved",  /* 0x1a */
-  "Reserved",  /* 0x1b */
-  "Reserved",  /* 0x1c */
-  "Reserved",  /* 0x1d */
-  "Reserved",  /* 0x1e */
-  "Unknown"    /* 0x1f */
-};
-
 
 
 /* open_device() -- set the 'fh' variable.... */
@@ -301,7 +280,7 @@ static int S_mark(void) {
   CDB[5]=0; 
 
   /* we really don't care if this command works or not, sigh.  */
-  slow_bzero((unsigned char *)&RequestSense,sizeof(RequestSense_T));
+  slow_bzero((char *)&RequestSense,sizeof(RequestSense_T));
   if (SCSI_ExecuteCommand(MediumChangerFD,Input,&CDB,6,buffer,0,&RequestSense)!=0){
     PrintRequestSense(&RequestSense);
     return 1;
@@ -324,7 +303,7 @@ static int S_rewind(void) {
   CDB[5]=0; 
 
   /* we really don't care if this command works or not, sigh.  */
-  slow_bzero((unsigned char *)&sense,sizeof(RequestSense_T));
+  slow_bzero((char *)&sense,sizeof(RequestSense_T));
   if (SCSI_ExecuteCommand(MediumChangerFD,Input,&CDB,6,buffer,0,&sense)!=0){
     PrintRequestSense(&sense);
     return 1;
@@ -349,7 +328,7 @@ static int Space(int count,int code){
   CDB[5]=0; 
 
   /* we really don't care if this command works or not, sigh.  */
-  slow_bzero((unsigned char *)&sense,sizeof(RequestSense_T));
+  slow_bzero((char *)&sense,sizeof(RequestSense_T));
   if (SCSI_ExecuteCommand(MediumChangerFD,Input,&CDB,6,buffer,0,&sense)!=0){
     PrintRequestSense(&sense);
     return 1;
@@ -392,7 +371,7 @@ static int S_reten(void) {
   CDB[5]=0; 
 
   /* we really don't care if this command works or not, sigh.  */
-  slow_bzero((unsigned char *)&sense,sizeof(RequestSense_T));
+  slow_bzero((char *)&sense,sizeof(RequestSense_T));
   if (SCSI_ExecuteCommand(MediumChangerFD,Input,&CDB,6,buffer,0,&sense)!=0){
     PrintRequestSense(&sense);
     return 1;
@@ -422,7 +401,7 @@ static int S_seek(void){
   CDB[9]=0; 
 
   /* we really don't care if this command works or not, sigh.  */
-  slow_bzero((unsigned char *)&sense,sizeof(RequestSense_T));
+  slow_bzero((char *)&sense,sizeof(RequestSense_T));
   if (SCSI_ExecuteCommand(MediumChangerFD,Input,&CDB,10,buffer,0,&sense)!=0){
     PrintRequestSense(&sense);
     return 1;
@@ -462,7 +441,7 @@ static int Solaris_setblk(int fh,int count) {
 static int S_setblk(void) {
   RequestSense_T sense;
   CDB_T CDB;
-  unsigned char buffer[12];
+  char buffer[12];
   unsigned int count = (unsigned int) arg1;
 
   
@@ -473,7 +452,7 @@ static int S_setblk(void) {
   CDB[4]=12; /* length of data */
   CDB[5]=0;
 
-  slow_bzero((unsigned char *)&sense,sizeof(RequestSense_T));
+  slow_bzero((char *)&sense,sizeof(RequestSense_T));
   slow_bzero(buffer,12);
 
   /* Now to set the mode page header: */
@@ -679,9 +658,9 @@ int SCSI_writet(DEVICE_TYPE fd, char * buf, unsigned int blocksize,
 
 /* S_write is not implemented yet! */
 static int S_write(void) {
-  unsigned char *buffer; /* the buffer we're gonna read/write out of. */
+  char *buffer; /* the buffer we're gonna read/write out of. */
   int buffersize;
-  int len; /* the length of the data in the buffer */
+  unsigned int len; /* the length of the data in the buffer */
   int blocksize=arg[0];
   int numblocks=arg[1];
   int varsize=0; /* variable size block flag */
@@ -755,9 +734,9 @@ static int S_write(void) {
 
 
 static int S_read(void) {
-  unsigned char *buffer; /* the buffer we're going to be reading out of */
+  char *buffer; /* the buffer we're going to be reading out of */
   int buffersize;
-  int len; /* the length of the data in the buffer */
+  unsigned int len; /* the length of the data in the buffer */
   int blocksize=arg[0];
   int numblocks=arg[1];
   int varsize=0; /* variable size block flag. */

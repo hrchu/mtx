@@ -211,25 +211,18 @@ typedef struct TapeCapacityStruct {
   unsigned int partition1_size;
 } TapeCapacity;
 
+#if defined(DEBUG)
 /* DEBUG */
 static void dump_data(unsigned char *data, int len) {
-  int i;
   if (!len) {
     fprintf(stderr,"**NO DATA**\n");
     return;
   }
 
-  for (i=0;i<len;i++) {
-    if ((i % 10) == 0) {
-      if (i) {
-	fprintf(stderr,"\n");
-      }
-      fprintf(stderr,"DATA:");
-    }
-    fprintf(stderr,"%02x ",(unsigned int)*data++);
-  }
-  fprintf(stderr,"\n");
+  fprintf(stderr,"DATA:");
+  PrintHex(1, data, len);
 }
+#endif
 
 
 
@@ -243,7 +236,7 @@ static TapeCapacity *RequestTapeCapacity(DEVICE_TYPE fd, RequestSense_T *sense) 
   
   unsigned char buffer[TAPEALERT_SIZE]; /* Overkill, but ... */
 
-  slow_bzero(buffer,TAPEALERT_SIZE); /*zero it... */
+  slow_bzero((char *)buffer,TAPEALERT_SIZE); /*zero it... */
 
   /* now to create the CDB block: */
   CDB[0]=0x4d;   /* Log Sense */
@@ -325,7 +318,7 @@ static struct tapealert_struct *RequestTapeAlert(DEVICE_TYPE fd, RequestSense_T 
   unsigned char buffer[TAPEALERT_SIZE];
   unsigned char *walkptr;
 
-  slow_bzero(buffer,TAPEALERT_SIZE); /*zero it... */
+  slow_bzero((char *)buffer,TAPEALERT_SIZE); /*zero it... */
 
   /* now to create the CDB block: */
   CDB[0]=0x4d;   /* Log Sense */
@@ -676,7 +669,7 @@ static void ReportSerialNumber(DEVICE_TYPE fd) {
      the sernum field, and bytes 4 onward are the serial #. */
   
   lim=(int)buffer[3];
-  bufptr= &(buffer[4]);
+  bufptr=(char *)&(buffer[4]);
   
   printf("SerialNumber: '");
   for (i=0;i<lim;i++) {
@@ -702,7 +695,7 @@ void ReportBlockLimits(DEVICE_TYPE fd) {
   CDB[4]=0;
   CDB[5]=0; 
 
-  slow_bzero((unsigned char *)&sense,sizeof(RequestSense_T));
+  slow_bzero((char *)&sense,sizeof(RequestSense_T));
   if (SCSI_ExecuteCommand(fd,Input,&CDB,6,buffer,6,&sense)!=0){
     return;
   }
@@ -735,7 +728,7 @@ void ReadPosition(DEVICE_TYPE fd) {
   CDB[8]=0;
   CDB[9]=0;
 
-  slow_bzero((unsigned char *)&sense,sizeof(RequestSense_T));
+  slow_bzero((char *)&sense,sizeof(RequestSense_T));
 
   /* set the timeout: */
   SCSI_Set_Timeout(2); /* set timeout to 2 seconds! */
@@ -789,7 +782,7 @@ int TestUnitReady(DEVICE_TYPE fd) {
   CDB[4]=0;
   CDB[5]=0; 
 
-  slow_bzero((unsigned char *)&sense,sizeof(RequestSense_T));
+  slow_bzero((char *)&sense,sizeof(RequestSense_T));
   if (SCSI_ExecuteCommand(fd,Input,&CDB,6,buffer,0,&sense)!=0){
     printf("Ready: no\n");
     return 0;
@@ -817,7 +810,7 @@ int WriteFileMarks(DEVICE_TYPE fd,int count) {
   CDB[5]=0; 
 
   /* we really don't care if this command works or not, sigh.  */
-  slow_bzero((unsigned char *)&sense,sizeof(RequestSense_T));
+  slow_bzero((char *)&sense,sizeof(RequestSense_T));
   if (SCSI_ExecuteCommand(fd,Input,&CDB,6,buffer,0,&sense)!=0){
     return 1;
   }

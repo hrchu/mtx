@@ -53,6 +53,11 @@ $Revision$
 #  include "scsi_linux.c"
 #endif
 
+/* the IOCTL_SCSI_PASSTHROUGH interface is used on Windows. */
+#if HAVE_DDK_NTDDSCSI_H || defined(_MSC_VER)
+#  include "scsi_win32.c"
+#endif
+
 /* The 'uscsi' interface is used on Solaris. */
 #if HAVE_SYS_SCSI_IMPL_USCSI_H
 #  include "scsi_sun.c"
@@ -78,6 +83,7 @@ $Revision$
 #include "[.vms]scsi.c"
 #endif
 
+void PrintHex(int Indent, unsigned char *Buffer, int Length);
 extern char *argv0; /* something to let us do good error messages. */
 
 /* create a global RequestSenseT value. */
@@ -104,6 +110,9 @@ Inquiry_T *RequestInquiry(DEVICE_TYPE fd, RequestSense_T *RequestSense) {
   if (SCSI_ExecuteCommand(fd, Input, &CDB, 6,
 			  Inquiry, sizeof(Inquiry_T), RequestSense) != 0)
     {
+#ifdef DEBUG
+      fprintf(stderr, "SCSI Inquiry Command failed\n");
+#endif
       free(Inquiry);
       return NULL;  /* sorry! */
     }
@@ -111,36 +120,27 @@ Inquiry_T *RequestInquiry(DEVICE_TYPE fd, RequestSense_T *RequestSense) {
 }
 
 
+#if defined(DEBUG_NSM) || defined(DEBUG_EXCHANGE)
 /* DEBUG */
 static void dump_cdb(unsigned char *CDB, int len) {
-  int i;
   fprintf(stderr,"CDB:");
-  for (i=0;i<len;i++) {
-    fprintf(stderr,"%02x ",CDB[i]);
-  }
-  fprintf(stderr,"\n");
+  PrintHex(1, CDB, len);
 }
+#endif
 
 
+#if defined(DEBUG_NSM) || defined(DEBUG_ADIC)
 /* DEBUG */
 static void dump_data(unsigned char *data, int len) {
-  int i;
   if (!len) {
     fprintf(stderr,"**NO DATA**\n");
     return;
   }
 
-  for (i=0;i<len;i++) {
-    if ((i % 10) == 0) {
-      if (i) {
-	fprintf(stderr,"\n");
-      }
-      fprintf(stderr,"DATA:");
-    }
-    fprintf(stderr,"%02x ",(unsigned int)*data++);
-  }
-  fprintf(stderr,"\n");
+  fprintf(stderr,"DATA:");
+  PrintHex(1, data, len);
 }
+#endif
 
 
 int BigEndian16(unsigned char *BigEndianData)
@@ -255,7 +255,7 @@ int max(int x, int y)
 
 
 /* Okay, this is a hack for the NSM modular jukebox series, which
- * uses the "SEND DIAGNOSTIC" command do to shit. 
+ * uses the "SEND DIAGNOSTIC" command to do shit. 
  */
 
 int SendNSMHack(DEVICE_TYPE MediumChangerFD, NSM_Param_T *nsm_command, 
@@ -346,6 +346,10 @@ int Inventory(DEVICE_TYPE MediumChangerFD) {
   SCSI_Set_Timeout(30*60); /* 30 minutes, sigh! */
   
   if (SCSI_ExecuteCommand(MediumChangerFD,Input,&CDB,6,NULL,0,&scsi_error_sense) != 0) {
+#ifdef DEBUG
+    PrintRequestSense(&scsi_error_sense);
+    fprintf(stderr, "Initialize Element Status (0x07) failed\n");
+#endif
     return -1;  /* could not do! */
   }
   return 0; /* did do! */
@@ -364,6 +368,10 @@ int Eject(DEVICE_TYPE fd) {
   CDB[1]=CDB[2]=CDB[3]=CDB[4]=CDB[5]=0;
   
   if (SCSI_ExecuteCommand(fd,Input,&CDB,6,NULL,0,&scsi_error_sense) != 0) {
+#ifdef DEBUG_MODE_SENSE
+    PrintRequestSense(&scsi_error_sense);
+    fprintf(stderr, "Eject (0x1B) failed\n");
+#endif
     return -1;  /* could not do! */
   }
   return 0; /* did do! */
@@ -396,7 +404,8 @@ ElementModeSense_T *ReadAssignmentPage(DEVICE_TYPE MediumChangerFD) {
   if (SCSI_ExecuteCommand(MediumChangerFD,Input,&CDB,6,
 			  &input_buffer,sizeof(input_buffer),&scsi_error_sense) != 0) {
 #ifdef DEBUG_MODE_SENSE
-    fprintf(stderr,"Could not execute mode sense...\n");
+    PrintRequestSense(&scsi_error_sense);
+    fprintf(stderr,"Mode sense (0x1A) for Page 0x1D failed\n");
     fflush(stderr);
 #endif
     return NULL; /* sorry, couldn't do it. */
@@ -405,18 +414,7 @@ ElementModeSense_T *ReadAssignmentPage(DEVICE_TYPE MediumChangerFD) {
   /* Could do it, now build return value: */
 
 #ifdef DEBUG_MODE_SENSE
-  {
-    int i;
-    for (i=0;i<30;i+=3) {
-      fprintf(stderr,"ib[%d]=%d ib[%d]=%d ib[%d]=%d\n",
-	      i,input_buffer[i],i+1,input_buffer[i+1],
-	      i+2,input_buffer[i+2]);
-      /*  fprintf(stderr,"input_buffer[0]=%d input_buffer[3]=%d\n",
-       *	  input_buffer[0], input_buffer[3]);
-       */
-    }
-    fflush(stderr);
-  }
+  PrintHex(0, input_buffer, 30);
 #endif
   /* first, skip past: mode data header, and block descriptor header if any */
   sense_page=(ElementModeSensePage_T *)(input_buffer+4+input_buffer[3]);
@@ -620,19 +618,16 @@ static unsigned char *SendElementStatusRequestActual(DEVICE_TYPE MediumChangerFD
   CDB[11] = 0;			/* Control */
 
 #ifdef DEBUG_BARCODE
-  {
-    int i;
-    fprintf(stderr,"CDB= ");
-    for (i=0;i<12;i++) {
-      fprintf(stderr,"%x ",CDB[i]);
-    }
-    fprintf(stderr,"\n");
-    fflush(stderr);
-  }
+  fprintf(stderr,"CDB:\n");
+  PrintHex(2, CDB, 12);
 #endif
 
   if (SCSI_ExecuteCommand(MediumChangerFD, Input, &CDB, 12,
 			  DataBuffer,NumBytes, RequestSense) != 0){
+
+#ifdef DEBUG
+    fprintf(stderr, "Read Element Status (0x%02X) failed\n", CDB[0]);
+#endif
     /* okay, first see if we have sense key of 'illegal request',
        additional sense code of '24', additional sense qualfier of 
        '0', and field in error of '4'. This means that we issued a request
@@ -654,15 +649,8 @@ static unsigned char *SendElementStatusRequestActual(DEVICE_TYPE MediumChangerFD
       CDB[1] &= ~0x10; /* clear bar code flag! */
 
 #ifdef DEBUG_BARCODE
-      {
-	int i;
-	fprintf(stderr,"CDB= ");
-	for (i=0;i<12;i++) {
-	  fprintf(stderr,"%x ",CDB[i]);
-	}
-	fprintf(stderr,"\n");
-	fflush(stderr);
-      }
+      fprintf(stderr,"CDB:\n");
+      PrintHex(2, CDB, 12);
 #endif
       
       if (SCSI_ExecuteCommand(MediumChangerFD, Input, &CDB, 12,
@@ -679,14 +667,8 @@ static unsigned char *SendElementStatusRequestActual(DEVICE_TYPE MediumChangerFD
 #ifdef DEBUG_BARCODE
   /* print a bunch of extra debug data :-(.  */
   PrintRequestSense(RequestSense); /* see what it sez :-(. */
-  {
-    int i;
-    fprintf(stderr,"Data:");
-    for (i=0;i<40;i++) {
-      fprintf(stderr,"%02x ",DataBuffer[i]);
-    }
-    fprintf(stderr,"\n");
-  }
+  fprintf(stderr,"Data:\n");
+  PrintHex(2, DataBuffer, 40);
 #endif  
   return DataBuffer; /* we succeeded! */
 }
@@ -703,7 +685,7 @@ unsigned char *SendElementStatusRequest(DEVICE_TYPE MediumChangerFD,
 					) {
 
   unsigned char *DataBuffer; /* size of data... */
-  unsigned int real_numbytes;
+  int real_numbytes;
 
   
   DataBuffer=SendElementStatusRequestActual(MediumChangerFD,
@@ -765,47 +747,47 @@ static void ParseElementStatus(int *EmptyStorageElementAddress,
 			       int *EmptyStorageElementCount,
 			       unsigned char *DataBuffer,
 			       ElementStatus_T *ElementStatus,
-			       ElementModeSense_T *mode_sense
+			       ElementModeSense_T *mode_sense,
+			       int *pNextElement
+			       )
+{
+    unsigned char *DataPointer = DataBuffer;
+  TransportElementDescriptor_T TEBuf;
+  TransportElementDescriptor_T *TransportElementDescriptor;
+  ElementStatusDataHeader_T *ElementStatusDataHeader;
+  Element2StatusPage_T *ElementStatusPage;
+  Element2StatusPage_T ESBuf;
+  int ElementCount;
+  int TransportElementDescriptorLength;
+  int BytesAvailable;
+  int ImportExportIndex;
 
-			       )   {
-    
-    unsigned char *DataPointer=DataBuffer;
-    TransportElementDescriptor_T TEBuf;
-    TransportElementDescriptor_T *TransportElementDescriptor;
-    ElementStatusDataHeader_T *ElementStatusDataHeader;
-    Element2StatusPage_T *ElementStatusPage;
-    Element2StatusPage_T ESBuf;
-    int ElementCount;
-    int TransportElementDescriptorLength;
-    int BytesAvailable; 
-    
   ElementStatusDataHeader = (ElementStatusDataHeader_T *) DataPointer;
   DataPointer += sizeof(ElementStatusDataHeader_T);
   ElementCount =
     BigEndian16(ElementStatusDataHeader->NumberOfElementsAvailable);
 #ifdef DEBUG
-      fprintf(stderr,"ElementCount=%d\n",ElementCount);
-      fflush(stderr);
+  fprintf(stderr,"ElementCount=%d\n",ElementCount);
+  fflush(stderr);
 #endif
-  while (ElementCount > 0)
-    {
+  while (ElementCount > 0) {
 #ifdef DEBUG
-      int got_element_num=0;
-      
-      fprintf(stderr,"Working on element # %d Element Count %d\n",got_element_num,ElementCount);
-      got_element_num++;
+    int got_element_num=0;
+
+    fprintf(stderr,"Working on element # %d Element Count %d\n",got_element_num,ElementCount);
+    got_element_num++;
 #endif
 
-      memcpy(&ESBuf, DataPointer, sizeof(ElementStatusPage_T));
-      ElementStatusPage = &ESBuf;
-      DataPointer += sizeof(ElementStatusPage_T);
-      TransportElementDescriptorLength =
+    memcpy(&ESBuf, DataPointer, sizeof(ElementStatusPage_T));
+    ElementStatusPage = &ESBuf;
+    DataPointer += sizeof(ElementStatusPage_T);
+    TransportElementDescriptorLength =
 	BigEndian16(ElementStatusPage->ElementDescriptorLength);
-      if (TransportElementDescriptorLength <
+    if (TransportElementDescriptorLength <
 	  sizeof(TransportElementDescriptorShort_T)) {
 
 	/* Foo, Storage Element Descriptors can be 4 bytes?! */
-	if ( (ElementStatusPage->ElementTypeCode != MediumTransportElement &&
+	if ((ElementStatusPage->ElementTypeCode != MediumTransportElement &&
 	      ElementStatusPage->ElementTypeCode != StorageElement &&
 	      ElementStatusPage->ElementTypeCode != ImportExportElement ) ||
 	     TransportElementDescriptorLength < 4) {
@@ -814,21 +796,21 @@ static void ParseElementStatus(int *EmptyStorageElementAddress,
 #endif
 	  FatalError("Transport Element Descriptor Length too short: %d\n",TransportElementDescriptorLength);
 	} 
-	
-      }
+}
 #ifdef DEBUG
-      fprintf(stderr,"Transport Element Descriptor Length=%d\n",TransportElementDescriptorLength);
+    fprintf(stderr,"Transport Element Descriptor Length=%d\n",TransportElementDescriptorLength);
 #endif
-      BytesAvailable =
+    BytesAvailable =
 	BigEndian24(ElementStatusPage->ByteCountOfDescriptorDataAvailable);
 #ifdef DEBUG
-      fprintf(stderr,"%d bytes of descriptor data available in descriptor\n",
+    fprintf(stderr,"%d bytes of descriptor data available in descriptor\n",
 	      BytesAvailable);
 #endif
-      /* work around a bug in ADIC DAT loaders */
-      if (BytesAvailable <=0) ElementCount--; /* sorry :-( */
-      while (BytesAvailable > 0)
+    /* work around a bug in ADIC DAT loaders */
+    if (BytesAvailable <=0) ElementCount--; /* sorry :-( */
+    while (BytesAvailable > 0)
 	{
+
 	  /* TransportElementDescriptor =
 	     (TransportElementDescriptor_T *) DataPointer; */
           memcpy(&TEBuf, DataPointer, 
@@ -837,11 +819,20 @@ static void ParseElementStatus(int *EmptyStorageElementAddress,
 				sizeof(TEBuf));
           TransportElementDescriptor = &TEBuf;
 
-	  DataPointer += TransportElementDescriptorLength;
-	  BytesAvailable -= TransportElementDescriptorLength;
-	  ElementCount--;
-	  switch (ElementStatusPage->ElementTypeCode)
-	    {
+      if (pNextElement != NULL) {
+        if (BigEndian16(TransportElementDescriptor->ElementAddress) != 0 || *pNextElement == 0) {
+          (*pNextElement) = BigEndian16(TransportElementDescriptor->ElementAddress) + 1;
+        } else {
+          return;
+        }
+      }
+
+	    DataPointer += TransportElementDescriptorLength;
+	    BytesAvailable -= TransportElementDescriptorLength;
+	    ElementCount--;
+
+	    switch (ElementStatusPage->ElementTypeCode)
+	      {
 	    case MediumTransportElement:
 	      ElementStatus->TransportElementAddress = BigEndian16(TransportElementDescriptor->ElementAddress);
 #ifdef DEBUG
@@ -852,132 +843,169 @@ static void ParseElementStatus(int *EmptyStorageElementAddress,
 	       * storage elements now, sigh...
 	       */
 	    case ImportExportElement:
-	      ElementStatus->ImportExportCount++;
 #ifdef DEBUG
 	      fprintf(stderr,"ImportExportElement=%d\n",ElementStatus->StorageElementCount);
 #endif
-	      ElementStatus->StorageElementIsImportExport[ElementStatus->StorageElementCount] = 1;
-	      /* WARNING: DO *NOT* PUT A 'break' STATEMENT HERE, it is supposed
-	       * to run on into the case for a Storage Element! 
-	       */
-	    case StorageElement:
+        if (ElementStatus->ImportExportCount >= mode_sense->NumImportExport) {
+          fprintf(stderr,"Warning:Too Many Import/Export Elements Reported (expected %d, now have %d\n",
+                  mode_sense->NumImportExport,
+                  ElementStatus->ImportExportCount + 1);
+          fflush(stderr);
+          return; /* we're done :-(. */
+        }
+
+        ImportExportIndex = mode_sense->NumStorage - mode_sense->NumImportExport + ElementStatus->ImportExportCount;
+
+        ElementStatus->StorageElementAddress[ImportExportIndex] =
+          BigEndian16(TransportElementDescriptor->ElementAddress);
+        ElementStatus->StorageElementFull[ImportExportIndex] =
+          TransportElementDescriptor->Full;
+
+        if ( (TransportElementDescriptorLength > 11) && 
+            (ElementStatusPage->VolBits & E2_AVOLTAG)) {
+          copy_barcode(TransportElementDescriptor->AlternateVolumeTag,
+            ElementStatus->AlternateVolumeTag[ImportExportIndex]);
+        } else {
+          ElementStatus->AlternateVolumeTag[ImportExportIndex][0]=0;  /* null string. */;
+        } 
+        if ( (TransportElementDescriptorLength > 11) && 
+             (ElementStatusPage->VolBits & E2_PVOLTAG)) {
+          copy_barcode(TransportElementDescriptor->PrimaryVolumeTag,
+                       ElementStatus->PrimaryVolumeTag[ImportExportIndex]);
+        } else {
+          ElementStatus->PrimaryVolumeTag[ImportExportIndex][0]=0; /* null string. */
+        }
+
+        ElementStatus->StorageElementIsImportExport[ImportExportIndex] = 1;
+
+        ElementStatus->ImportExportCount++;
+        break;
+
+	      case StorageElement:
 #ifdef DEBUG
-	      fprintf(stderr,"StorageElementCount=%d  ElementAddress = %d ",ElementStatus->StorageElementCount,BigEndian16(TransportElementDescriptor->ElementAddress));
+	        fprintf(stderr,"StorageElementCount=%d  ElementAddress = %d ",ElementStatus->StorageElementCount,BigEndian16(TransportElementDescriptor->ElementAddress));
 #endif
-	      /* ATL/Exabyte kludge -- skip slots that aren't installed :-( */
-	      if (TransportElementDescriptor->AdditionalSenseCode==0x83 && 
-		  TransportElementDescriptor->AdditionalSenseCodeQualifier==0x02) 
-		continue;  
+	        /* ATL/Exabyte kludge -- skip slots that aren't installed :-( */
+	        if (TransportElementDescriptor->AdditionalSenseCode==0x83 && 
+		    TransportElementDescriptor->AdditionalSenseCodeQualifier==0x02) 
+		  continue;
 
-	      ElementStatus->StorageElementAddress[ElementStatus->StorageElementCount] =
-		BigEndian16(TransportElementDescriptor->ElementAddress);
-	      ElementStatus->StorageElementFull[ElementStatus->StorageElementCount] =
-		TransportElementDescriptor->Full;
+	        ElementStatus->StorageElementAddress[ElementStatus->StorageElementCount] =
+		  BigEndian16(TransportElementDescriptor->ElementAddress);
+	        ElementStatus->StorageElementFull[ElementStatus->StorageElementCount] =
+		  TransportElementDescriptor->Full;
 #ifdef DEBUG
-	      if (TransportElementDescriptor->Except)
-		fprintf(stderr,"ASC,ASCQ = 0x%x,0x%x ",TransportElementDescriptor->AdditionalSenseCode,TransportElementDescriptor->AdditionalSenseCodeQualifier);
-	      fprintf(stderr,"TransportElement->Full = %d\n",TransportElementDescriptor->Full);
+	        if (TransportElementDescriptor->Except)
+		  fprintf(stderr,"ASC,ASCQ = 0x%x,0x%x ",TransportElementDescriptor->AdditionalSenseCode,TransportElementDescriptor->AdditionalSenseCodeQualifier);
+	        fprintf(stderr,"TransportElement->Full = %d\n",TransportElementDescriptor->Full);
 #endif
-	      if (!TransportElementDescriptor->Full)
-		{
-		  EmptyStorageElementAddress[(*EmptyStorageElementCount)++] =
-		    ElementStatus->StorageElementCount; /* slot idx. */
-		    /*   ElementStatus->StorageElementAddress[ElementStatus->StorageElementCount]; */
-		}
-	      if ( (TransportElementDescriptorLength >  11) && 
-		   (ElementStatusPage->VolBits & E2_AVOLTAG)) {
-		copy_barcode(TransportElementDescriptor->AlternateVolumeTag,
-			     ElementStatus->AlternateVolumeTag[ElementStatus->StorageElementCount]);
-	      } else {
-		ElementStatus->AlternateVolumeTag[ElementStatus->StorageElementCount][0]=0;  /* null string. */;
-	      } 
-	      if ( (TransportElementDescriptorLength > 11) && 
-		   (ElementStatusPage->VolBits & E2_PVOLTAG)) {
-		copy_barcode(TransportElementDescriptor->PrimaryVolumeTag,
-			     ElementStatus->PrimaryVolumeTag[ElementStatus->StorageElementCount]);
-	      } else {
-		ElementStatus->PrimaryVolumeTag[ElementStatus->StorageElementCount][0]=0; /* null string. */
-	      }
-	      
-	      ElementStatus->StorageElementCount++;
-	      /* Note that the original mtx had no check here for 
-		 buffer overflow, though some drives might mistakingly
-		 do one... 
-	      */ 
-	      if (ElementStatus->StorageElementCount > mode_sense->NumStorage) {
-		fprintf(stderr,"Warning:Too Many Storage Elements Reported (expected %d, now have %d\n",
-			mode_sense->NumStorage,
-			ElementStatus->StorageElementCount);
-		fflush(stderr);
-		return; /* we're done :-(. */
-	      }
+	        if (!TransportElementDescriptor->Full) {
+		    EmptyStorageElementAddress[(*EmptyStorageElementCount)++] =
+		      ElementStatus->StorageElementCount; /* slot idx. */
+		      /*   ElementStatus->StorageElementAddress[ElementStatus->StorageElementCount]; */
+		  }
+	        if ( (TransportElementDescriptorLength >  11) && 
+		     (ElementStatusPage->VolBits & E2_AVOLTAG)) {
+		  copy_barcode(TransportElementDescriptor->AlternateVolumeTag,
+			       ElementStatus->AlternateVolumeTag[ElementStatus->StorageElementCount]);
+	        } else {
+		  ElementStatus->AlternateVolumeTag[ElementStatus->StorageElementCount][0]=0;  /* null string. */;
+	        } 
+	        if ( (TransportElementDescriptorLength > 11) && 
+		     (ElementStatusPage->VolBits & E2_PVOLTAG)) {
+		  copy_barcode(TransportElementDescriptor->PrimaryVolumeTag,
+			       ElementStatus->PrimaryVolumeTag[ElementStatus->StorageElementCount]);
+	        } else {
+		  ElementStatus->PrimaryVolumeTag[ElementStatus->StorageElementCount][0]=0; /* null string. */
+	        }
 
+	        ElementStatus->StorageElementCount++;
+	        /* Note that the original mtx had no check here for 
+		   buffer overflow, though some drives might mistakingly
+		   do one... 
+	        */ 
+	        if (ElementStatus->StorageElementCount > mode_sense->NumStorage) {
+		  fprintf(stderr,"Warning:Too Many Storage Elements Reported (expected %d, now have %d\n",
+			  mode_sense->NumStorage,
+			  ElementStatus->StorageElementCount);
+		  fflush(stderr);
+		  return; /* we're done :-(. */
+	        }
+	        break;
 
-	      break;
+	      case DataTransferElement:
+	        /* tape drive not installed, go back to top of loop */
 
+	        /* if (TransportElementDescriptor->Except) continue ; */
 
-	    case DataTransferElement:
-	      /* tape drive not installed, go back to top of loop */
+	        /* Note: This is for Exabyte tape libraries that improperly
+		   report that they have a 2nd tape drive when they don't. We
+		   could generalize this in an ideal world, but my attempt to
+		   do so failed with dual-drive Exabyte tape libraries that
+		   *DID* have the second drive. Sigh. 
+	        */
+	        if (TransportElementDescriptor->AdditionalSenseCode==0x83 && 
+		    TransportElementDescriptor->AdditionalSenseCodeQualifier==0x04) 
+		  continue;
 
-	      /* if (TransportElementDescriptor->Except) continue ; */
+	        /* generalize it. Does it work? Let's try it! */
+	        /* No, dammit, following does not work on dual-drive Exabyte
+		   'cause if a tape is in the drive, it sets the AdditionalSense
+		    code to something (sigh).
+	        */
+	        /* if (TransportElementDescriptor->AdditionalSenseCode!=0)
+		  continue;
+	        */ 
 
-	      /* Note: This is for Exabyte tape libraries that improperly
-		 report that they have a 2nd tape drive when they don't. We
-		 could generalize this in an ideal world, but my attempt to
-		 do so failed with dual-drive Exabyte tape libraries that
-		 *DID* have the second drive. Sigh. 
-	      */
-	      if (TransportElementDescriptor->AdditionalSenseCode==0x83 && 
-		  TransportElementDescriptor->AdditionalSenseCodeQualifier==0x04) 
-		continue;
+	        ElementStatus->DataTransferElementAddress[ElementStatus->DataTransferElementCount] =
+		  BigEndian16(TransportElementDescriptor->ElementAddress);
+	        ElementStatus->DataTransferElementFull[ElementStatus->DataTransferElementCount] = 
+		  TransportElementDescriptor->Full;
+	        ElementStatus->DataTransferElementSourceStorageElementNumber[ElementStatus->DataTransferElementCount] =
+		  BigEndian16(TransportElementDescriptor->SourceStorageElementAddress);
 
-	      /* generalize it. Does it work? Let's try it! */
-	      /* No, dammit, following does not work on dual-drive Exabyte
-		 'cause if a tape is in the drive, it sets the AdditionalSense
-		  code to something (sigh).
-	      */
-	      /* if (TransportElementDescriptor->AdditionalSenseCode!=0)
-		continue;
-	      */ 
-	      
+#if DEBUG
+          fprintf(stderr, "%d: ElementAddress = %d, Full = %d, SourceElement = %d\n", 
+                  ElementStatus->DataTransferElementCount,
+                  ElementStatus->DataTransferElementAddress[ElementStatus->DataTransferElementCount],
+                  ElementStatus->DataTransferElementFull[ElementStatus->DataTransferElementCount],
+                  ElementStatus->DataTransferElementSourceStorageElementNumber[ElementStatus->DataTransferElementCount]);
+#endif
+          if (ElementStatus->DataTransferElementCount >= mode_sense->NumDataTransfer) {
+            FatalError("Too many Data Transfer Elements Reported\n");
+          }
+          if (ElementStatusPage->VolBits & E2_PVOLTAG) {
+            copy_barcode(TransportElementDescriptor->PrimaryVolumeTag,
+                         ElementStatus->DataTransferPrimaryVolumeTag[ElementStatus->DataTransferElementCount]);
+          } else {
+            ElementStatus->DataTransferPrimaryVolumeTag[ElementStatus->DataTransferElementCount][0]=0; /* null string */
+          }
+          if (ElementStatusPage->VolBits & E2_AVOLTAG) {
+            copy_barcode(TransportElementDescriptor->AlternateVolumeTag,
+                         ElementStatus->DataTransferAlternateVolumeTag[ElementStatus->DataTransferElementCount]);
+          } else {
+            ElementStatus->DataTransferAlternateVolumeTag[ElementStatus->DataTransferElementCount][0]=0; /* null string */
+          }
+          ElementStatus->DataTransferElementCount++;
 
-		  
-	      ElementStatus->DataTransferElementAddress[ElementStatus->DataTransferElementCount] =
-		BigEndian16(TransportElementDescriptor->ElementAddress);
-	      ElementStatus->DataTransferElementFull[ElementStatus->DataTransferElementCount] = 
-		TransportElementDescriptor->Full;
-	      ElementStatus->DataTransferElementSourceStorageElementNumber[ElementStatus->DataTransferElementCount] =
-		BigEndian16(TransportElementDescriptor
-			    ->SourceStorageElementAddress);
-
-	      if (ElementStatus->DataTransferElementCount >= mode_sense->NumDataTransfer) {
-		FatalError("Too many Data Transfer Elements Reported\n");
-	      }
-	      if (ElementStatusPage->VolBits & E2_PVOLTAG) {
-		copy_barcode(TransportElementDescriptor->PrimaryVolumeTag,
-			     ElementStatus->DataTransferPrimaryVolumeTag[ElementStatus->DataTransferElementCount]);
-	      } else {
-		ElementStatus->DataTransferPrimaryVolumeTag[ElementStatus->DataTransferElementCount][0]=0; /* null string */
-	      }
-	      if (ElementStatusPage->VolBits & E2_AVOLTAG) {
-		copy_barcode(TransportElementDescriptor->AlternateVolumeTag,
-			     ElementStatus->DataTransferAlternateVolumeTag[ElementStatus->DataTransferElementCount]);
-	      } else {
-		ElementStatus->DataTransferAlternateVolumeTag[ElementStatus->DataTransferElementCount][0]=0; /* null string */
-	      }
-	      ElementStatus->DataTransferElementCount++;
-	      /* 0 actually is a usable element address */
-	      /* if (DataTransferElementAddress == 0) */
-	      /*	FatalError( */
-	      /*  "illegal Data Transfer Element Address %d reported\n", */
-	      /* DataTransferElementAddress); */
-	      break;
-	    default:
-	      FatalError("illegal Element Type Code %d reported\n",
-			 ElementStatusPage->ElementTypeCode);
-	    }
-	}
+          /* 0 actually is a usable element address */
+          /* if (DataTransferElementAddress == 0) */
+          /*	FatalError( */
+          /*  "illegal Data Transfer Element Address %d reported\n", */
+          /* DataTransferElementAddress); */
+          break;
+        default:
+          FatalError("illegal Element Type Code %d reported\n",
+            ElementStatusPage->ElementTypeCode);
+        }
     }
+    }
+    
+#ifdef DEBUG
+    if (pNextElement)
+      fprintf(stderr,"Next start element will be %d\n",*pNextElement);
+#endif
+
 }
 
 /********************* Real ReadElementStatus ********************* */
@@ -1008,7 +1036,6 @@ ElementStatus_T *ReadElementStatus(DEVICE_TYPE MediumChangerFD, RequestSense_T *
   int *EmptyStorageElementAddress; /* [MAX_STORAGE_ELEMENTS]; */
   
   int empty_idx=0;
-  int invalid_sources=0;
   boolean is_attached = false;
   int i,j;
   
@@ -1063,201 +1090,236 @@ ElementStatus_T *ReadElementStatus(DEVICE_TYPE MediumChangerFD, RequestSense_T *
   }
   
 
-  flags->elementtype=StorageElement; /* sigh! */
-  DataBuffer=SendElementStatusRequest(MediumChangerFD,RequestSense,
-				      inquiry_info,flags,
-				      mode_sense->StorageStart,
-				      /* adjust for import/export. */
-				      mode_sense->NumStorage-mode_sense->NumImportExport,
-				      mode_sense->MaxReadElementStatusData);
-  if (!DataBuffer) {
+  if(flags->querytype==MTX_ELEMENTSTATUS_ORIGINAL)
+  {
 #ifdef DEBUG
-    fprintf(stderr,"Had no elements!\n");
+    fprintf(stderr,"Using original element status polling method (storage, import/export, drivers etc independantly)\n");
 #endif
-    /* darn. Free up stuff and return. */
-    /****FIXME**** do a free on element data! */
-    FreeElementData(ElementStatus);
-    return NULL; 
-  } 
-
-#ifdef DEBUG
-  fprintf(stderr, "Parsing storage elements\n");
-#endif  
-  ParseElementStatus(EmptyStorageElementAddress,&EmptyStorageElementCount,
-		     DataBuffer,ElementStatus,mode_sense);
-
-  free(DataBuffer); /* sigh! */
-
-  /* --------------IMPORT/EXPORT--------------- */
-  /* Next let's see if we need to do Import/Export: */
-  if (mode_sense->NumImportExport > 0) {
-#ifdef DEBUG
-    fprintf(stderr,"Sending request for Import/Export status\n");
-#endif  
-    flags->elementtype=ImportExportElement;
+    flags->elementtype=StorageElement; /* sigh! */
     DataBuffer=SendElementStatusRequest(MediumChangerFD,RequestSense,
-					inquiry_info,flags,
-					mode_sense->ImportExportStart,
-					mode_sense->NumImportExport,
-					mode_sense->MaxReadElementStatusData);
-    
+				        inquiry_info,flags,
+				        mode_sense->StorageStart,
+				        /* adjust for import/export. */
+				        mode_sense->NumStorage-mode_sense->NumImportExport,
+				        mode_sense->MaxReadElementStatusData);
     if (!DataBuffer) {
 #ifdef DEBUG
-      fprintf(stderr,"Had no input/export element!\n");
+      fprintf(stderr,"Had no elements!\n");
 #endif
       /* darn. Free up stuff and return. */
-      /****FIXME**** do a free on element data! */
+#ifdef DEBUG_MODE_SENSE
+      PrintRequestSense(RequestSense);
+#endif
+      FreeElementData(ElementStatus);
+      return NULL; 
+    }
+
+#ifdef DEBUG
+    fprintf(stderr, "Parsing storage elements\n");
+#endif  
+    ParseElementStatus(EmptyStorageElementAddress,&EmptyStorageElementCount,
+		       DataBuffer,ElementStatus,mode_sense,NULL);
+
+    free(DataBuffer); /* sigh! */
+
+    /* --------------IMPORT/EXPORT--------------- */
+    /* Next let's see if we need to do Import/Export: */
+    if (mode_sense->NumImportExport > 0) {
+#ifdef DEBUG
+      fprintf(stderr,"Sending request for Import/Export status\n");
+#endif  
+      flags->elementtype=ImportExportElement;
+      DataBuffer=SendElementStatusRequest(MediumChangerFD,RequestSense,
+					  inquiry_info,flags,
+					  mode_sense->ImportExportStart,
+					  mode_sense->NumImportExport,
+					  mode_sense->MaxReadElementStatusData);
+    
+      if (!DataBuffer) {
+#ifdef DEBUG
+        fprintf(stderr,"Had no input/export element!\n");
+#endif
+        /* darn. Free up stuff and return. */
+#ifdef DEBUG_MODE_SENSE
+        PrintRequestSense(RequestSense);
+#endif
+        FreeElementData(ElementStatus);
+        return NULL; 
+      } 
+#ifdef DEBUG
+      fprintf(stderr,"Parsing inport/export element status\n");
+#endif
+#ifdef DEBUG_ADIC
+      dump_data(DataBuffer,100); /* dump some data :-(. */
+#endif
+      ParseElementStatus(EmptyStorageElementAddress,&EmptyStorageElementCount,
+		       DataBuffer,ElementStatus,mode_sense,NULL);
+
+      ElementStatus->StorageElementCount += ElementStatus->ImportExportCount;
+    }
+  
+    /* ----------------- DRIVES ---------------------- */
+
+#ifdef DEBUG
+    fprintf(stderr,"Sending request for data transfer element (drive) status\n");
+#endif
+    flags->elementtype=DataTransferElement; /* sigh! */
+    DataBuffer=SendElementStatusRequest(MediumChangerFD,RequestSense,
+				        inquiry_info,flags,
+				        mode_sense->DataTransferStart,
+				        mode_sense->NumDataTransfer,
+				        mode_sense->MaxReadElementStatusData);
+    if (!DataBuffer) {
+#ifdef DEBUG
+      fprintf(stderr,"No data transfer element status.");
+#endif
+      /* darn. Free up stuff and return. */
+#ifdef DEBUG_MODE_SENSE
+      PrintRequestSense(RequestSense);
+#endif
       FreeElementData(ElementStatus);
       return NULL; 
     } 
+
 #ifdef DEBUG
-    fprintf(stderr,"Parsing inport/export element status\n");
-#endif
-#ifdef DEBUG_ADIC
-    dump_data(DataBuffer,100); /* dump some data :-(. */
+    fprintf(stderr,"Parsing data for data transfer element (drive) status\n");
 #endif
     ParseElementStatus(EmptyStorageElementAddress,&EmptyStorageElementCount,
-		     DataBuffer,ElementStatus,mode_sense);
+		       DataBuffer,ElementStatus,mode_sense,NULL);
 
-  }
-  
-  /* ----------------- DRIVES ---------------------- */
-
-#ifdef DEBUG
-  fprintf(stderr,"Sending request for data transfer element (drive) status\n");
-#endif
-  flags->elementtype=DataTransferElement; /* sigh! */
-  DataBuffer=SendElementStatusRequest(MediumChangerFD,RequestSense,
-				      inquiry_info,flags,
-				      mode_sense->DataTransferStart,
-				      mode_sense->NumDataTransfer,
-				      mode_sense->MaxReadElementStatusData);
-  if (!DataBuffer) {
-#ifdef DEBUG
-    fprintf(stderr,"No data transfer element status.");
-#endif
-    /* darn. Free up stuff and return. */
-    /****FIXME**** do a free on element data! */
-    FreeElementData(ElementStatus);
-    return NULL; 
-  } 
-
-#ifdef DEBUG
-  fprintf(stderr,"Parsing data for data transfer element (drive) status\n");
-#endif
-  ParseElementStatus(EmptyStorageElementAddress,&EmptyStorageElementCount,
-		     DataBuffer,ElementStatus,mode_sense);
-
-  free(DataBuffer); /* sigh! */
+    free(DataBuffer); /* sigh! */
 
 
-  /* ----------------- Robot Arm(s) -------------------------- */
+    /* ----------------- Robot Arm(s) -------------------------- */
 
     /* grr, damned brain dead HP doesn't report that it has any! */
-  if (!mode_sense->NumMediumTransport) { 
-    ElementStatus->TransportElementAddress=0; /* default it sensibly :-(. */
-  } else {
+    if (!mode_sense->NumMediumTransport) { 
+      ElementStatus->TransportElementAddress=0; /* default it sensibly :-(. */
+    } else {
 #ifdef DEBUG
-     fprintf(stderr,"Sending request for robot arm status\n");
+       fprintf(stderr,"Sending request for robot arm status\n");
 #endif
-     flags->elementtype=MediumTransportElement; /* sigh! */
-     DataBuffer=SendElementStatusRequest(MediumChangerFD,RequestSense,
-				      inquiry_info,flags,
-				      mode_sense->MediumTransportStart,
-				      1, /* only get 1, sigh. */
-				      mode_sense->MaxReadElementStatusData);
-     if (!DataBuffer) {
+       flags->elementtype=MediumTransportElement; /* sigh! */
+       DataBuffer=SendElementStatusRequest(MediumChangerFD,RequestSense,
+				        inquiry_info,flags,
+				        mode_sense->MediumTransportStart,
+				        1, /* only get 1, sigh. */
+				        mode_sense->MaxReadElementStatusData);
+       if (!DataBuffer) {
 #ifdef DEBUG
-       fprintf(stderr,"Loader reports no robot arm!\n");
+         fprintf(stderr,"Loader reports no robot arm!\n");
 #endif
-       /* darn. Free up stuff and return. */
-       /****FIXME**** do a free on element data! */
-       FreeElementData(ElementStatus);
-       return NULL; 
-     } 
+         /* darn. Free up stuff and return. */
+#ifdef DEBUG_MODE_SENSE
+         PrintRequestSense(RequestSense);
+#endif
+         FreeElementData(ElementStatus);
+         return NULL; 
+       } 
 #ifdef DEBUG
-     fprintf(stderr,"Parsing robot arm data\n");
+       fprintf(stderr,"Parsing robot arm data\n");
 #endif   
-     ParseElementStatus(EmptyStorageElementAddress,&EmptyStorageElementCount,
-   		     DataBuffer,ElementStatus,mode_sense);
+       ParseElementStatus(EmptyStorageElementAddress,&EmptyStorageElementCount,
+   		       DataBuffer,ElementStatus,mode_sense,NULL);
 
-     free(DataBuffer); /* sigh! */
+       free(DataBuffer); /* sigh! */
+    }
+  } else {
+    int nLastEl=-1, nNextEl=0;
+    
+#ifdef DEBUG
+    fprintf(stderr,"Using alternative element status polling method (all elements)\n");
+#endif
+    /* ----------------- ALL Elements ---------------------- */
+    /*Just keep asking for elements till no more are returned - increment our starting address as we go acording to the number of elements returned from the last call*/
+    
+    while(nLastEl!=nNextEl)
+    {
+      flags->elementtype=AllElementTypes;//StorageElement; /* sigh! */ /*XL1B2 firewire changer does not seem to respond to specific types so just use all elements*/
+      DataBuffer=SendElementStatusRequest(MediumChangerFD,RequestSense,
+                                          inquiry_info,flags,
+                                          nNextEl,//mode_sense->StorageStart,
+                                          /* adjust for import/export. */
+                                          mode_sense->NumStorage-mode_sense->NumImportExport,//FIX ME:this should be a more sensible value
+                                          mode_sense->MaxReadElementStatusData);
+      if (!DataBuffer) {
+        /* darn. Free up stuff and return. */
+        /****FIXME**** do a free on element data! */
+        FreeElementData(ElementStatus);
+        return NULL; 
+      } 
+      
+      nLastEl=nNextEl;
+      
+      ParseElementStatus(EmptyStorageElementAddress,&EmptyStorageElementCount,
+                         DataBuffer,ElementStatus,mode_sense,&nNextEl);
+      
+      free(DataBuffer); /* sigh! */
+    }
+
+    ElementStatus->StorageElementCount += ElementStatus->ImportExportCount;
   }
 
-  /*---------------------- Sanity Checking ------------------- */
+    /*---------------------- Sanity Checking ------------------- */
 
-  if (!ElementStatus->DataTransferElementCount)
-    FatalError("no Data Transfer Element reported\n");
-  if (ElementStatus->StorageElementCount == 0)
-    FatalError("no Storage Elements reported\n");
+    if (!ElementStatus->DataTransferElementCount)
+      FatalError("no Data Transfer Element reported\n");
+    if (ElementStatus->StorageElementCount == 0)
+      FatalError("no Storage Elements reported\n");
 
 
-  /* ---------------------- Reset SourceStorageElementNumbers ------- */
+    /* ---------------------- Reset SourceStorageElementNumbers ------- */
 
-  /* okay, re-write the SourceStorageElementNumber code  *AGAIN*.
-   * Pass1:
-   *   Translate from raw element # to our translated # (if possible).
-   * First, check the SourceStorageElementNumbers against the list of 
-   * filled slots. If the slots indicated are empty, we accept that list as
-   * valid. Otherwise decide the SourceStorageElementNumbers are invalid.
-   *
-   * Pass2:
-   *
-   * If we had some invalid (or unknown) SourceStorageElementNumbers
-   * then we must search for free slots, and assign SourceStorageElementNumbers
-   * to those free slots. We happen to already built a list of free
-   * slots as part of the process of reading the storage element numbers
-   * from the tape. So that's easy enough to do! 
-   */
+    /* okay, re-write the SourceStorageElementNumber code  *AGAIN*.
+     * Pass1:
+     *   Translate from raw element # to our translated # (if possible).
+     * First, check the SourceStorageElementNumbers against the list of 
+     * filled slots. If the slots indicated are empty, we accept that list as
+     * valid. Otherwise decide the SourceStorageElementNumbers are invalid.
+     *
+     * Pass2:
+     *
+     * If we had some invalid (or unknown) SourceStorageElementNumbers
+     * then we must search for free slots, and assign SourceStorageElementNumbers
+     * to those free slots. We happen to already built a list of free
+     * slots as part of the process of reading the storage element numbers
+     * from the tape. So that's easy enough to do! 
+     */
 
 #ifdef DEBUG_TAPELIST
-  fprintf(stderr,"empty slots: %d\n",EmptyStorageElementCount);
-  if (EmptyStorageElementCount) {
-     for (i=0; i<EmptyStorageElementCount; i++) {
-         fprintf(stderr,"empty: %d\n",EmptyStorageElementAddress[i]);
-     }
-  }
-#endif
-
-  /* Okay, now we re-assign origin slots if the "real" origin slot
-   * is obviously defective: 
-   */
-  /* pass one: */
-  invalid_sources=0; /* no invalid sources yet! */
-  for (i=0;i<ElementStatus->DataTransferElementCount;i++) {
-    int elnum;
-    int translated_elnum = -1;
-    /* if we have an element, then ... */
-    if (ElementStatus->DataTransferElementFull[i]) {
-      elnum=ElementStatus->DataTransferElementSourceStorageElementNumber[i];
-      /* if we have an element number, then ... */
-      if (elnum >= 0) {
-         /* Now to translate the elnum: */
-	 for (j=0; j<ElementStatus->StorageElementCount; j++) {
-	     if (elnum == ElementStatus->StorageElementAddress[j]) {
-		 translated_elnum=j; 
-	     }
-	 }
-      /* now see if the element # is already occupied: */
-	if (ElementStatus->StorageElementFull[translated_elnum]) {
-	  invalid_sources=1;
-	  break; /* break out of the loop! */
-	} else {
-	   /* properly set the source... */
-	ElementStatus->DataTransferElementSourceStorageElementNumber[i]=
-		translated_elnum;
-	}
-		 
-      } else {
-	/* if element # was not >=0, then we had an invalid source anyhow! */
-	invalid_sources=1;
+    fprintf(stderr,"empty slots: %d\n",EmptyStorageElementCount);
+    if (EmptyStorageElementCount) {
+      for (i=0; i<EmptyStorageElementCount; i++) {
+        fprintf(stderr,"empty: %d\n",EmptyStorageElementAddress[i]);
       }
     }
-  }
-
-#ifdef DEBUG_TAPELIST
-   fprintf(stderr,"invalid_sources=%d\n",invalid_sources);
 #endif
+
+    /* Okay, now we re-assign origin slots if the "real" origin slot
+     * is obviously defective: 
+     */
+    /* pass one: */
+    for (i = 0; i < ElementStatus->DataTransferElementCount; i++) {
+      int elnum;
+      /* if we have an element, then ... */
+      if (ElementStatus->DataTransferElementFull[i]) {
+        elnum = ElementStatus->DataTransferElementSourceStorageElementNumber[i];
+        /* if we have an element number, then ... */
+        if (elnum >= 0) {
+          /* Now to translate the elnum: */
+          ElementStatus->DataTransferElementSourceStorageElementNumber[i] = -1;
+          for (j=0; j<ElementStatus->StorageElementCount; j++) {
+            if (elnum == ElementStatus->StorageElementAddress[j]) {
+              /* now see if the element # is already occupied:*/
+              if (!ElementStatus->StorageElementFull[j]) {
+                /* properly set the source... */
+                ElementStatus->DataTransferElementSourceStorageElementNumber[i]= j;
+              }
+            }
+          }
+        }
+      }
+    }
 
   /* Pass2: */
   /* okay, we have invalid sources, so let's see what they should be: */
@@ -1267,21 +1329,18 @@ ElementStatus_T *ReadElementStatus(DEVICE_TYPE MediumChangerFD, RequestSense_T *
    * by the user interface. This is an invalid value, but more useful for us
    * to have than just crapping out here :-(. 
    */ 
-  if (invalid_sources) {
-    empty_idx=0;
-    for (i=0;i<ElementStatus->DataTransferElementCount;i++) {
-      if (ElementStatus->DataTransferElementFull[i]) {
+  empty_idx=0;
+  for (i = 0; i < ElementStatus->DataTransferElementCount; i++) {
+    if (ElementStatus->DataTransferElementFull[i] && 
+      ElementStatus->DataTransferElementSourceStorageElementNumber[i] < 0) {
 #ifdef DEBUG_TAPELIST
-        fprintf(stderr,"for drive %d, changing source %d to %d (empty slot #%d)\n",
-	     i,
-	     ElementStatus->DataTransferElementSourceStorageElementNumber[i],
-             EmptyStorageElementAddress[empty_idx],
-             empty_idx);
+      fprintf(stderr,"for drive %d, changing to %d (empty slot #%d)\n",
+              i,
+              EmptyStorageElementAddress[empty_idx],
+              empty_idx);
 #endif
-              
-	ElementStatus->DataTransferElementSourceStorageElementNumber[i]=
-	  EmptyStorageElementAddress[empty_idx++];
-      }
+      ElementStatus->DataTransferElementSourceStorageElementNumber[i]=
+        EmptyStorageElementAddress[empty_idx++];
     }
   }
 
@@ -1337,9 +1396,9 @@ RequestSense_T *MoveMedium(DEVICE_TYPE MediumChangerFD, int SourceAddress,
   CDB[2] = (ElementStatus->TransportElementAddress >> 8) & 0xFF;  /* Transport Element Address MSB */
   CDB[3] = (ElementStatus->TransportElementAddress) & 0xff;   /* Transport Element Address LSB */
   CDB[4] = (SourceAddress >> 8) & 0xFF;	/* Source Address MSB */
-  CDB[5] = SourceAddress & 0xFF; /* Source Address MSB */
+  CDB[5] = SourceAddress & 0xFF; /* Source Address LSB */
   CDB[6] = (DestinationAddress >> 8) & 0xFF; /* Destination Address MSB */
-  CDB[7] = DestinationAddress & 0xFF; /* Destination Address MSB */
+  CDB[7] = DestinationAddress & 0xFF; /* Destination Address LSB */
   CDB[8] = 0;			/* Reserved */
   CDB[9] = 0;			/* Reserved */
   if (flags->invert) {
@@ -1352,6 +1411,10 @@ RequestSense_T *MoveMedium(DEVICE_TYPE MediumChangerFD, int SourceAddress,
   
   if (SCSI_ExecuteCommand(MediumChangerFD, Output, &CDB, 12,
 			  NULL, 0, RequestSense) != 0) {
+
+#ifdef DEBUG
+    fprintf(stderr, "Move Medium (0x%02X) failed\n", CDB[0]);
+#endif
     return RequestSense;
   }
   free(RequestSense);
@@ -1372,9 +1435,9 @@ RequestSense_T *ExchangeMedium(DEVICE_TYPE MediumChangerFD, int SourceAddress,
   CDB[2] = (ElementStatus->TransportElementAddress >> 8) & 0xFF;  /* Transport Element Address MSB */
   CDB[3] = (ElementStatus->TransportElementAddress) & 0xff;   /* Transport Element Address LSB */
   CDB[4] = (SourceAddress >> 8) & 0xFF;	/* Source Address MSB */
-  CDB[5] = SourceAddress & 0xFF; /* Source Address MSB */
+  CDB[5] = SourceAddress & 0xFF; /* Source Address LSB */
   CDB[6] = (DestinationAddress >> 8) & 0xFF; /* Destination Address MSB */
-  CDB[7] = DestinationAddress & 0xFF; /* Destination Address MSB */
+  CDB[7] = DestinationAddress & 0xFF; /* Destination Address LSB */
   CDB[8] = (Dest2Address>>8) & 0xFF; /* move destination back to source? */
   CDB[9] = Dest2Address & 0xFF; /* move destination back to source? */
   CDB[10]=0;
@@ -1418,12 +1481,53 @@ RequestSense_T *Erase(DEVICE_TYPE MediumChangerFD) {
 
   if (SCSI_ExecuteCommand(MediumChangerFD, Output, &CDB, 6,
 			  NULL, 0, RequestSense) != 0) {
+#ifdef DEBUG
+    fprintf(stderr, "Erase (0x19) failed\n");
+#endif
     return RequestSense;
   }
   free(RequestSense);
   return NULL;  /* Success! */
 }  
 
+static char Spaces[] = "                                                            ";
+
+void PrintHex(int Indent, unsigned char *Buffer, int Length)
+{
+  int	idxBuffer;
+  int	idxAscii;
+  int	PadLength;
+  char	cAscii;
+
+  for (idxBuffer = 0; idxBuffer < Length; idxBuffer++) {
+    if ((idxBuffer % 16) == 0) {
+      if (idxBuffer > 0) {
+        fputc('\'', stderr);
+
+        for (idxAscii = idxBuffer - 16; idxAscii < idxBuffer; idxAscii++) {
+          cAscii = Buffer[idxAscii] >= 0x20 && Buffer[idxAscii] < 0x7F ? Buffer[idxAscii] : '.';
+          fputc(cAscii, stderr);
+        }
+        fputs("'\n", stderr);
+      }
+      fprintf(stderr, "%.*s%04X: ", Indent, Spaces, idxBuffer);
+    }
+    fprintf(stderr, "%02X ", (unsigned char)Buffer[idxBuffer]);
+  }
+
+  PadLength = 16 - (Length % 16);
+
+  if (PadLength > 0) {
+    fprintf(stderr, "%.*s'", 3 * PadLength, Spaces);
+
+    for (idxAscii = idxBuffer - (16 - PadLength); idxAscii < idxBuffer; idxAscii++) {
+      cAscii = Buffer[idxAscii] >= 0x20 && Buffer[idxAscii] < 0x80 ? Buffer[idxAscii] : '.';
+      fputc(cAscii, stderr);
+    }
+    fputs("'\n", stderr);
+  }
+  fflush(stderr);
+}
 
 #ifdef LONG_PRINT_REQUEST_SENSE
 
@@ -1488,18 +1592,28 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 #else
 void PrintRequestSense(RequestSense_T *RequestSense)
 {
-  int i;
-  fprintf(stderr, "mtx: Request Sense: %02X",
-	  ((unsigned char *) RequestSense)[0]);
-  for (i = 1; i < sizeof(RequestSense_T); i++)
-    fprintf(stderr, " %02X", ((unsigned char *) RequestSense)[i]);
-  fprintf(stderr, "\n");
+  fprintf(stderr, "mtx: Request Sense: %02X\n",
+          ((unsigned char *) RequestSense)[0]);
+  PrintHex(2, (char *)RequestSense, sizeof(RequestSense_T));
 }
 
 #endif
 
 /* $Date$
  * $Log$
+ * Revision 1.23  2007/01/29 03:22:52  robertnelson
+ * Add support for Windows.
+ *
+ * Add build support for Windows using MinGW native and Linux cross-compile.
+ *
+ * Add build support for Windows using Microsoft Visual Studio 2005.
+ *
+ * Add support for building on x86_64.
+ *
+ * Add more debugging information.
+ *
+ * Eliminate compiler warnings.
+ *
  * Revision 1.22  2006/02/21 03:08:53  elgreen
  * mtx 1.3.9 checkin
  *

@@ -30,6 +30,12 @@ case "$host_os" in
      ;;
   *sequent*) AC_DEFINE(SEQUENT) 
 	;;
+  *MINGW*) TARGET=mingw
+     ;;
+  *MinGW*) TARGET=mingw
+     ;;
+  *mingw*) TARGET=mingw
+     ;;
   *) TARGET=$host_os
      ;;
 esac
@@ -49,6 +55,7 @@ AC_SUBST(CPU)
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
+AC_CHECK_PROG(USE_OBJCOPY, objcopy, yes, no)
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -66,7 +73,7 @@ AC_CHECK_HEADERS(\
 	camlib.h \
 	cam/cam_ccb.h \
 	cam/scsi/scsi_message.h \
-        sys/fsid.h \
+	sys/fsid.h \
 	sys/fstyp.h \
 	sys/stat.h \
 	sys/types.h \
@@ -77,8 +84,10 @@ AC_CHECK_HEADERS(\
 	sys/scsi.h \
 	sys/scsi_ctl.h \
 	sys/ioctl.h \
+	sys/mtio.h \
 	dslib.h \
-	du/defs.h)
+	du/defs.h \
+	ddk/ntddscsi.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST

@@ -18,7 +18,11 @@
 #include "[.vms]defs.h"
 #else /* all the Unix stuff:  */
 
+#ifdef _MSC_VER
+#include "msvc/config.h"  /* all the autoconf stuff. */
+#else
 #include "config.h"  /* all the autoconf stuff. */
+#endif
 
 /* all the general Unix includes: */
 
@@ -59,7 +63,7 @@
 #  include <sys/ioctl.h>
 #endif
 
-/* Now greately modified to use GNU Autoconf stuff: */
+/* Now greatly modified to use GNU Autoconf stuff: */
 /* If we use the 'sg' interface, like Linux, do this: */
 #if HAVE_SCSI_SG_H
 #  include <scsi/scsi.h>
@@ -67,6 +71,25 @@
 #  include <scsi/sg.h>
 typedef int DEVICE_TYPE; /* the sg interface uses this. */
 #  define HAVE_GET_ID_LUN 1  /* signal that we have it... */
+#endif
+
+/* Windows Native programs built using MinGW */
+#if HAVE_DDK_NTDDSCSI_H
+#  include <windows.h>
+#  include <ddk/ntddscsi.h>
+#  undef DEVICE_TYPE
+
+typedef int DEVICE_TYPE;
+#endif
+
+/* Windows Native programs built using Microsoft Visual C */
+#ifdef _MSC_VER
+#  include <windows.h>
+#  include <winioctl.h>
+#  include <ntddscsi.h>
+#  undef DEVICE_TYPE
+
+typedef int DEVICE_TYPE;
 #endif
 
 /* The 'cam' interface, like FreeBSD: */
@@ -160,6 +183,9 @@ typedef dsreq_t *DEVICE_TYPE; /* 64-bit pointers/32bit int on later sgi? */
 #define MAX_TRANSFER_ELEMENTS 2  /* we just do dual-drive for now :-} */
 #define MAX_TRANSPORT_ELEMENTS 1 /* we just do one arm for now... */
 
+#define MTX_ELEMENTSTATUS_ORIGINAL 0
+#define MTX_ELEMENTSTATUS_READALL 1
+
 /* These are flags used for the READ_ELEMENT_STATUS and MOVE_MEDIUM
  * commands:
  */
@@ -173,13 +199,27 @@ typedef struct SCSI_Flags_Struct {
   int numelements;
   int attached;
   int has_barcodes;
+  int querytype; //MTX_ELEMENTSTATUS
   unsigned char invert2; /* used for EXCHANGE command, sigh. */
 } SCSI_Flags_T;
 
+#ifdef _MSC_VER
+typedef unsigned char boolean;
+
+#define false   0
+#define true    1
+
+
+typedef unsigned char Direction_T;
+
+#define Input   0
+#define Output  1
+#else
 typedef enum { false, true } boolean;
 
 
 typedef enum { Input, Output } Direction_T;
+#endif
 
 
 typedef unsigned char CDB_T[12];
@@ -354,6 +394,15 @@ typedef struct ElementModeSenseHeader {
 } ElementModeSense_T;
 
 
+#ifdef _MSC_VER
+typedef char ElementTypeCode_T;
+
+#define AllElementTypes	        0
+#define MediumTransportElement  1
+#define StorageElement	        2
+#define ImportExportElement     3
+#define DataTransferElement     4
+#else
 typedef enum ElementTypeCode
 {
   AllElementTypes =		0,
@@ -363,6 +412,7 @@ typedef enum ElementTypeCode
   DataTransferElement =		4
 }
 ElementTypeCode_T;
+#endif
 
 
 typedef struct ElementStatusDataHeader
