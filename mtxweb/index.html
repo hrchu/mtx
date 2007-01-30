@@ -24,47 +24,45 @@
 
 <body bgcolor="white">
 
-<table border=0 width="100%">
+<table width="100%">
 <tr>
-<th bgcolor="cyan" colspan=2>
-<h1>MTX</h1>
-</th>
+<td bgcolor="cyan">
+<a href="http://sourceforge.net"></a>
+<img src="http://sflogo.sourceforge.net/sflogo.php?group_id=4626&amp;type=7" width="210" height="62" border="0" alt="SourceForge.net Logo" /></td><td bgcolor="cyan"><h1>MTX</h1></td>
 </tr>
 <tr>
-<th bgcolor="cyan" valign="top" align="left">
+<th bgcolor="cyan" valign="top" align="left" style="width: 121px">
 
 <h2>Links:</h2>
 
-
-<a href="http://sourceforge.net/projects/mtx"> SourceForge project page</a><p>
-
-<a href="http://mtx.badtux.net">MTX home page</a>
-<br>
-<a href="ftp://ftp.badtux.net/pub/storage/mtx">MTX downloads</a>
-<br>
-<a href="http://sourceforge.net/project/showfiles.php?group_id=4626">MTX downloads mirror</a>
-<br>
-<a href="compatibility.php">Compatibility List</a>
-<br>
-<a href="contrib.php">Add to Compatibility List</a>
-<br>
+<p>
+<a href="http://sourceforge.net/projects/mtx"> SourceForge Project</a>
+</p>
+<p>
+<a href="http://mtx.sourceforge.net">Home Page</a>
+</p>
+<p>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=4626">Downloads</a>
+</p>
+<p>
+<b><u>Compatibility</u></b>
+<a href="compatibility.php" style="margin-left: 0.125in">View</a>
+<br/>
+<a href="contrib.php" style="margin-left: 0.125in">Report</a>
+<br/>
+</p>
+<p>
 <a href="faq.html">FAQ</a>
-<p>
-<a href="mailto:eric@badtux.org">Contact Eric</a>
-
-
+</p>
 </th>
-<td>
-    <h1>SCSI Media Changer and Backup Device Control </h1>
-<p>
-[<i>NOTE: I am currently seeking employment. Please see my
-<a href="http://badtux.org/resume.html">resume</a> for more information-- Eric Lee Green</i>].
+<td style="width: 825px">
+<h2 style="text-align: center;">SCSI Media Changer and Backup Device Control</h2>
 <p>
 
 <i>mtx</i> is a set of low level driver programs to control features
 of SCSI backup related devices such as autoloaders, tape changers,
 media jukeboxes, and tape drives. It can also report much data,
-including serial numbers, maximum block sizes, and TapeAlert(tm)
+including serial numbers, maximum block sizes, and TapeAlert&trade;
 messages that most modern tape drives implement (to tell you the exact
 reason why a backup or restore failed), as well as do raw SCSI READ
 and WRITE commands to tape drives (not important on Linux, but
@@ -72,57 +70,56 @@ important on Solaris due to the fact that the Solaris tape driver
 supports none of the additional features of tape drives invented after
 1988). <i>mtx</i> is designed to be a low level driver in a larger
 scripted backup solution, such as <a
+href="http://bacula.sourceforge.net">Bacula</a> or <a
 href="http://amanda.sourceforge.net">Amanda</a>.
 <i>mtx</i> is not
 supposed to itself be a high level interface to the SCSI devices that
 it controls.
-<p> 
+</p><p> 
 This version has the following features:
-
+</p>
   <ul>
-  <li> Will deal with LARGE media libraries (over a hundred elements).
+  <li> Will deal with LARGE media libraries (over a hundred elements).</li>
   <li> Supports multi-drive media changers such as the Exabyte 220 dual-
-drive tape library.
+drive tape library.</li>
   <li> Supports the 'invert' bit for optical jukeboxes that need that in
-order to flip their media.
+order to flip their media.</li>
   <li> Supports the 'eepos' bits for libraries that need this to extend/retract
-their import/export tray. 
-  <li> Now supports import/export elements!
+their import/export tray. </li>
+  <li> Now supports import/export elements!</li>
    <li> Reports volume tags (bar codes) and "alternate volume tags"
 (whatever those are!) for those tape libraries
-that support them. 
-<li> Now runs under FreeBSD and at least Solaris 8. 
+that support them. </li>
+<li> Now runs under FreeBSD and at least Solaris 8. </li>
 
-<li> Now has a 'man' page!
+<li> Now has a 'man' page!</li>
 <li> The actual SCSI manipulation has been separated out into a library, so
 that you can create your own "C" programs that manipulate SCSI media changers
 directly. (Please note: this is under GPL, so any such programs will have
-to be under GPL also). 
+to be under GPL also). </li>
 </ul>
-
 <p>
  This program supposedly supports FreeBSD, Solaris, Linux, HP/UX, and
 IRIX. Tru64 Unix and VMS are probably irretrievably broken at this
 time. This program has been tested under FreeBSD, Solaris, and Linux,
 and there only with a limited set of hardware. See the COMPATIBILITY 
 list in the source code.
-</ul>
+</p>
 <h2> Source Code </h2>
 The current source code is at:
 <ul>
 <li> <a href="http://sourceforge.net/project/showfiles.php?group_id=4626">Sourceforge Download Page for 'mtx'</a>
-</ul>
+</li></ul>
 RPMs may be available from the following place:
 <ul>
 <li> <a href="http://rpmfind.net/linux/RPM/mtx.html">RPMfind's 'mtx' page</a>
-</ul>
+</li></ul>
+<p>
 A .spec file is now included in the 'mtx' distribution for building your
 own RPM's.
-<p>
-Note that RPMs
-are courtesy of <a href="http://www.sewingwitch.com/ken/">Kenneth Porter</a>,
-who should be contacted regarding rpm-related problems.
-<p>
+</p><p>
+Note that RPMs are courtesy of <a href="http://www.sewingwitch.com/ken/">Kenneth Porter</a>.
+</p>
 
 <h2> Known Bugs And Limitations </h2>
 <ul>
@@ -133,17 +130,17 @@ who should be contacted regarding rpm-related problems.
 The Exabyte EZ-17 and 220 in particular will happily
        sit there snapping the robot arm's claws around  thin  air
        trying to grab a tape that's not there.
-<li> 
+</li><li> 
 The 'next' command does not understand the 'invert' bit (i.e., does not
 recognize that for optical jukeboxes, the 'next' of side one is to unload,
 invert, and reload the same disk). It always advances to the next
 slot instead. 
- <li>
+</li> <li>
        For  some  Linux distributions, you may need to re-compile
        the kernel to scan SCSI LUN's in order to detect the media
        changer. Check /proc/scsi/scsi to see what's going on.
 
-<li> 
+</li><li> 
        If you try to unload a tape to its 'source' slot, and said
        slot is full, it will instead put the tape into the  first
        empty  slot.  Unfortunately the list of empty slots is not
@@ -153,7 +150,7 @@ slot instead.
        same  (no  longer  empty)  slot  and  will urp with a SCSI
        error.
 
-<li> For big tape libraries (more than a couple dozen elements) this
+</li><li> For big tape libraries (more than a couple dozen elements) this
 may set a big Allocation_Size in the SCSI command block for the
 REQUEST_ELEMENT_STATUS command. Some operating systems may not be able
 to handle this. Versions of Linux earlier than 2.2.6, in particular,
@@ -161,17 +158,17 @@ may fail this request due to inability to find contiguous pages of
 memory for the SCSI transfer (later versions of Linux 'sg' device do
 scatter-gather so that this should no longer be a problem).
 
-<li> VMS and Tru64 support are probably irretrievably busted. 
+</li><li> VMS and Tru64 support are probably irretrievably busted. 
 
 
-<li> This program  will only use the first arm of multiple-arm robots unless
+</li><li> This program  will only use the first arm of multiple-arm robots unless
 the robot re-maps all arms to one element ID. 
 
-<li> It has been reported that this program works on Solaris 7 using the 'sst'
+</li><li> It has been reported that this program works on Solaris 7 using the 'sst'
 driver, and may work on Solaris 8 using the 'sgen' driver. 'sst' can
 be gotten from the Amanda contrib directory at 
 <a href="http://download.sourceforge.net/amanda/">http://download.sourceforge.net/amanda</a>.
-
+</li>
 </ul>
 
 <h2> Philosophy </h2>
@@ -183,38 +180,33 @@ CAML.
 
 <h2> Support </h2>
 <ul>
-<li>There is now a 'mtx' mailing list at <a href="http://sourceforge.net/projects/mtx/">http://sourceforge.net/projects/mtx/</a>. 
-<li>There is now a 'mtx' home page at <a href="http://mtx.badtux.net">http://mtx.badtux.net</a>.
+<li>There are now 'mtx' mailing lists at <a href="mailto:mtx-general@lists.sourceforge.net">mtx-general@lists.sourceforge.net</a>. </li>
+<li>There is now a 'mtx' home page at <a href="http://mtx.sourceforge.net">http://mtx.sourceforge.net</a>.</li>
 <li> There is now a FAQ that is part of the source code. Please read the
-FAQ first. 
-<li>Report problems to Eric Lee Green (<a
-href="mailto:eric@badtux.org">eric@badtux.org</a>). READ THE FAQ FIRST!
+FAQ first. </li>
+<li>Report problems to Robert Nelson (<a
+href="mailto:robertnelson@users.sourceforge.net">robertnelson@users.sourceforge.net</a>). READ THE FAQ FIRST!</li>
 </ul>
 
 <h2> See Also: </h2>
 <ul>
-<li> The Sourceforge <a href="http://sourceforge.net/projects/mtx"> project page</a> for mtx.
-<li> The <a href="http://mtx.badtux.net/compatibility.php">MTX Compatibility Page</a>
-<li>The man page for 'mtx'! (once you get it installed). 
-<li>The <a href="http://search.cpan.org/author/LUSOL/tkjuke-1.0.6">TKjuke</a> front end for 'mtx'
-<li>T-10 SCSI Working Group home page at <a href="http://www.t10.org">www.t10.org</a>.
-<li>The Linux 'sg' SCSI generic driver home page at <a href="http://www.torque.net/sg/">http://www.torque.net/sg/</a>.
-
-<!--<li> <a href="http://badtux.org/eric">The Home Page Of &lt;UL&gt; Tags Anonymous</a> Hi, my name is Eric, and I am addicted to the &lt;UL&gt; tag...
-<li> For a distraction from bit-boffing, Eric's <a href="http://news.badtux.net">BadTux News'n'Views</a> -->
-<li> Eric's <a href="http://badtux.org/resume.html">resume</a> -- please hire me! 
+<li> The Sourceforge <a href="http://sourceforge.net/projects/mtx"> project page</a> for mtx.</li>
+<li> The <a href="http://mtx.sourceforge.net/compatibility.php">MTX Compatibility Page</a></li>
+<li>The man page for 'mtx'! (once you get it installed). </li>
+<li>The <a href="http://search.cpan.org/author/LUSOL/tkjuke-1.0.6">TKjuke</a> front end for 'mtx'</li>
+<li>T-10 SCSI Working Group home page at <a href="http://www.t10.org">www.t10.org</a>.</li>
+<li>The Linux 'sg' SCSI generic driver home page at <a href="http://www.torque.net/sg/">http://www.torque.net/sg/</a>.</li>
 </ul>
-    <hr>
-    <address>Maintained by <a href="mailto:eric@badtux.org">Eric Lee Green</a><br>
- Project page hosted by <a href="http://www.sourceforge.net">SourceForge</a></address><br>
-Web page hosted by <a href="http://badtux.net">Eric Lee Green</a>
+    <hr/>
+    <address>Maintained by <a href="mailto:robertnelson@users.sourceforge.net">Robert Nelson</a><br/>
+ Project page hosted by <a href="http://www.sourceforge.net">SourceForge</a></address><br/>
 </td>
 </tr>
 </table>
 
 <!-- Created: Fri Mar  3 12:19:38 MST 2000 -->
 <!-- hhmts start -->
-Last modified: Wed Oct  2 14:22:05 MST 2002
+Last modified: Tue Jan 30 01:33:00 PST 2007
 <!-- hhmts end -->
   </body>
 </html>
