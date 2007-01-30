@@ -1,5 +1,5 @@
 <?php
-   include('dbms.data');
+   include('../dbfiles/dbms.data');
 
    $link = mysql_connect($mysql_host,$mysql_user,$mysql_password)
         or die("Could not connect");
@@ -29,9 +29,15 @@
   </head>
 
 <body bgcolor="white">
-<h1> Contribute to MTX Compatibility List </h1>
-
-WARNING: This application is currently in beta test, and may be buggy. 
+<a href="http://sourceforge.net">
+<img src="http://sflogo.sourceforge.net/sflogo.php?group_id=4626&amp;type=7" width="210" height="62" border="0" style="position:absolute;left:0.125in;"alt="SourceForge.net Logo"/>
+</a>
+<center>
+<h2>Contribute to MTX Compatibility List</h2>
+</center>
+<br clear="left" />
+<br/>
+WARNING: This application is currently in beta test, and may be buggy.
 Please only use it to submit entries that you have verified as being
 compatible with 'mtx'.  <b>Please note that your EMAIL address will *NOT*
 be published, and will be used only in the event that I have questions about

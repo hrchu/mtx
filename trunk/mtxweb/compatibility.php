@@ -1,6 +1,6 @@
 <?php
    /* set these to what you need for your installation */
-   include('dbms.data');
+   include('../dbfiles/dbms.data');
 /*
    $mysql_host="dbms.inhouse";
    $mysql_user="bloguser";
@@ -33,7 +33,8 @@
    $result=mysql_query($query_str,$link) or die("Invalid query '$query_str'");
    $num_rows=mysql_num_rows($result);   
 
-?><!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+?>
+   <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
   <head>
    <meta http-equiv="Pragma" content="no-cache">
@@ -58,14 +59,15 @@
   </head>
 
 <body bgcolor="white">
-
+<a href="http://sourceforge.net">
+  <img src="http://sflogo.sourceforge.net/sflogo.php?group_id=4626&amp;type=7" width="210" height="62" border="0" style="position:absolute;left:0.125in;" alt="SourceForge.net Logo"/>
+</a>
 <center>
-<h1> MTX compatibility list </h1>
-Sorted by: <?php
-	print $SORT_ORDER; ?>
-<p>
+  <h2>MTX compatibility list</h2>
+Sorted by: <?php print $SORT_ORDER; ?>
 </center>
-
+<br clear="left" />
+<br/>
 This application is currently in beta test, and may be buggy. The database
 that it feeds off of is currently very incomplete. Please 
 <a href="contrib.php">contribute</a> new entries so that others can

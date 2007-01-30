@@ -1,6 +1,6 @@
 <?php
 
-   include('dbms.data');
+   include('../dbfiles/dbms.data');
 
    $link = mysql_connect($mysql_host,$mysql_user,$mysql_password)
         or die("Could not connect");
@@ -61,9 +61,9 @@
     $result=mysql_query($query_str,$link);
 
     /* Now send mail to Eric telling him that it's been added.  */
-    mail("eric@badtux.org","New Addition to MTX Compatibility List",$query_str);
+    /* mail("eric@badtux.org","New Addition to MTX Compatibility List",$query_str); */
     /* Now to go back to index.html: */
-     header("Location: http://mtx.badtux.net/");
+     header("Location: http://mtx.sourceforge.net/");
      exit();  
 
   }?> <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
@@ -88,8 +88,15 @@
   </head>
 
 <body bgcolor="white">
-<center><h1>Compatibility Entry Verification</h1></center>
-You entered the following values. If they are correct, click on "Save". 
+<a href="http://sourceforge.net">
+<img src="http://sflogo.sourceforge.net/sflogo.php?group_id=4626&amp;type=7" width="210" height="62" border="0" style="position:absolute;left:0.125in;"alt="SourceForge.net Logo"/>
+</a>
+<center>
+<h2>Compatibility Entry Verification</h2>
+</center>
+<br clear="left" />
+<br/>
+You entered the following values. If they are correct, click on "Save".
 If they are not correct, hit the BACK button on your browser:
 
 <form action="verify.php" method="POST">
