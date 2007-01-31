@@ -20,7 +20,7 @@ $Revision$
  */
 
 #ifndef HZ
-#define HZ 100
+#define HZ 100	  /* Jiffys for SG_SET_TIMEOUT */
 #endif
 
 /* These are copied out of BRU 16.1, with all the boolean masks changed
@@ -81,7 +81,7 @@ DEVICE_TYPE SCSI_OpenDevice(char *DeviceName)
   return (DEVICE_TYPE) DeviceFD;
 }
 
-static int sg_timeout = SG_SCSI_DEFAULT_TIMEOUT ;
+static int sg_timeout = SG_SCSI_DEFAULT_TIMEOUT;
 
 void SCSI_Set_Timeout(int secs) {
   sg_timeout=secs*HZ;
@@ -159,7 +159,7 @@ int SCSI_ExecuteCommand(DEVICE_TYPE DeviceFD,
   io_hdr.cmdp=(unsigned char *) CDB;
   io_hdr.sbp=(unsigned char *) RequestSense;
   io_hdr.dxferp=DataBuffer;
-  io_hdr.timeout=sg_timeout; /* default timeout. */
+  io_hdr.timeout=sg_timeout * 10; /* Convert from Jiffys to milliseconds */
 
    if (Direction==Input) {
      /* fprintf(stderr,"direction=input\n"); */
