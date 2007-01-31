@@ -232,6 +232,7 @@ static EAAP_Type *ReportEAAP(DEVICE_TYPE MediumChangerFD) {
   EAAP=(EAAP_Type *)mode_sense(MediumChangerFD,0x1d,sizeof(EAAP_Type),&RequestSense);
   
   if (EAAP==NULL) {
+    PrintRequestSense(&RequestSense);
     printf("EAAP: No\n");
     return NULL;
   }
