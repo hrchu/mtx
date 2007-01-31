@@ -162,7 +162,6 @@ static void Usage()
   mtx [ -f <loader-dev> ] noattach <more commands>\n\
   mtx [ -f <loader-dev> ] inquiry | inventory \n\
   mtx [ -f <loader-dev> ] [altres] [nobarcode] status\n\
-  mtx [ -f <loader-dev> ] [altres] [nobarcode] drivestatus [<drive#>]\n\
   mtx [ -f <loader-dev> ] [altres] first [<drive#>]\n\
   mtx [ -f <loader-dev> ] [altres] last [<drive#>]\n\
   mtx [ -f <loader-dev> ] [altres] next [<drive#>]\n\
@@ -843,6 +842,11 @@ int main(int ArgCount,
 }
 /*
  *$Log$
+ *Revision 1.13  2007/01/31 08:03:14  robertnelson
+ *Fix SCSI timeouts on Linux.
+ *
+ *Fix missing spaces in output of tapeinfo.
+ *
  *Revision 1.12  2007/01/29 03:22:45  robertnelson
  *Add support for Windows.
  *

@@ -427,7 +427,7 @@ static void ReportTapeAlert(DEVICE_TYPE fd) {
   
   for (i=0;i<result->length;i++) {
     if (result->data[i]) {
-      printf("TapeAlert[%d]:%s.\n",i,tapealert_messages[i]);
+      printf("TapeAlert[%d]: %s.\n",i,tapealert_messages[i]);
     }
   }
   free(result->data);
@@ -604,8 +604,8 @@ static void ReportPartitionPage(DEVICE_TYPE fd) {
   num_parts=partition_page[3];
   max_parts=partition_page[2];
 
-  printf("NumPartitions:%d\n",num_parts);
-  printf("MaxPartitions:%d\n",max_parts);
+  printf("NumPartitions: %d\n",num_parts);
+  printf("MaxPartitions: %d\n",max_parts);
   if (!num_parts) {  /* if no additional partitions, then ... */ 
     free(partition_page);
     return;
@@ -621,7 +621,7 @@ static void ReportPartitionPage(DEVICE_TYPE fd) {
 #endif
   if (partition_page[1]==8) {
     /* old-style! */
-    printf("Partition1:%d\n",(partition_page[8]<<8)+partition_page[9]);
+    printf("Partition1: %d\n",(partition_page[8]<<8)+partition_page[9]);
   } else {
     /* new-style! */
     for (i=0;i<=max_parts;i++) {
@@ -630,7 +630,7 @@ static void ReportPartitionPage(DEVICE_TYPE fd) {
 	      partition_page[8+i*2]<<8, 9+i*2,partition_page[9+i*2]);
       fflush(stderr);
 #endif
-      printf("Partition%d:%d\n",i,
+      printf("Partition%d: %d\n",i,
 	     (partition_page[8+i*2]<<8)+partition_page[9+i*2]);
     }
   }
@@ -701,9 +701,9 @@ void ReportBlockLimits(DEVICE_TYPE fd) {
   }
   
   /* okay, but if we did get a result, print it: */
-  printf("MinBlock:%d\n",
+  printf("MinBlock: %d\n",
 	 (buffer[4]<<8)+buffer[5]);
-  printf("MaxBlock:%d\n",
+  printf("MaxBlock: %d\n",
 	 (buffer[1]<<16)+(buffer[2]<<8)+buffer[3]);
 
   return;
