@@ -403,11 +403,9 @@ ElementModeSense_T *ReadAssignmentPage(DEVICE_TYPE MediumChangerFD) {
 
   if (SCSI_ExecuteCommand(MediumChangerFD,Input,&CDB,6,
 			  &input_buffer,sizeof(input_buffer),&scsi_error_sense) != 0) {
-#ifdef DEBUG_MODE_SENSE
     PrintRequestSense(&scsi_error_sense);
     fprintf(stderr,"Mode sense (0x1A) for Page 0x1D failed\n");
     fflush(stderr);
-#endif
     return NULL; /* sorry, couldn't do it. */
   }
 
@@ -1243,8 +1241,12 @@ ElementStatus_T *ReadElementStatus(DEVICE_TYPE MediumChangerFD, RequestSense_T *
                                           mode_sense->NumStorage-mode_sense->NumImportExport,//FIX ME:this should be a more sensible value
                                           mode_sense->MaxReadElementStatusData);
       if (!DataBuffer) {
+        if (RequestSense->AdditionalSenseCode == 0x21 && 
+            RequestSense->AdditionalSenseCodeQualifier == 0x01) {
+          /* Error is invalid element address, we've probably just hit the end */
+          break;
+        }
         /* darn. Free up stuff and return. */
-        /****FIXME**** do a free on element data! */
         FreeElementData(ElementStatus);
         return NULL; 
       } 
