@@ -173,7 +173,7 @@ most loaders. Please report whether barcodes actually show up when you do
           </td>
           <th>Serial Number:</th>
           <td>
-            <input name="l_serialnum" type="text" size="20" maxlength="25"/>
+            <input name="l_serialnum" type="text" size="25" maxlength="25"/>
           </td>
         </tr>
         <tr>
