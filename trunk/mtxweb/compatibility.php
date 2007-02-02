@@ -1,212 +1,195 @@
 <?php
-   /* set these to what you need for your installation */
-   include('../dbfiles/dbms.data');
-/*
-   $mysql_host="dbms.inhouse";
-   $mysql_user="bloguser";
-   $mysql_password="password";
-   $mysql_dbms="mtx";
-*/
+  /* set these to what you need for your installation */
+  include('../dbfiles/dbms.data');
 
-   $link = mysql_connect($mysql_host,$mysql_user,$mysql_password)
-        or die("Could not connect");
-   mysql_select_db($mysql_dbms) or die("Could not select database");
+  $sorttype = $_GET['sorttype'];
 
-   if ("$SORT_ORDER" == "" ) {
-	$SORT_ORDER="vendorid";
-   }
+  $link = mysql_connect($mysql_host,$mysql_user,$mysql_password)
+    or die("Could not connect");
+  mysql_select_db($mysql_dbms) or die("Could not select database");
 
-   /* we must check sort order for content. If hackers try to put
-    * invalid content into the sort order field, default back to
-    * vendorid for sort order.
-   */ 
+  if ("$sorttype" == "" || $sorttype < 1 || $sorttype > 4)
+  {
+    $sorttype = 1;
+  }
 
-   if ( "$SORT_ORDER" != "vendorid" &&
-        "$SORT_ORDER" != "osname,osversion" &&
-        "$SORT_ORDER" != "description" &&
-        "$SORT_ORDER" != "slots" &&
-        "$SORT_ORDER" != "worked"  ) {
-	$SORT_ORDER = "vendorid"; 
-   }
+  switch ($sorttype)
+  {
+  case 1: // OS
+    $sort_fields = "osname,osversion,vendorid,description,mtxversion";
+    break;
+  case 2: // Vendor
+    $sort_fields = "vendorid,description,osname,osversion,mtxversion";
+    break;
+  case 3: // Description
+    $sort_fields = "description,vendorid,osname,osversion,mtxversion";
+    break;
+  case 4: // MTX Version
+    $sort_fields = "mtxversion,osname,osversion,vendorid,description";
+    break;
+  }
 
-   $query_str="select * from loaders order by $SORT_ORDER";
-   $result=mysql_query($query_str,$link) or die("Invalid query '$query_str'");
-   $num_rows=mysql_num_rows($result);   
+  $query_str="select id,osname,osversion,vendorid,description,mtxversion from loaders where enabled = 1 order by $sort_fields";
+  $result=mysql_query($query_str,$link) or die("Invalid query '$query_str'");
+  $num_rows=mysql_num_rows($result);
 
 ?>
-   <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<!DOCTYPE html PUBLIC "-//IETF//DTD HTML//EN">
 <html>
   <head>
-   <meta http-equiv="Pragma" content="no-cache">
-    <title>MTX compatibility list</title>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <title>MTX Compatibility List - Summary</title>
 
-<style type="text/css">
-  <!--
-    TH { bgcolor: cyan;  }
-    TR { background-color: white; }
-    H1 { text-align: center; }
-    BODY { background-color: white; }
-     A:link { color: blue; text-decoration: none ; }
-
-     A:active { text-decoration: underline ; }
-     A:hover { text-decoration: underline ; }
-
-     A:visited { color: violet; text-decoration: none ; }
-  -->
-</style>
-
-
+    <style type="text/css">
+      <!--
+        TH { background-color: cyan;  }
+        TR { background-color: white; }
+        H2 { text-align: center; }
+        BODY { background-color: white; }
+        A:link { color: blue; text-decoration: underline ; }
+        A:active { text-decoration: underline ; }
+        A:hover { text-decoration: underline ; }
+        A:visited { color: blue; text-decoration: underline ; }
+      -->
+    </style>
   </head>
 
-<body bgcolor="white">
-<a href="http://sourceforge.net">
-  <img src="http://sflogo.sourceforge.net/sflogo.php?group_id=4626&amp;type=7" width="210" height="62" border="0" style="position:absolute;left:0.125in;" alt="SourceForge.net Logo"/>
-</a>
-<center>
-  <h2>MTX compatibility list</h2>
-Sorted by: <?php print $SORT_ORDER; ?>
-</center>
-<br clear="left" />
-<br/>
+  <body>
+    <a href="http://sourceforge.net">
+      <img src="http://sflogo.sourceforge.net/sflogo.php?group_id=4626&amp;type=7" width="210" height="62" border="0" style="position:absolute;left:0.125in;" alt="SourceForge.net Logo"/>
+    </a>
+    <h2>MTX Compatibility List<br/>Summary</h2>
+    <br clear="left" />
+    <br/>
 This application is currently in beta test, and may be buggy. The database
 that it feeds off of is currently very incomplete. Please 
 <a href="contrib.php">contribute</a> new entries so that others can
 benefit. Also see the <a href="COMPATIBILITY.html">old compatibility list</a>.
-<p>
-<table border=1 width=100%">
-<tr>
-  <th colspan=5 bgcolor="cyan"> Sort By </a>
-<tr>
-<td> <a href="compatibility.php?SORT_ORDER=vendorid">Vendor</a></td>
-<td> <a href="compatibility.php?SORT_ORDER=osname,osversion">OS</a></td>
-<td> <a href="compatibility.php?SORT_ORDER=description">Description</a></td>
-<td> <a href="compatibility.php?SORT_ORDER=slots">Number of Slots</a></td>
-<!--
-<td> <a href="compatibility.php?SORT_ORDER=worked">Compatible</a></td>
--->
-</tr>
-</table>
-<p>
-<table border=1 width="100%">
-<tr>
-  <th bgcolor="cyan">OS Info</th>
-  <th bgcolor="cyan">Loader </th>
-  <th bgcolor="cyan">Loader Info</th>
-  <th bgcolor="cyan">Loader Capabilities</th>
-  <th bgcolor="cyan">Contributor</th>
-</tr>
-<?php
-   if ($num_rows==0) {
+    <p/>
+You can change the sort order by clicking on the underlined column heading.
+    <p/>
+In order to display the detailed information click on the desired line.
+    <p/>
+    <table border="1" width="100%">
+      <tr>
+<?php 
+  if ($sorttype == 1) {
 ?>
-<tr> 
-  <th> NO RECORDS IN DATABASE </th>
-</tr>
+        <th>OS</th>
+        <th>OS Version</th>
+        <th>
+          <a href="compatibility.php?sorttype=2">Vendor</a>
+        </th>
+        <th>
+          <a href="compatibility.php?sorttype=3">Description</a>
+        </th>
+        <th>
+          <a href="compatibility.php?sorttype=4">MTX Version</a>
+        </th>
+<?php 
+  } else if ($sorttype == 2) {
+?>
+        <th>Vendor</th>
+        <th>
+          <a href="compatibility.php?sorttype=3">Description</a>
+        </th>
+        <th>
+          <a href="compatibility.php?sorttype=1">OS</a>
+        </th>
+        <th>OS Version</th>
+        <th>
+          <a href="compatibility.php?sorttype=4">MTX Version</a>
+        </th>
+<?php 
+  } else if ($sorttype == 3) {
+?>
+        <th>Description</th>
+        <th>
+          <a href="compatibility.php?sorttype=2">Vendor</a>
+        </th>
+        <th>
+          <a href="compatibility.php?sorttype=1">OS</a>
+        </th>
+        <th>OS Version</th>
+        <th>
+          <a href="compatibility.php?sorttype=4">MTX Version</a>
+        </th>
+<?php 
+  } else {
+?>
+        <th>MTX Version</th>
+        <th>
+          <a href="compatibility.php?sorttype=1">OS</a>
+        </th>
+        <th>OS Version</th>
+        <th>
+          <a href="compatibility.php?sorttype=2">Vendor</a>
+        </th>
+        <th>
+          <a href="compatibility.php?sorttype=3">Description</a>
+        </th>
+<?php
+  }
+?>
+      </tr>
+<?php
+  if ($num_rows==0) {
+?>
+      <tr>
+        <th style="background-color:white">NO RECORDS IN DATABASE</th>
+      </tr>
 <?php 
   } else { 
     while ($row = mysql_fetch_assoc($result)) {
-	extract($row);
-	
+      extract($row);
+
+      echo "<a href=\"detail.php?record=$id\">";
+
+      if ($sorttype == 1) {
 ?>
       <tr>
-      <td valign="top"> 
-                 <table> 
-                     <tr><td> <?php print "$osname <br> $osversion"; ?> </td></tr>
-                     <tr><td>   MTX version: <?php print "$mtxversion"; ?> </td></tr>
-                 </table>
-      </td>
-      <td valign="top">
-        <table>
-           <tr>
-	             <th colspan=2 bgcolor="cyan"> <?php print "$description"; ?> </th>
-           </tr>
-           <tr>
-             <th bgcolor="cyan" align="right"> Vendor ID: </th>
-             <td> '<?php print "$vendorid"; ?>' </td>
-           </tr>
-           <tr>
-             <th bgcolor="cyan" align="right"> Product ID: </th>
-             <td> '<?php print "$productid"; ?>' </td>
-           </tr>        
-           <tr>
-             <th bgcolor="cyan" align="right"> Revision: </th>
-             <td> '<?php print "$revision"; ?>' </td>
-           </tr>        
-           <tr>
-             <th bgcolor="cyan" align="right"> Serial Number: </th>
-             <td> '<?php print "$serialnum"; ?>' </td>
-           </tr>
-	</table>
-      </td>
-      <td valign="top"> <!-- <th bgcolor="cyan">Loader Info</th> -->
-       <table>
-          <tr>
-            <th bgcolor="cyan" align="right"> Media Slots: </th>
-            <td> <?php print "$slots"; ?> </td>
-          </tr>
-          <tr>
-            <th bgcolor="cyan" align="right"> Import/Export Slots: </th>
-            <td> <?php print "$imports"; ?> </td>
-          </tr>
-          <tr> 
-            <th bgcolor="cyan" align="right"> Drives: </th>               
-            <td> <?php print "$transfers"; ?> </td>
-          </tr>
-          <tr>
-            <th bgcolor="cyan" align="right"> Robot Arms: </th>    
-            <td> <?php print "$transports"; ?> </td>
-          </tr>
-        </table>
-      </td>
-      <td valign="top"> <!--  <th bgcolor="cyan">Loader Capabilities</th> -->
-         <table>
-          <tr>
-            <th bgcolor="cyan" align="right"> Element Address Assignment Page (EAAP) </th>
-            <td> <?php if ($eaap == "1") { ?>
-                      Yes
-                 <?php } else { ?>
-                      No
-                 <?php } ?>
-            </td>
-          </tr>
-          <tr>
-            <th bgcolor="cyan" align="right">Transfer Geometry Descriptor Page (TGDP) </th>
-            <td> <?php if ($tgdp=="1") { ?>
-                    Yes 
-                 <?php } else { ?>
-                    No
-                  <?php } ?>
-            </td>
-          </tr>
-          <tr>
-            <th bgcolor="cyan" align="right">Can Transfer </th>
-            <td> <?php if ($canxfer == "1") { ?>
-                         Yes
-                  <?php } else { ?>
-                         No
-                  <?php } ?>
-            </td> 
-         </table>
-      </td>
-      <td valign="top"> 
-        <table> 
-           <tr>
-            <th bgcolor="cyan" align="right">Contributed By </th>
-            <td> <?php print "$name"; ?>  </td> 
-           </tr>
-           <tr> 
-            <th bgcolor="cyan" align="right">On date </th>
-            <td> <?php print "$contributed"; ?> </td>
-           </tr>
-           <tr>
-             <th bgcolor="cyan" align="right">Comments </th>
-             <td>  <?php print "$comments"; ?> </td>
-           </tr>
-         </table>
-     </td>
-  </tr>
-  <?php }
-  } ?>
-</table>
-
-</body>
+        <td><?php echo "$osname<br/>"; ?></td>
+        <td><?php echo "$osversion<br/>"; ?></td>
+        <td><?php echo "$vendorid<br/>"; ?></td>
+        <td><?php echo "$description<br/>"; ?></td>
+        <td><?php echo "$mtxversion<br/>"; ?></td>
+      </tr>
+<?php 
+      } else if ($sorttype == 2) {
+?>
+      <tr>
+        <td><?php echo "$vendorid<br/>"; ?></td>
+        <td><?php echo "$description<br/>"; ?></td>
+        <td><?php echo "$osname<br/>"; ?></td>
+        <td><?php echo "$osversion<br/>"; ?></td>
+        <td><?php echo "$mtxversion<br/>"; ?></td>
+      </tr>
+<?php 
+      } else if ($sorttype == 3) {
+?>
+      <tr>
+        <td><?php echo "$description<br/>"; ?></td>
+        <td><?php echo "$vendorid<br/>"; ?></td>
+        <td><?php echo "$osname<br/>"; ?></td>
+        <td><?php echo "$osversion<br/>"; ?></td>
+        <td><?php echo "$mtxversion<br/>"; ?></td>
+      </tr>
+<?php 
+      } else {
+?>
+      <tr>
+        <td><?php echo "$mtxversion<br/>"; ?></td>
+        <td><?php echo "$osname<br/>"; ?></td>
+        <td><?php echo "$osversion<br/>"; ?></td>
+        <td><?php echo "$vendorid<br/>"; ?></td>
+        <td><?php echo "$description<br/>"; ?></td>
+      </tr>
+<?php
+      }
+      echo "</a>";
+    }
+  }
+?>
+    </table>
+  </body>
 </html>
