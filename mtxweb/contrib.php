@@ -22,6 +22,55 @@
         A:visited { color: blue; text-decoration: underline; }
       -->
     </style>
+    <script type="text/javascript">
+      <!--
+        function validateShort(field)
+        {
+          var value;
+          
+          if (field.value == null)
+          {
+            field.value = "0";
+            return true;
+          }
+          
+          value = parseInt(field.value);
+
+          if (isNaN(value))
+          {
+            field.value = "0";
+            return true;
+          }
+
+          if (value > 65535)
+          {
+            window.alert("Value must be between 0 and 65535");
+            return false;
+          }
+          return true;
+        }
+
+        function validateNumeric(e)
+        {
+          var keyCode;
+
+          if (e.which)
+          {
+             keyCode = e.which;
+          }
+          else if (e.keyCode)
+          {
+             keyCode = e.keyCode;
+          }
+          else 
+          {
+             return true;
+          }
+
+          return keyCode < 32 || keyCode == null || (keyCode >= 48 && keyCode <= 57);
+        }
+      -->
+    </script>
   </head>
   <body bgcolor="white">
     <a href="http://sourceforge.net">
@@ -162,21 +211,21 @@ most loaders. Please report whether barcodes actually show up when you do
         <tr>
           <th>Number of Medium Transport Elements:</th>
           <td>
-            <input name="l_transports" type="text" size="5" maxlength="5"/>
+            <input name="l_transports" type="text" size="5" maxlength="5" onKeyPress="return validateNumeric(event)" onChange="return validateShort(this)"/>
           </td>
           <th>Number of Storage Elements:</th>
           <td>
-            <input name="l_slots" type="text" size="5" maxlength="5"/>
+            <input name="l_slots" type="text" size="5" maxlength="5" onKeyPress="return validateNumeric(event)" onChange="return validateShort(this)"/>
           </td>
         </tr>
         <tr>
           <th>Number of Import/Export Elements:</th>
           <td>
-            <input name="l_imports" type="text" size="5" maxlength="5"/>
+            <input name="l_imports" type="text" size="5" maxlength="5" onKeyPress="return validateNumeric(event)" onChange="return validateShort(this)"/>
           </td>
           <th>Number of Data Transfer Elements:</th>
           <td>
-            <input name="l_transfers" type="text" size="5" maxlength="5"/>
+            <input name="l_transfers" type="text" size="5" maxlength="5" onKeyPress="return validateNumeric(event)" onChange="return validateShort(this)"/>
           </td>
         </tr>
         <tr>
