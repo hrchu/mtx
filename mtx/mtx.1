@@ -1,6 +1,6 @@
 .\" mtx.1  Document copyright 2000 Eric Lee Green
 .\"  Program Copyright 1996, 1997 Leonard Zubkoff
-.\"  Extensive changes 2000 by Eric Lee Green <eric@estinc.com>
+.\"  Extensive changes 2000 by Eric Lee Green <eric@badtux.org>
 .\"
 .\" This is free documentation; you can redistribute it and/or
 .\" modify it under the terms of the GNU General Public License as
@@ -148,8 +148,7 @@ move to and open the import/export, or mailbox, slot.
 .SH AUTHORS
 The original 'mtx' program was written by Leonard Zubkoff and extensively
 revised for large multi-drive libraries with bar code readers 
-by Eric Lee Green <eric@badtux.org>, to whom all problems should
-be reported for this revision. See 'mtx.c' for other contributors. 
+by Eric Lee Green <eric@badtux.org>. See 'mtx.c' for other contributors. 
 .SH BUGS AND LIMITATIONS
 .P
 You may need to do a 'mt offline' on the tape drive to eject the tape
@@ -204,7 +203,8 @@ reader and 21 slots, an Exabyte EZ-17 7-slot autoloader, and a Seagate
 DDS-4 autochanger with 6 slots). It may not work on other operating systems 
 with larger libraries,
 due to the big SCSI request size. 
-Report problems to Eric Lee Green <eric@badtux.org>.  
+Please see the projecdt page http://sourceforge.net/projects/mtx for information 
+on reporting bugs, requesting features and the mailing list for peer support.
 .SH HINTS
 Under Linux, 
 .B cat /proc/scsi/scsi
@@ -249,11 +249,8 @@ to make multi-tape backups.
 .SH AVAILABILITY
 This version of 
 .B mtx
-is currently being maintained by Eric Lee Green <eric@badtux.org>
-formerly of Enhanced Software Technologies Inc. The 'mtx' home page is
-http://mtx.sourceforge.net and the actual code is currently available
-from ftp://ftp.badtux.net/pub/storage/mtx and via CVS from
-http://sourceforge.net/projects/mtx/ .
-
+is currently being maintained by Robert Nelson <robertnelson@users.sourceforge.net> .
+The 'mtx' home page is http://mtx.sourceforge.net and the actual code is currently available
+there and via SVN from http://sourceforge.net/projects/mtx . 
 .SH SEE ALSO
-.BR mt (1), tapeinfo (1), scsitape(1), loaderinfo(1)
+.BR mt (1), loaderinfo (1), tapeinfo (1), scsitape(1), scsieject (1)

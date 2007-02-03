@@ -343,7 +343,7 @@ static void do_Erase(void) {
 static void do_Unload(void)
 {
   int i;
-  i=Eject(MediumChangerFD);
+  i=LoadUnload(MediumChangerFD, 0);
   if (i<0) {
     fprintf(stderr,"mtx:eject failed\n");
     fflush(stderr);
