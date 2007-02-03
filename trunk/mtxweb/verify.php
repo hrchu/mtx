@@ -34,15 +34,15 @@
 
     $query_str="insert into loaders (enabled,worked,osname,osversion,mtxversion,description,vendorid,productid,revision,barcodes,eaap,transports,slots,imports,transfers,tgdp,canxfer,serialnum,email,name,contributed,comments) values ( 1, 1, '$ld_osname', '$ld_osversion', '$ld_mtxversion', '$ld_description', '$ld_vendorid', '$ld_productid', '$ld_revision', $ld_barcodes, $ld_eaap, $ld_transports, $ld_slots, $ld_imports, $ld_transfers, $ld_tgdp, $ld_canxfer, '$ld_serialnum', '$ld_email', '$ld_name', now(), '$ld_comments') ";
 
-    /* now to insert it: */
+    /* now to insert it */
 
     $result=mysql_query($query_str,$link);
 
     /* Now send mail to Eric telling him that it's been added.  */
     /* mail("eric@badtux.org","New Addition to MTX Compatibility List",$query_str); */
-    /* Now to go back to index.html: */
+    /* Now to go back to index.html */
     header("Location: http://mtx.sourceforge.net/");
-    exit();  
+    exit();
   }
 ?>
 <!DOCTYPE html PUBLIC "-//IETF//DTD HTML//EN">
@@ -70,8 +70,8 @@
     <h2>Compatibility Entry Verification</h2>
     <br clear="left"/>
     <br/>
-    You entered the following values. If they are correct, click on "Save".
-    If they are not correct, hit the BACK button on your browser:
+    You entered the following values.  If they are correct, click on "Save", 
+    otherwise click on "Cancel".
 
     <form action="verify.php" method="POST">
       <input type="hidden" name="l_verified" value="1"/>
@@ -102,17 +102,17 @@
             <th style="text-align: center" colspan="4">OS and General Info</th>
           </tr>
           <tr>
-            <th>Operating System:</th>
+            <th>Operating System</th>
             <td>
               <?php echo $_POST['l_osname'] ?>
             </td>
-            <th>OS Version:</th>
+            <th>OS Version</th>
             <td>
               <?php echo $_POST['l_osversion'],'<br/>' ?>
             </td>
           </tr>
           <tr>
-            <th>MTX Version:</th>
+            <th>MTX Version</th>
             <td>
               <?php echo $_POST['l_mtxversion'] ?>
             </td>
@@ -121,7 +121,7 @@
             </th>
           </tr>
           <tr>
-            <th>Loader Description:</th>
+            <th>Loader Description</th>
             <td colspan="3">
               <?php echo $_POST['l_description'],'<br/>' ?>
             </td>
@@ -130,61 +130,61 @@
             <th style="text-align: center" colspan="4">LoaderInfo Output</th>
           </tr>
           <tr>
-            <th>Vendor ID:</th>
+            <th>Vendor ID</th>
             <td>
               <?php echo $_POST['l_vendorid'],'<br/>' ?>
             </td>
-            <th>Product ID:</th>
+            <th>Product ID</th>
             <td>
               <?php echo $_POST['l_productid'],'<br/>' ?>
             </td>
           </tr>
           <tr>
-            <th>Revision:</th>
+            <th>Revision</th>
             <td>
               <?php echo $_POST['l_revision'],'<br/>' ?>
             </td>
-            <th>Serial Number:</th>
+            <th>Serial Number</th>
             <td>
               <?php echo $_POST['l_serialnum'],'<br/>' ?>
             </td>
           </tr>
           <tr>
-            <th>Barcode Reader:</th>
+            <th>Barcode Reader</th>
             <td>
               <?php echo $_POST['l_barcodes'] == 1 ? "Yes" : "No" ?>
             </td>
-            <th>Element Address Assignment Page:</th>
+            <th>Element Address Assignment Page</th>
             <td>
               <?php echo $_POST['l_eaap'] == 1 ? "Yes" : "No" ?>
             </td>
           </tr>
           <tr>
-            <th>Transfer Geometry Descriptor Page:</th>
+            <th>Transport Geometry Descriptor Page</th>
             <td>
               <?php echo $_POST['l_tgdp'] == 1 ? "Yes" : "No" ?>
             </td>
-            <th>Can Transfer:</th>
+            <th>Can Transfer</th>
             <td>
               <?php echo $_POST['l_canxfer'] == 1 ? "Yes" : "No" ?>
             </td>
           </tr>
           <tr>
-            <th>Number of Medium Transport Elements:</th>
+            <th>Number of Medium Transport Elements</th>
             <td>
               <?php echo $_POST['l_transports'] ?>
             </td>
-            <th>Number of Storage Elements:</th>
+            <th>Number of Storage Elements</th>
             <td>
               <?php echo $_POST['l_slots'] ?>
             </td>
           </tr>
           <tr>
-            <th>Number of Import/Export Elements:</th>
+            <th>Number of Import/Export Elements</th>
             <td>
               <?php echo $_POST['l_imports'] ?>
             </td>
-            <th>Number of Data Transfer Elements:</th>
+            <th>Number of Data Transfer Elements</th>
             <td>
               <?php echo $_POST['l_transfers'] ?>
             </td>
@@ -201,11 +201,11 @@
             <th style="text-align: center" colspan="4">Personal Data</th>
           </tr>
           <tr>
-            <th>Your Name:</th>
+            <th>Your Name</th>
             <td>
               <?php echo $_POST['l_name'],'<br/>' ?>
             </td>
-            <th>Your EMAIL Address: </th>
+            <th>Your EMAIL Address </th>
             <td>
               <?php echo $_POST['l_email'],'<br/>' ?>
             </td>
