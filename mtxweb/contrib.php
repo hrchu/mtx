@@ -28,7 +28,7 @@
         {
           var value;
           
-          if (field.value == null)
+          if (field.value == null || field.value == "")
           {
             field.value = "0";
             return true;
@@ -102,14 +102,13 @@ most loaders. Please report whether barcodes actually show up when you do
     <form action="verify.php" method="POST">
       <input type="hidden" name="l_enabled" value="1"/>
       <input type="hidden" name="l_worked" value="1"/>
-      <!-- now for the table: -->
       <table border="1">
         <tr>
           <th style="text-align: center" colspan="4">OS and General Info</th>
         </tr>
         <tr>
           <!-- do a pulldown for operating system name:  -->
-          <th>Operating System:</th>
+          <th>Operating System</th>
           <td>
             <select name="l_osname">
 <?php
@@ -122,13 +121,13 @@ most loaders. Please report whether barcodes actually show up when you do
 ?>
             </select>
           </td>
-          <th>OS Version:</th>
+          <th>OS Version</th>
           <td>
             <input name="l_osversion" type="text" size="25" maxlength="100"/>
           </td>
         </tr>
         <tr>
-          <th>MTX Version:</th>
+          <th>MTX Version</th>
           <td>
             <select name="l_mtxversion">
 <?php
@@ -148,43 +147,43 @@ most loaders. Please report whether barcodes actually show up when you do
           </th>
         </tr>
         <tr>
-          <th>Loader Description:</th>
+          <th>Loader Description</th>
           <td colspan="3">
             <input name="l_description" type="text" size="80" maxlength="100"/>
           </td>
         </tr>
         <tr>
-          <th style="text-align:center" colspan="4">LoaderInfo Output</th>
+          <th style="text-align: center" colspan="4">LoaderInfo Output</th>
         </tr>
         <tr>
-          <th>Vendor ID:</th>
+          <th>Vendor ID</th>
           <td>
             <input name="l_vendorid" type="text" size="8" maxlength="8"/>
           </td>
-          <th>Product ID:</th>
+          <th>Product ID</th>
           <td>
             <input name="l_productid" type="text" size="16" maxlength="16"/>
           </td>
         </tr>
         <tr>
-          <th>Revision:</th>
+          <th>Revision</th>
           <td>
             <input name="l_revision" type="text" size="4" maxlength="4"/>
           </td>
-          <th>Serial Number:</th>
+          <th>Serial Number</th>
           <td>
             <input name="l_serialnum" type="text" size="25" maxlength="25"/>
           </td>
         </tr>
         <tr>
-          <th>Barcode Reader:</th>
+          <th>Barcode Reader</th>
           <td>
             <select name="l_barcodes">
               <option value="0">No</option>
               <option value="1">Yes</option>
             </select>
           </td>
-          <th>Element Address Assignment Page (EAAP):</th>
+          <th>Element Address Assignment Page (EAAP)</th>
           <td>
             <select name="l_eaap">
               <option value="0">No</option>
@@ -193,14 +192,14 @@ most loaders. Please report whether barcodes actually show up when you do
           </td>
         </tr>
         <tr>
-          <th>Transfer Geometry Descriptor Page:</th>
+          <th>Transport Geometry Descriptor Page</th>
           <td>
             <select name="l_tgdp">
               <option value="0">No</option>
               <option value="1">Yes</option>
             </select>
           </td>
-          <th>Can Transfer:</th>
+          <th>Can Transfer</th>
           <td>
             <select name="l_canxfer">
               <option value="0">No</option>
@@ -209,23 +208,23 @@ most loaders. Please report whether barcodes actually show up when you do
           </td>
         </tr>
         <tr>
-          <th>Number of Medium Transport Elements:</th>
+          <th>Number of Medium Transport Elements</th>
           <td>
-            <input name="l_transports" type="text" size="5" maxlength="5" onKeyPress="return validateNumeric(event)" onChange="return validateShort(this)"/>
+            <input name="l_transports" type="text" value="0" size="5" maxlength="5" onKeyPress="return validateNumeric(event)" onChange="return validateShort(this)"/>
           </td>
-          <th>Number of Storage Elements:</th>
+          <th>Number of Storage Elements</th>
           <td>
-            <input name="l_slots" type="text" size="5" maxlength="5" onKeyPress="return validateNumeric(event)" onChange="return validateShort(this)"/>
+            <input name="l_slots" type="text" value="0" size="5" maxlength="5" onKeyPress="return validateNumeric(event)" onChange="return validateShort(this)"/>
           </td>
         </tr>
         <tr>
-          <th>Number of Import/Export Elements:</th>
+          <th>Number of Import/Export Elements</th>
           <td>
-            <input name="l_imports" type="text" size="5" maxlength="5" onKeyPress="return validateNumeric(event)" onChange="return validateShort(this)"/>
+            <input name="l_imports" type="text" value="0" size="5" maxlength="5" onKeyPress="return validateNumeric(event)" onChange="return validateShort(this)"/>
           </td>
-          <th>Number of Data Transfer Elements:</th>
+          <th>Number of Data Transfer Elements</th>
           <td>
-            <input name="l_transfers" type="text" size="5" maxlength="5" onKeyPress="return validateNumeric(event)" onChange="return validateShort(this)"/>
+            <input name="l_transfers" type="text" value="0" size="5" maxlength="5" onKeyPress="return validateNumeric(event)" onChange="return validateShort(this)"/>
           </td>
         </tr>
         <tr>
@@ -240,11 +239,11 @@ most loaders. Please report whether barcodes actually show up when you do
           <th style="text-align: center" colspan="4">Personal Data</th>
         </tr>
         <tr>
-          <th>Your Name:</th>
+          <th>Your Name</th>
           <td>
             <input name="l_name" type="text" size="25" maxlength="80"/>
           </td>
-          <th>Your EMAIL Address:</th>
+          <th>Your EMAIL Address</th>
           <td>
             <input name="l_email" type="text" size="25" maxlength="80"/>
           </td>

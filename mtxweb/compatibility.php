@@ -64,7 +64,7 @@
 This application is currently in beta test, and may be buggy. The database
 that it feeds off of is currently very incomplete. Please 
 <a href="contrib.php">contribute</a> new entries so that others can
-benefit. Also see the <a href="COMPATIBILITY.html">old compatibility list</a>.
+benefit.
     <p/>
 You can change the sort order by clicking on the underlined column heading.
     <p/>
@@ -136,57 +136,49 @@ In order to display the detailed information click on the desired line.
   if ($num_rows==0) {
 ?>
       <tr>
-        <th style="background-color:white">NO RECORDS IN DATABASE</th>
+        <th style="background-color: white">NO RECORDS IN DATABASE</th>
       </tr>
 <?php 
   } else { 
     while ($row = mysql_fetch_assoc($result)) {
       extract($row);
 
-      echo "<a href=\"detail.php?record=$id\">";
+      echo "<tr onClick=\"location.href='detail.php?record=$id'\">";
 
       if ($sorttype == 1) {
 ?>
-      <tr>
         <td><?php echo "$osname<br/>"; ?></td>
         <td><?php echo "$osversion<br/>"; ?></td>
         <td><?php echo "$vendorid<br/>"; ?></td>
         <td><?php echo "$description<br/>"; ?></td>
         <td><?php echo "$mtxversion<br/>"; ?></td>
-      </tr>
 <?php 
       } else if ($sorttype == 2) {
 ?>
-      <tr>
         <td><?php echo "$vendorid<br/>"; ?></td>
         <td><?php echo "$description<br/>"; ?></td>
         <td><?php echo "$osname<br/>"; ?></td>
         <td><?php echo "$osversion<br/>"; ?></td>
         <td><?php echo "$mtxversion<br/>"; ?></td>
-      </tr>
 <?php 
       } else if ($sorttype == 3) {
 ?>
-      <tr>
         <td><?php echo "$description<br/>"; ?></td>
         <td><?php echo "$vendorid<br/>"; ?></td>
         <td><?php echo "$osname<br/>"; ?></td>
         <td><?php echo "$osversion<br/>"; ?></td>
         <td><?php echo "$mtxversion<br/>"; ?></td>
-      </tr>
 <?php 
       } else {
 ?>
-      <tr>
         <td><?php echo "$mtxversion<br/>"; ?></td>
         <td><?php echo "$osname<br/>"; ?></td>
         <td><?php echo "$osversion<br/>"; ?></td>
         <td><?php echo "$vendorid<br/>"; ?></td>
         <td><?php echo "$description<br/>"; ?></td>
-      </tr>
 <?php
       }
-      echo "</a>";
+      echo "</tr>";
     }
   }
 ?>

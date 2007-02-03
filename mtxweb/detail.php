@@ -41,7 +41,7 @@
 This application is currently in beta test, and may be buggy. The database
 that it feeds off of is currently very incomplete. Please 
 <a href="contrib.php">contribute</a> new entries so that others can
-benefit. Also see the <a href="COMPATIBILITY.html">old compatibility list</a>.
+benefit.
     <p/>
     <p/>
     <table align="center" border="1">
@@ -53,17 +53,17 @@ benefit. Also see the <a href="COMPATIBILITY.html">old compatibility list</a>.
     extract($row);
 ?>
       <tr>
-        <th>Operating System:</th>
+        <th>Operating System</th>
         <td>
           <?php echo "$osname" ?>
         </td>
-        <th>OS Version:</th>
+        <th>OS Version</th>
         <td>
           <?php echo "$osversion<br/>" ?>
         </td>
       </tr>
       <tr>
-        <th>MTX Version:</th>
+        <th>MTX Version</th>
         <td>
           <?php echo "$mtxversion<br/>" ?>
         </td>
@@ -72,7 +72,7 @@ benefit. Also see the <a href="COMPATIBILITY.html">old compatibility list</a>.
         </th>
       </tr>
       <tr>
-        <th>Loader Description:</th>
+        <th>Loader Description</th>
         <td colspan="3">
           <?php echo "$description<br/>" ?>
         </td>
@@ -81,61 +81,61 @@ benefit. Also see the <a href="COMPATIBILITY.html">old compatibility list</a>.
         <th style="text-align: center" colspan="4">LoaderInfo Output</th>
       </tr>
       <tr>
-        <th>Vendor ID:</th>
+        <th>Vendor ID</th>
         <td>
           <?php echo "$vendorid<br/>" ?>
         </td>
-        <th>Product ID:</th>
+        <th>Product ID</th>
         <td>
           <?php echo "$productid<br/>" ?>
         </td>
       </tr>
       <tr>
-        <th>Revision:</th>
+        <th>Revision</th>
         <td>
           <?php echo "$revision<br/>" ?>
         </td>
-        <th>SerialNumber:</th>
+        <th>SerialNumber</th>
         <td>
           <?php echo "$serialnum<br/>" ?>
         </td>
       </tr>
       <tr>
-        <th>Barcode Reader:</th>
+        <th>Barcode Reader</th>
         <td>
           <?php echo $barcodes == 1 ? "Yes" : "No" ?>
         </td>
-        <th>Element Address Assignment Page:</th>
+        <th>Element Address Assignment Page</th>
         <td>
           <?php echo $eaap == 1 ? "Yes" : "No" ?>
         </td>
       </tr>
       <tr>
-        <th>Transfer Geometry Descriptor Page:</th>
+        <th>Transport Geometry Descriptor Page</th>
         <td>
           <?php echo $tgdp == 1 ? "Yes" : "No" ?>
         </td>
-        <th>Can Transfer:</th>
+        <th>Can Transfer</th>
         <td>
           <?php echo $canxfer == 1 ? "Yes" : "No" ?>
         </td>
       </tr>
       <tr>
-        <th>Number of Medium Transport Elements:</th>
+        <th>Number of Medium Transport Elements</th>
         <td>
           <?php echo "$transports" ?>
         </td>
-        <th>Number of Storage Elements:</th>
+        <th>Number of Storage Elements</th>
         <td>
           <?php echo "$slots" ?>
         </td>
       </tr>
       <tr>
-        <th>Number of Import/Export Elements:</th>
+        <th>Number of Import/Export Elements</th>
         <td>
           <?php echo "$imports" ?>
         </td>
-        <th>Number of Data Transfer Elements:</th>
+        <th>Number of Data Transfer Elements</th>
         <td>
           <?php echo "$transfers" ?>
         </td>
@@ -152,9 +152,9 @@ benefit. Also see the <a href="COMPATIBILITY.html">old compatibility list</a>.
         <td colspan="4">
           <table border="1" width="100%">
             <tr>
-              <th width="50%">Submitted By:</th>
+              <th width="50%">Submitted By</th>
               <td width="50%">
-                <?php echo "$name" ?>
+                <?php echo "$name<br/>" ?>
               </td>
             </tr>
           </table>
