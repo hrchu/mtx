@@ -11,7 +11,8 @@
 # Version # for 'make dist'...
 VERSION=1.3.10
 
-BINS = mtx@EXEEXT@ tapeinfo@EXEEXT@ loaderinfo@EXEEXT@ scsitape@EXEEXT@ nsmhack@EXEEXT@
+BINS = mtx@EXEEXT@ tapeinfo@EXEEXT@ loaderinfo@EXEEXT@ scsitape@EXEEXT@ scsieject@EXEEXT@ \
+	nsmhack@EXEEXT@
 DBGS := $(BINS:%@EXEEXT@=%.dbg)
 
 TARGET	= @TARGET@
@@ -108,8 +109,8 @@ install: $(BINS) $(DBGS)
 	$(INSTALL_BIN) "$$file" $(sbindir) ; \
 	done	
 	$(INSTALL_DIR) $(mandir) $(mandir)/man1
-	for file in mtx.1 tapeinfo.1 scsitape.1 loaderinfo.1 ; do \
-	$(INSTALL_DOC) "$$file"  $(mandir)/man1 ;		  \
+	for file in mtx.1 tapeinfo.1 scsitape.1 scsieject.1 loaderinfo.1 ; do \
+	$(INSTALL_DOC) "$$file"  $(mandir)/man1 ; \
 	done
 
 clean:
@@ -149,6 +150,11 @@ scsitape@EXEEXT@: scsitape.o mtxl.o mtxl.h mtx.h $(EXTRA)
 	$(CC) $(LDFLAGS) -o scsitape scsitape.o mtxl.o $(EXTRA) $(LIBS)
 
 scsitape.o: scsitape.c mtx.h mtxl.h
+
+scsieject@EXEEXT@: scsieject.o mtxl.o mtxl.h mtx.h $(EXTRA)
+	$(CC) $(LDFLAGS) -o scsieject scsieject.o mtxl.o $(EXTRA) $(LIBS)
+
+scsieject.o: scsieject.c mtx.h mtxl.h
 
 loaderinfo.o: loaderinfo.c mtx.h mtxl.h
 

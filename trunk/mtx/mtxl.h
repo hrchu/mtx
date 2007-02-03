@@ -67,7 +67,9 @@ RequestSense_T *ExchangeMedium(DEVICE_TYPE MediumChangerFD, int SourceAddress,
 RequestSense_T *PositionElement(DEVICE_TYPE MediumChangerFD,
 		int DestinationAddress, ElementStatus_T *ElementStatus);
 int Inventory(DEVICE_TYPE MediumChangerFD);  /* inventory library */
-int Eject(DEVICE_TYPE fd);                  /* unload tape or magazine */
+int LoadUnload(DEVICE_TYPE fd, int bLoad); /* load/unload tape, magazine or disc */
+int StartStop(DEVICE_TYPE fd, int bStart); /* start/stop device */
+int LockUnlock(DEVICE_TYPE fd, int bLock); /* lock/unlock medium in device */
 RequestSense_T *Erase(DEVICE_TYPE fd);        /* send SHORT erase to drive */
 
 void SCSI_Set_Timeout(int secs); /* set the SCSI timeout */

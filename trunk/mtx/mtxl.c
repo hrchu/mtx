@@ -355,28 +355,6 @@ int Inventory(DEVICE_TYPE MediumChangerFD) {
   return 0; /* did do! */
 }
 
-/* Routine to send an UNLOAD from the SSC spec to a device. This can be
- * used either to eject a tape (when sent to a tape drive), or to eject
- * a magzine (on some Seagate changers, when sent to LUN 1 ). 
- */
-
-int Eject(DEVICE_TYPE fd) {
-  CDB_T CDB;
-  /* okay, now for the command: */
-  
-  CDB[0]=0x1b;
-  CDB[1]=CDB[2]=CDB[3]=CDB[4]=CDB[5]=0;
-  
-  if (SCSI_ExecuteCommand(fd,Input,&CDB,6,NULL,0,&scsi_error_sense) != 0) {
-#ifdef DEBUG_MODE_SENSE
-    PrintRequestSense(&scsi_error_sense);
-    fprintf(stderr, "Eject (0x1B) failed\n");
-#endif
-    return -1;  /* could not do! */
-  }
-  return 0; /* did do! */
-}  
-
 /* Routine to read the Mode Sense Element Address Assignment Page */
 /* We try to read the page. If we can't read the page, we return NULL.
  * Our caller really isn't too worried about why we could not read the
@@ -1491,6 +1469,79 @@ RequestSense_T *Erase(DEVICE_TYPE MediumChangerFD) {
   free(RequestSense);
   return NULL;  /* Success! */
 }  
+
+/* Routine to send an LOAD/UNLOAD from the MMC/SSC spec to a device. 
+ * For tapes and changers this can be used either to eject a tape 
+ * or to eject a magazine (on some Seagate changers, when sent to LUN 1 ).
+ * For CD/DVDs this is used to Load or Unload a disc which is required by
+ * some media changers.
+ */
+
+int LoadUnload(DEVICE_TYPE fd, int bLoad) {
+  CDB_T CDB;
+  /* okay, now for the command: */
+  
+  CDB[0]=0x1b;
+  CDB[4]=bLoad ? 3 : 2;
+  CDB[1]=CDB[2]=CDB[3]=CDB[5]=0;
+  
+  if (SCSI_ExecuteCommand(fd,Input,&CDB,6,NULL,0,&scsi_error_sense) != 0) {
+#ifdef DEBUG_MODE_SENSE
+    PrintRequestSense(&scsi_error_sense);
+    fprintf(stderr, "Eject (0x1B) failed\n");
+#endif
+    return -1;  /* could not do! */
+  }
+  return 0; /* did do! */
+}
+
+/* Routine to send an START/STOP from the MMC/SSC spec to a device. 
+ * For tape drives this may be required prior to using the changer 
+ * Load or Unload commands.
+ * For CD/DVD drives this is used to Load or Unload a disc which may be
+ * required by some media changers.
+ */
+
+int StartStop(DEVICE_TYPE fd, int bStart) {
+  CDB_T CDB;
+  /* okay, now for the command: */
+  
+  CDB[0]=0x1b;
+  CDB[4]=bStart ? 1 : 0;
+  CDB[1]=CDB[2]=CDB[3]=CDB[5]=0;
+  
+  if (SCSI_ExecuteCommand(fd,Input,&CDB,6,NULL,0,&scsi_error_sense) != 0) {
+#ifdef DEBUG_MODE_SENSE
+    PrintRequestSense(&scsi_error_sense);
+    fprintf(stderr, "Eject (0x1B) failed\n");
+#endif
+    return -1;  /* could not do! */
+  }
+  return 0; /* did do! */
+}
+
+/* Routine to send a LOCK/UNLOCK from the SSC/MMC spec to a device. 
+ * This can be used to prevent or allow the Tape or CD/DVD from being
+ * removed. 
+ */
+
+int LockUnlock(DEVICE_TYPE fd, int bLock) {
+  CDB_T CDB;
+  /* okay, now for the command: */
+  
+  CDB[0]=0x1e;
+  CDB[1]=CDB[2]=CDB[3]=CDB[5]=0;
+  CDB[4]=(char)bLock;
+  
+  if (SCSI_ExecuteCommand(fd,Input,&CDB,6,NULL,0,&scsi_error_sense) != 0) {
+#ifdef DEBUG_MODE_SENSE
+    PrintRequestSense(&scsi_error_sense);
+    fprintf(stderr, "Eject (0x1B) failed\n");
+#endif
+    return -1;  /* could not do! */
+  }
+  return 0; /* did do! */
+}
 
 static char Spaces[] = "                                                            ";
 
