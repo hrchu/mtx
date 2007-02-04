@@ -13,25 +13,28 @@
     $sorttype = 1;
   }
 
+  $join_on = "";
+  
   switch ($sorttype)
   {
   case 1: // OS
-    $sort_fields = "osname,osversion,vendorid,description,mtxversion";
+    $order_by = "osname,osversion,vendorid,description,mtxversion";
     break;
   case 2: // Vendor
-    $sort_fields = "vendorid,description,osname,osversion,mtxversion";
+    $order_by = "vendorid,description,osname,osversion,mtxversion";
     break;
   case 3: // Description
-    $sort_fields = "description,vendorid,osname,osversion,mtxversion";
+    $order_by = "description,vendorid,osname,osversion,mtxversion";
     break;
   case 4: // MTX Version
-    $sort_fields = "mtxversion,osname,osversion,vendorid,description";
+    $order_by = "`key`,osname,osversion,vendorid";
+    $join_on = "inner join versions on mtxversion = version";
     break;
   }
 
-  $query_str="select id,osname,osversion,vendorid,description,mtxversion from loaders where enabled = 1 order by $sort_fields";
-  $result=mysql_query($query_str,$link) or die("Invalid query '$query_str'");
-  $num_rows=mysql_num_rows($result);
+  $query_str = "select id,osname,osversion,vendorid,description,mtxversion from loaders $join_on where enabled = 1 order by $order_by";
+  $result = mysql_query($query_str,$link) or die("Invalid query '$query_str'");
+  $num_rows = mysql_num_rows($result);
 
 ?>
 <!DOCTYPE html PUBLIC "-//IETF//DTD HTML//EN">
