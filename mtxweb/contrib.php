@@ -69,6 +69,71 @@
 
           return keyCode < 32 || keyCode == null || (keyCode >= 48 && keyCode <= 57);
         }
+        
+        function validateLoaderInfoText(e)
+        {
+          var keyCode;
+
+          if (e.which)
+          {
+             keyCode = e.which;
+          }
+          else if (e.keyCode)
+          {
+             keyCode = e.keyCode;
+          }
+          else 
+          {
+             return true;
+          }
+
+          return keyCode != 39;
+        }
+
+        function validateSubmit()
+        {
+          var e_osversion = document.getElementById("osversion");
+          var e_description = document.getElementById("description");
+          var e_vendorid = document.getElementById("vendorid");
+          var e_productid = document.getElementById("productid");
+          var e_revision = document.getElementById("revision");
+
+          if (e_osversion.value == "")
+          {
+            window.alert("You must enter the version of your operating system.  Please use the output of the command 'uname -svrp' on UNIX systems.");
+            e_osversion.focus();
+            return false;
+          }
+
+          if (e_description.value == "")
+          {
+            window.alert("You must enter a description of your loader device.");
+            e_description.focus();
+            return false;
+          }
+
+          if (e_vendorid.value == "" || e_productid.value == "" || e_revision.value == "")
+          {
+            window.alert("You must enter the Vendor ID, Product ID and Revision listed by loaderinfo.");
+
+            if (e_vendorid.value == "")
+            {
+              e_vendorid.focus();
+            }
+            else if (e_productid.value == "")
+            {
+              e_productid.focus();
+            }
+            else if (e_revision.value == "")
+            {
+              e_revision.focus();
+            }
+
+            return false;
+          }
+
+          return true;
+        }
       -->
     </script>
   </head>
@@ -99,7 +164,7 @@ most loaders. Please report whether barcodes actually show up when you do
 'mtx status'. 
 
     <p/>
-    <form action="verify.php" method="POST">
+    <form action="verify.php" method="POST"  onSubmit="return validateSubmit()">
       <input type="hidden" name="l_enabled" value="1"/>
       <input type="hidden" name="l_worked" value="1"/>
       <table border="1">
@@ -111,7 +176,7 @@ most loaders. Please report whether barcodes actually show up when you do
           <th>Operating System</th>
           <td>
             <select name="l_osname">
-<?php
+              <?php
   $query_str="select osname from hosts";
   $result=mysql_query($query_str,$link) or die("</th></tr></table>Invalid query string '$query_str'");
 
@@ -123,15 +188,15 @@ most loaders. Please report whether barcodes actually show up when you do
           </td>
           <th>OS Version</th>
           <td>
-            <input name="l_osversion" type="text" size="25" maxlength="100"/>
+            <input id="osversion" name="l_osversion" type="text" size="25" maxlength="100"/>
           </td>
         </tr>
         <tr>
           <th>MTX Version</th>
           <td>
             <select name="l_mtxversion">
-<?php
-  $query_str = "select version from versions";
+              <?php
+  $query_str = "select version from versions order by `key`";
   $result = mysql_query($query_str,$link) or die("</th></tr></table>Invalid query string '$query_str'");
   $num_rows = mysql_num_rows($result);
 
@@ -149,7 +214,7 @@ most loaders. Please report whether barcodes actually show up when you do
         <tr>
           <th>Loader Description</th>
           <td colspan="3">
-            <input name="l_description" type="text" size="80" maxlength="100"/>
+            <input id="description" name="l_description" type="text" size="80" maxlength="100"/>
           </td>
         </tr>
         <tr>
@@ -158,17 +223,17 @@ most loaders. Please report whether barcodes actually show up when you do
         <tr>
           <th>Vendor ID</th>
           <td>
-            <input name="l_vendorid" type="text" size="8" maxlength="8"/>
+            <input id="vendorid" name="l_vendorid" type="text" size="8" maxlength="8" onKeyPress="return validateLoaderInfoText(event)"/>
           </td>
           <th>Product ID</th>
           <td>
-            <input name="l_productid" type="text" size="16" maxlength="16"/>
+            <input id="productid" name="l_productid" type="text" size="16" maxlength="16" onKeyPress="return validateLoaderInfoText(event)"/>
           </td>
         </tr>
         <tr>
           <th>Revision</th>
           <td>
-            <input name="l_revision" type="text" size="4" maxlength="4"/>
+            <input id="revision" name="l_revision" type="text" size="4" maxlength="4" onKeyPress="return validateLoaderInfoText(event)"/>
           </td>
           <th>Serial Number</th>
           <td>
