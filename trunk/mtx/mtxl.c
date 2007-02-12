@@ -369,7 +369,7 @@ ElementModeSense_T *ReadAssignmentPage(DEVICE_TYPE MediumChangerFD) {
   
   /* okay, now for the command: */
   CDB[0]=0x1a; /* Mode Sense(6) */
-  CDB[1]=0; 
+  CDB[1]=0x08; 
   CDB[2]=0x1d; /* Mode Sense Element Address Assignment Page */
   CDB[3]=0;
   CDB[4]=136; /* allocation_length... */

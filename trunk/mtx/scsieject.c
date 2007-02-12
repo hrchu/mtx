@@ -1,4 +1,4 @@
-/* Copyright 2001 Enhanced Software Technologies Inc.
+/* Copyright 2007, Robert Nelson
  *   Released under terms of the GNU General Public License as
  * required by the license on 'mtxl.c'.
  * $Date: 2007-01-28 19:23:33 -0800 (Sun, 28 Jan 2007) $
@@ -9,18 +9,14 @@
  * directly sending commands to the device.
  */
 
-/*#define DEBUG_PARTITION */
-/*#define DEBUG 1 */
-
 /* 
-   Commands:
-         load -- Load medium
-         unload -- Unload medium
-         start -- Start device
-         stop -- Stop device
-         lock -- Lock medium
-         unlock -- Unlock medium
-
+ *	Commands:
+ *		load -- Load medium
+ *		unload -- Unload medium
+ *		start -- Start device
+ *		stop -- Stop device
+ *		lock -- Lock medium
+ *		unlock -- Unlock medium
  */
 
 #include <stdio.h>
@@ -41,18 +37,11 @@
 #include <io.h>
 #endif
 
-void Usage(void) {
-  FatalError("Usage: scsieject -f <generic-device> <command> where <command> is:\n load | unload | start | stop | lock | unlock\n");
-}
+char *argv0;
 
-#define arg1 (arg[0])  /* for backward compatibility, sigh */
-static int arg[4];  /* the argument for the command, sigh. */
-
-/* the device handle we're operating upon, sigh. */
-static char *device;  /* the text of the device thingy. */
-static DEVICE_TYPE MediumChangerFD = (DEVICE_TYPE) -1;
-
-
+/* the device handle we're operating upon. */
+static char *device;  /* the device name. */
+static DEVICE_TYPE DeviceFD = (DEVICE_TYPE) -1;
 
 static int S_load(void);
 static int S_unload(void);
@@ -61,219 +50,206 @@ static int S_stop(void);
 static int S_lock(void);
 static int S_unlock(void);
 
-struct command_table_struct {
-  int num_args;
-  char *name;
-  int (*command)(void);
-} command_table[] = {
-  { 0, "load", S_load },
-  { 0, "unload", S_unload },
-  { 0, "start", S_start },
-  { 0, "stop", S_stop },
-  { 0, "lock", S_lock },
-  { 0, "unlock", S_unlock },
-  { 0, NULL, NULL } /* terminate list */
+struct command_table_struct
+{
+	char *name;
+	int (*command)(void);
+}
+	command_table[] =
+{
+	{ "load", S_load },
+	{ "unload", S_unload },
+	{ "start", S_start },
+	{ "stop", S_stop },
+	{ "lock", S_lock },
+	{ "unlock", S_unlock },
+	{ NULL, NULL } /* terminate list */
 };
 
-char *argv0;
-
-
-/* open_device() -- set the 'fh' variable.... */
-void open_device(void) {
-
-  if (MediumChangerFD != -1) {
-    SCSI_CloseDevice("Unknown",MediumChangerFD);  /* close it, sigh...  new device now! */
-  }
-
-  MediumChangerFD = SCSI_OpenDevice(device);
-
+void Usage(void)
+{
+	FatalError("Usage: scsieject -f <generic-device> <command> where <command> is:\n load | unload | start | stop | lock | unlock\n");
 }
 
-static int get_arg(char *arg) {
-  int retval=-1;
+/* open_device() -- set the 'DeviceFD' variable.... */
+void open_device(void)
+{
+	if (DeviceFD != -1)
+	{
+		SCSI_CloseDevice("Unknown", DeviceFD);
+	}
 
-  if (*arg < '0' || *arg > '9') {
-    return -1;  /* sorry! */
-  }
-
-  retval=atoi(arg);
-  return retval;
+	DeviceFD = SCSI_OpenDevice(device);
 }
-
 
 /* we see if we've got a file open. If not, we open one :-(. Then
  * we execute the actual command. Or not :-(. 
  */ 
-int execute_command(struct command_table_struct *command) {
+int execute_command(struct command_table_struct *command)
+{
+	/*
+	 * If the device is not already open, then open it from the 
+	 * environment.
+	 */
+	if (DeviceFD == -1)
+	{
+		/* try to get it from STAPE or TAPE environment variable... */
+		if ((device = getenv("STAPE")) == NULL &&
+			(device = getenv("TAPE")) == NULL)
+		{
+			Usage();	/* Doesn't return */
+		}
 
-  /* if the device is not already open, then open it from the 
-   * environment.
-   */
-  if (MediumChangerFD == -1) {
-    /* try to get it from STAPE or TAPE environment variable... */
-    device=getenv("STAPE");
-    if (device==NULL) {
-      device=getenv("TAPE");
-      if (device==NULL) {
-	Usage();
-      }
-    }
-    open_device();
-  }
+		open_device();
+	}
 
-
-  /* okay, now to execute the command... */
-  return command->command();
+	/* okay, now to execute the command... */
+	return command->command();
 }
 
 
 /* parse_args():
- *   Basically, we are parsing argv/argc. We can have multiple commands
- * on a line now, such as "unload 3 0 load 4 0" to unload one tape and
- * load in another tape into drive 0, and we execute these commands one
- * at a time as we come to them. If we don't have a -f at the start, we
- * barf. If we leave out a drive #, we default to drive 0 (the first drive
- * in the cabinet). 
+ * Basically, we are parsing argv/argc. We can have multiple commands
+ * on a line, such as "load start" to load a tape and start the device.
+ * We execute these commands one at a time as we come to them. If we don't 
+ * have a -f at the start and the default device isn't defined in a TAPE or 
+ * STAPE environment variable, we exit.
  */ 
 
-int parse_args(int argc,char **argv) {
-  int i,cmd_tbl_idx,retval,arg_idx;
-  struct command_table_struct *command;
+int parse_args(int argc, char **argv)
+{
+	int index, retval;
+	struct command_table_struct *command;
 
-  i=1;
-  arg_idx=0;
-  while (i<argc) {
-    if (strcmp(argv[i],"-f") == 0) {
-      i++;
-      if (i>=argc) {
-	Usage();
-      }
-      device=argv[i++];
-      open_device(); /* open the device and do a status scan on it... */
-    } else {
-      cmd_tbl_idx=0;
-      command=&command_table[0]; /* default to the first command... */
-      command=&command_table[cmd_tbl_idx];
-      while (command->name) {
-	if (!strcmp(command->name,argv[i])) {
-	  /* we have a match... */
-	  break;
+	argv0 = argv[0];
+
+	for (index = 1; index < argc; index++)
+	{
+		if (strcmp(argv[index], "-f") == 0)
+		{
+			index++;
+			if (index >= argc)
+			{
+				Usage();	/* Doesn't return */
+			}
+			device = argv[index];
+			open_device();
+		}
+		else
+		{
+			for (command = &command_table[0]; command->name != NULL; command++)
+			{
+				if (strcmp(command->name, argv[index]) == 0)
+				{
+					break;
+				}
+			}
+
+			if (command->name == NULL)
+			{
+				Usage();	/* Doesn't return */
+			}
+
+			retval = execute_command(command);
+
+			if (retval < 0)
+			{
+				/* Command failed, we probably shouldn't continue */
+				return retval;
+			}
+		}
 	}
-	/* otherwise we don't have a match... */
-	cmd_tbl_idx++;
-	command=&command_table[cmd_tbl_idx];
-      }
-      /* if it's not a command, exit.... */
-      if (!command->name) {
-	Usage();
-      }
-      i++;  /* go to the next argument, if possible... */
-      /* see if we need to gather arguments, though! */
-      arg1=-1; /* default it to something */
-      for (arg_idx=0;arg_idx < command->num_args ; arg_idx++) {
-	if (i < argc) {
-	  arg[arg_idx]=get_arg(argv[i]);
-	  if (arg[arg_idx] !=  -1) {
-	    i++; /* increment i over the next cmd. */
-	  }
-	} else {
-	  arg[arg_idx]=0; /* default to 0 setmarks or whatever */
-	} 
-      }
-      retval=execute_command(command);  /* execute_command handles 'stuff' */
-      exit(retval);
-    }
-  }
-  return 0; /* should never get here */
-}
 
-/* For tapes this is used to load a tape.
- * For CD/DVDs this is used to load a disc which is required by
- * some media changers.
- */
+	return 0;
+}
 
 int S_load(void)
 {
-  int i = LoadUnload(MediumChangerFD, 1);
+	int result = LoadUnload(DeviceFD, 1);
 
-  if (i < 0) {
-    fprintf(stderr,"scsieject: load failed\n");
-    fflush(stderr);
-  }
+	if (result < 0)
+	{
+		fputs("scsieject: load failed\n", stderr);
+		fflush(stderr);
+	}
 
-  return i;
+	return result;
 }
 
-/* This should eject a tape or magazine, depending upon the device sent
- * to.
- */
 int S_unload(void)
 {
-  int i = LoadUnload(MediumChangerFD, 0);
+	int result = LoadUnload(DeviceFD, 0);
 
-  if (i < 0) {
-    fprintf(stderr,"scsieject: unload failed\n");
-    fflush(stderr);
-  }
+	if (result < 0)
+	{
+		fputs("scsieject: unload failed\n", stderr);
+		fflush(stderr);
+	}
 
-  return i;
+	return result;
 }
 
 int S_start(void)
 {
-  int i = StartStop(MediumChangerFD, 1);
+	int result = StartStop(DeviceFD, 1);
 
-  if (i < 0) {
-    fprintf(stderr,"scsieject: start failed\n");
-    fflush(stderr);
-  }
+	if (result < 0)
+	{
+		fputs("scsieject: start failed\n", stderr);
+		fflush(stderr);
+	}
 
-  return i;
+	return result;
 }
 
 int S_stop(void)
 {
-  int i = StartStop(MediumChangerFD, 0);
+	int result = StartStop(DeviceFD, 0);
 
-  if (i < 0) {
-    fprintf(stderr,"scsieject: stop failed\n");
-    fflush(stderr);
-  }
+	if (result < 0)
+	{
+		fputs("scsieject: stop failed\n", stderr);
+		fflush(stderr);
+	}
 
-  return i;
+	return result;
 }
 
 int S_lock(void)
 {
-  int i = LockUnlock(MediumChangerFD, 1);
+	int result = LockUnlock(DeviceFD, 1);
 
-  if (i < 0) {
-    fprintf(stderr,"scsieject: lock failed\n");
-    fflush(stderr);
-  }
+	if (result < 0)
+	{
+		fputs("scsieject: lock failed\n", stderr);
+		fflush(stderr);
+	}
 
-  return i;
+	return result;
 }
 
 int S_unlock(void)
 {
-  int i = LockUnlock(MediumChangerFD, 0);
+	int result = LockUnlock(DeviceFD, 0);
 
-  if (i < 0) {
-    fprintf(stderr,"scsieject: unlock failed\n");
-    fflush(stderr);
-  }
+	if (result < 0)
+	{
+		fputs("scsieject: unlock failed\n", stderr);
+		fflush(stderr);
+	}
 
-  return i;
+	return result;
 }
 
 /* See parse_args for the scoop. parse_args does all. */
-int main(int argc, char **argv) {
-  argv0=argv[0];
-  parse_args(argc,argv);
+int main(int argc, char **argv)
+{
+	parse_args(argc, argv);
 
-  if (device) 
-    SCSI_CloseDevice(device,MediumChangerFD);
+	if (device)
+	{
+		SCSI_CloseDevice(device, DeviceFD);
+	}
 
-  exit(0);
+	exit(0);
 }
