@@ -195,7 +195,7 @@ static unsigned char
 
   /* returns an array of bytes in the page, or, if not possible, NULL. */
   CDB[0]=0x1a; /* Mode Sense(6) */
-  CDB[1]=0; 
+  CDB[1]=0x08; 
   CDB[2]=pagenum; /* the page to read. */
   CDB[3]=0;
   CDB[4]=255; /* allocation length. This does max of 256 bytes! */
