@@ -20,6 +20,7 @@ $Revision$
  */
 
 #ifndef HZ
+#warning "HZ is not defined, mtx might not work correctly!"
 #define HZ 100	  /* Jiffys for SG_SET_TIMEOUT */
 #endif
 
@@ -58,7 +59,7 @@ static int pack_id;
 
 DEVICE_TYPE SCSI_OpenDevice(char *DeviceName)
 {
-  int timeout=SG_SCSI_DEFAULT_TIMEOUT;      /* 5 minutes */
+  int timeout=SG_SCSI_DEFAULT_TIMEOUT;
 #ifdef SG_IO
   int k; /* version */
 #endif

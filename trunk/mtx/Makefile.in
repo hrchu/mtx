@@ -40,7 +40,7 @@ mandir		= @mandir@
 #
 ifeq ($(TARGET),linux)
 CFLAGS += -Wall
-CPPFLAGS	+= -I/usr/src/linux/include -DLONG_PRINT_REQUEST_SENSE=1
+CPPFLAGS	+= -DLONG_PRINT_REQUEST_SENSE=1
 endif
 
 ifeq ($(TARGET),mingw)
@@ -49,11 +49,10 @@ CPPFLAGS	+= -DLONG_PRINT_REQUEST_SENSE=1
 endif
 
 #
-# FreeBSD on x86...
+# FreeBSD
 #
 ifeq ($(TARGET),freebsd86)
-CFLAGS		+= -m486
-CPPFLAGS	+= -I/usr/src/linux/include -DLONG_PRINT_REQUEST_SENSE=1
+CPPFLAGS	+= -DLONG_PRINT_REQUEST_SENSE=1
 LIBS		+= -lcam
 endif
 
@@ -128,8 +127,6 @@ dist: distclean
 
 loaderinfo@EXEEXT@: loaderinfo.o mtxl.o mtxl.h mtx.h $(EXTRA)
 	$(CC) $(LDFLAGS) -o loaderinfo loaderinfo.o mtxl.o $(EXTRA) $(LIBS)
-
-
 
 nsmhack@EXEEXT@: nsmhack.o mtxl.o $(EXTRA)
 	$(CC) $(LDFLAGS) -o nsmhack nsmhack.o mtxl.o $(EXTRA) $(LIBS)
