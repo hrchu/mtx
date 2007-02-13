@@ -14,6 +14,7 @@
 #define HAVE_UNISTD_H 0
 #define HAVE_STDLIB_H 0
 #define HAVE_STDARG_H 0
+#define HAVE_SYS_PARAM_H 0
 #define HAVE_SCSI_SCSI_H 0
 #define HAVE_SCSI_SCSI_IOCTL_H 0
 #define HAVE_SCSI_SG_H 0
