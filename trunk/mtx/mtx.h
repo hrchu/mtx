@@ -63,6 +63,10 @@
 #  include <sys/ioctl.h>
 #endif
 
+#if HAVE_SYS_PARAM_H
+#  include <sys/param.h>
+#endif
+
 /* Now greatly modified to use GNU Autoconf stuff: */
 /* If we use the 'sg' interface, like Linux, do this: */
 #if HAVE_SCSI_SG_H

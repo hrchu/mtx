@@ -85,6 +85,7 @@ AC_CHECK_HEADERS(\
 	sys/scsi_ctl.h \
 	sys/ioctl.h \
 	sys/mtio.h \
+	sys/param.h \
 	dslib.h \
 	du/defs.h \
 	ddk/ntddscsi.h)
