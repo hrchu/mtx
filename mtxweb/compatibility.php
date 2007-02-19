@@ -190,7 +190,7 @@
           </p>
           <p style="font-weight:bold; text-decoration:underline">Compatibility</p>
           <p>
-            <a href="compatibility.php" style="margin-left: 1em">View</a>
+            <span style="margin-left: 1em">View</span>
             <br />
             <a href="contrib.php" style="margin-left: 1em">Submit</a>
             <br />

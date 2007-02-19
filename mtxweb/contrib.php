@@ -166,7 +166,7 @@
           <p>
             <a href="compatibility.php" style="margin-left: 1em">View</a>
             <br />
-            <a href="contrib.php" style="margin-left: 1em">Submit</a>
+            <span style="margin-left: 1em">Submit</span>
             <br />
           </p>
           <p>
