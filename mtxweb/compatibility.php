@@ -1,6 +1,6 @@
 <?php
   /* set these to what you need for your installation */
-  include('dbms_data.php');
+  include('dbms_inc.php');
 
   $sorttype = $_GET['sorttype'];
 

@@ -1,5 +1,5 @@
 <?php
-  include('dbms_data.php');
+  include('dbms_inc.php');
 
   $link = mysql_connect($mysql_host,$mysql_user,$mysql_password)
        or die("Could not connect");
