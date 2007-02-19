@@ -131,10 +131,20 @@
                 Maintained by <a href="mailto:robertnelson@users.sourceforge.net">Robert Nelson</a>
               </td>
               <td style="text-align:center; width:34%">
-                $LastChangedDate$
+                Date Changed: <span id="DateChanged"></span>
+                <script type="text/javascript">
+                  var DateChanged = "$LastChangedDate$";
+                  DateChanged = DateChanged.replace(/.*: (.+) \(.*\$/, "$1");
+                  document.getElementById("DateChanged").innerHTML = DateChanged;
+                </script>
               </td>
               <td style="text-align:right; width:33%">
-                $LastChangedBy$
+                Changed By: <span id="ChangedBy"></span>
+                <script type="text/javascript">
+                  var ChangedBy = "$LastChangedBy$";
+                  ChangedBy = ChangedBy.replace(/.*: (.+) \$/, "$1");
+                  document.getElementById("ChangedBy").innerHTML = ChangedBy;
+                </script>
               </td>
             </tr>
           </table>

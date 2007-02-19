@@ -35,7 +35,47 @@
   $query_str = "select id,osname,osversion,vendorid,description,mtxversion from loaders $join_on where enabled = 1 order by $order_by";
   $result = mysql_query($query_str,$link) or die("Invalid query '$query_str'");
   $num_rows = mysql_num_rows($result);
+  $lines_per_page = $_GET['count'];
 
+  if ("$lines_per_page" == "")
+  {
+    $lines_per_page = 10;
+  }
+
+  switch ($lines_per_page)
+  {
+  case 0:
+  case 10:
+  case 25:
+  case 50:
+  case 75:
+  case 100:
+    break;
+  default:
+    $lines_per_page = 10;
+    break;
+  }
+  
+  if ($lines_per_page > 0)
+  {
+    $num_pages = ceil($num_rows / $lines_per_page);
+  }
+  else
+  {
+    $num_pages = 1;
+  }
+
+  $page_number = $_GET['start'];
+
+  if ("$page_number" == "" || $page_number == 0)
+  {
+    $page_number = 1;
+  }
+
+  if ($page_number > $num_pages)
+  {
+    $page_number = $num_pages;
+  }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -58,6 +98,74 @@
         A:visited { color: blue; text-decoration: underline ; }
       -->
     </style>
+
+    <script type="text/javascript">
+      <!--
+        function validateNumeric(e)
+        {
+          var keyCode;
+
+          if (e.which)
+          {
+             keyCode = e.which;
+          }
+          else if (e.keyCode)
+          {
+             keyCode = e.keyCode;
+          }
+          else 
+          {
+             return true;
+          }
+
+          return keyCode < 32 || keyCode == null || (keyCode >= 48 && keyCode <= 57);
+        }
+
+        function goto_page()
+        {
+          var page_number = document.getElementById('page_number').value;
+          var lines_per_page = document.getElementById('lines_per_page').value;
+
+          location.href = "compatibility.php?start="+page_number+"&amp;count="+lines_per_page;
+        }
+
+        function change_lines_per_page()
+        {
+          var lines_per_page = document.getElementById('lines_per_page').value;
+          var first_line = <?php echo $lines_per_page * ($page_number - 1) + 1; ?>;
+          var page_number = parseInt(first_line / lines_per_page) + 1;
+
+          location.href = "compatibility.php?start="+page_number+"&amp;count="+lines_per_page;
+        }
+
+        function goto_prev()
+        {
+          var page_number = document.getElementById('page_number').value;
+          var lines_per_page = document.getElementById('lines_per_page').value;
+
+          if (page_number <= 2)
+          {
+            page_number = 1;
+          }
+          else
+          {
+            page_number -= 1;
+          }
+          
+          location.href = "compatibility.php?start="+page_number+"&amp;count="+lines_per_page;
+        }
+
+        function goto_next()
+        {
+          var page_number = document.getElementById('page_number').value;
+          var lines_per_page = document.getElementById('lines_per_page').value;
+
+          page_number++;
+
+          location.href = "compatibility.php?start="+page_number+"&amp;count="+lines_per_page;
+        }
+      -->
+    </script>
   </head>
 
   <body>
@@ -101,6 +209,34 @@
           In order to display the detailed information click on the desired line.
           <p/>
           <table border="1" width="100%">
+            <tr>
+              <td colspan="2" style="text-align:left; border-style:none">
+                Lines per page:
+                <select id="lines_per_page" onchange="change_lines_per_page()">
+                  <option value="10" <?php if ($lines_per_page == 10) echo 'selected="selected"'?>>10</option>
+                  <option value="25" <?php if ($lines_per_page == 25) echo 'selected="selected"'?>>25</option>
+                  <option value="50" <?php if ($lines_per_page == 50) echo 'selected="selected"'?>>50</option>
+                  <option value="75" <?php if ($lines_per_page == 75) echo 'selected="selected"'?>>75</option>
+                  <option value="100" <?php if ($lines_per_page == 100) echo 'selected="selected"'?>>100</option>
+                  <option value="0" <?php if ($lines_per_page == 0) echo 'selected="selected"'?>>All</option>
+                </select>
+              </td>
+              <td />
+              <td colspan="2" style="text-align:right; border-style:none">
+                <input type="button" value="Previous" style="width:6em" onclick="goto_prev()" 
+                  <?php if ($page_number < 2) echo 'disabled="disabled"'; ?>
+                />
+                Page 
+                <input type="text" id="page_number" style="width:2em" maxlength="4" 
+                  <?php echo 'value="'.$page_number.'"' ?> 
+                  onkeypress="return validateNumeric(event)" onchange="goto_page()" />
+                of
+                <?php echo "$num_pages\n" ?>
+                <input type="button" value="Next" style="width:6em" onclick="goto_next()" 
+                  <?php if ($page_number >= $num_pages) echo "disabled=\"disabled\"\n"; ?>
+                />
+              </td>
+            </tr>
             <tr>
 <?php 
   if ($sorttype == 1) {
@@ -169,47 +305,63 @@
               <th style="background-color: white">NO RECORDS IN DATABASE</th>
             </tr>
 <?php 
-  } else { 
-    while ($row = mysql_fetch_assoc($result)) {
-      extract($row);
+  }
+  else
+  {
+    $first_row = ($page_number - 1) * $lines_per_page;
 
-      echo "<tr onclick=\"location.href='detail.php?record=$id'\">";
+    if ($first_row > 0)
+    {
+      mysql_data_seek($result, $first_row);
+    }
+
+    for ($index = 0; $index < $lines_per_page; $index += 1)
+    {
+      $row = mysql_fetch_assoc($result);
+
+      if (! $row)
+      {
+        break;
+      }
+
+      echo '            <tr onclick="location.href=\'detail.php?record='.$row['id']."'\">\n";
 
       if ($sorttype == 1) {
 ?>
-              <td><?php echo "$osname<br/>"; ?></td>
-              <td><?php echo "$osversion<br/>"; ?></td>
-              <td><?php echo "$vendorid<br/>"; ?></td>
-              <td><?php echo "$description<br/>"; ?></td>
-              <td><?php echo "$mtxversion<br/>"; ?></td>
+              <td><?php echo $row['osname']."<br/>"; ?></td>
+              <td><?php echo $row['osversion']."<br/>"; ?></td>
+              <td><?php echo $row['vendorid']."<br/>"; ?></td>
+              <td><?php echo $row['description']."<br/>"; ?></td>
+              <td><?php echo $row['mtxversion']."<br/>"; ?></td>
 <?php 
       } else if ($sorttype == 2) {
 ?>
-              <td><?php echo "$vendorid<br/>"; ?></td>
-              <td><?php echo "$description<br/>"; ?></td>
-              <td><?php echo "$osname<br/>"; ?></td>
-              <td><?php echo "$osversion<br/>"; ?></td>
-              <td><?php echo "$mtxversion<br/>"; ?></td>
+              <td><?php echo $row['vendorid']."<br/>"; ?></td>
+              <td><?php echo $row['description']."<br/>"; ?></td>
+              <td><?php echo $row['osname']."<br/>"; ?></td>
+              <td><?php echo $row['osversion']."<br/>"; ?></td>
+              <td><?php echo $row['mtxversion']."<br/>"; ?></td>
 <?php 
       } else if ($sorttype == 3) {
 ?>
-              <td><?php echo "$description<br/>"; ?></td>
-              <td><?php echo "$vendorid<br/>"; ?></td>
-              <td><?php echo "$osname<br/>"; ?></td>
-              <td><?php echo "$osversion<br/>"; ?></td>
-              <td><?php echo "$mtxversion<br/>"; ?></td>
+              <td><?php echo $row['description']."<br/>"; ?></td>
+              <td><?php echo $row['vendorid']."<br/>"; ?></td>
+              <td><?php echo $row['osname']."<br/>"; ?></td>
+              <td><?php echo $row['osversion']."<br/>"; ?></td>
+              <td><?php echo $row['mtxversion']."<br/>"; ?></td>
 <?php 
       } else {
 ?>
-              <td><?php echo "$mtxversion<br/>"; ?></td>
-              <td><?php echo "$osname<br/>"; ?></td>
-              <td><?php echo "$osversion<br/>"; ?></td>
-              <td><?php echo "$vendorid<br/>"; ?></td>
-              <td><?php echo "$description<br/>"; ?></td>
+              <td><?php echo $row['mtxversion']."<br/>"; ?></td>
+              <td><?php echo $row['osname']."<br/>"; ?></td>
+              <td><?php echo $row['osversion']."<br/>"; ?></td>
+              <td><?php echo $row['vendorid']."<br/>"; ?></td>
+              <td><?php echo $row['description']."<br/>"; ?></td>
 <?php
       }
-      echo "</tr>";
+      echo "            </tr>\n";
     }
+    mysql_free_result($result);
   }
 ?>
           </table>
@@ -217,14 +369,20 @@
           <hr />
           <table style="font-size:small; " width="100%">
             <tr>
-              <td style="text-align:left" width="33%">
+              <td style="text-align:left; width:33%">
                 Maintained by <a href="mailto:robertnelson@users.sourceforge.net">Robert Nelson</a>
               </td>
-              <td style="text-align:center" width="34%">
-                $LastChangedDate$
+              <td style="text-align:center; width:34%">
+                <?php
+                  $ChangedDate = preg_replace('/.*: (.+) \(.*/', '\1', '$LastChangedDate$');
+                  echo "Date changed: $ChangedDate";
+                ?>
               </td>
-              <td style="text-align:right" width="33%">
-                $LastChangedBy$
+              <td style="text-align:right; width:33%">
+                <?php
+                  $ChangedBy = preg_replace('/.*: (.+) \$/', '\1', '$LastChangedBy$');
+                  echo "Changed by: $ChangedBy";
+                ?>
               </td>
             </tr>
           </table>
