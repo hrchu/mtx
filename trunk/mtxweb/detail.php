@@ -1,5 +1,5 @@
 <?php
-  include('dbms_data.php');
+  include('dbms_inc.php');
 
   $record = $_GET['record'];
   
