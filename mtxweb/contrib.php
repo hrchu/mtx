@@ -5,8 +5,8 @@
        or die("Could not connect");
   mysql_select_db($mysql_dbms) or die("Could not select database");
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
@@ -197,162 +197,160 @@
           'mtx status'. 
           <p />
           <form action="verify.php" method="post"  onsubmit="return validateSubmit()">
-            <p>
-              <input type="hidden" name="l_enabled" value="1" />
-              <input type="hidden" name="l_worked" value="1" />
-              <table border="1">
-                <tr>
-                  <th style="text-align: center" colspan="4">OS and General Info</th>
-                </tr>
-                <tr>
-                  <!-- do a pulldown for operating system name:  -->
-                  <th>Operating System</th>
-                  <td>
-                    <select name="l_osname">
-  <?php
-    $query_str="select osname from hosts";
-    $result=mysql_query($query_str,$link) or die("</th></tr></table>Invalid query string '$query_str'");
+            <input type="hidden" name="l_enabled" value="1"/>
+            <input type="hidden" name="l_worked" value="1"/>
+            <table border="1">
+              <tr>
+                <th style="text-align: center" colspan="4">OS and General Info</th>
+              </tr>
+              <tr>
+                <!-- do a pulldown for operating system name:  -->
+                <th>Operating System</th>
+                <td>
+                  <select name="l_osname">
+<?php
+  $query_str="select osname from hosts";
+  $result=mysql_query($query_str,$link) or die("</th></tr></table>Invalid query string '$query_str'");
 
-    while ($row=mysql_fetch_assoc($result)) {
-      echo '<option value="',$row['osname'],'">',$row['osname'],'</option>';
-    }
-  ?>
-                    </select>
-                  </td>
-                  <th>MTX Version</th>
-                  <td>
-                    <select name="l_mtxversion">
-  <?php
-    $query_str = "select version from versions order by `key`";
-    $result = mysql_query($query_str,$link) or die("</th></tr></table>Invalid query string '$query_str'");
-    $num_rows = mysql_num_rows($result);
+  while ($row=mysql_fetch_assoc($result)) {
+    echo '<option value="',$row['osname'],'">',$row['osname'],'</option>';
+  }
+?>
+                  </select>
+                </td>
+                <th>MTX Version</th>
+                <td>
+                  <select name="l_mtxversion">
+<?php
+  $query_str = "select version from versions order by `key`";
+  $result = mysql_query($query_str,$link) or die("</th></tr></table>Invalid query string '$query_str'");
+  $num_rows = mysql_num_rows($result);
 
-    for ($row_no = 1; $row_no <= $num_rows; $row_no++) {
-      $row = mysql_fetch_assoc($result);
-      echo '<option value="',$row['version'],$row_no == $num_rows ? '" selected="selected">' : '">',$row['version'],'</option>';
-    }
-  ?>
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <th>OS Version</th>
-                  <td colspan="3">
-                    <input id="osversion" name="l_osversion" type="text" size="80" maxlength="100"/>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Loader Description</th>
-                  <td colspan="3">
-                    <input id="description" name="l_description" type="text" size="80" maxlength="100"/>
-                  </td>
-                </tr>
-                <tr>
-                  <th style="text-align: center" colspan="4">LoaderInfo Output</th>
-                </tr>
-                <tr>
-                  <th>Vendor ID</th>
-                  <td>
-                    <input id="vendorid" name="l_vendorid" type="text" size="8" maxlength="8" onkeypress="return validateLoaderInfoText(event)"/>
-                  </td>
-                  <th>Product ID</th>
-                  <td>
-                    <input id="productid" name="l_productid" type="text" size="16" maxlength="16" onkeypress="return validateLoaderInfoText(event)"/>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Revision</th>
-                  <td>
-                    <input id="revision" name="l_revision" type="text" size="4" maxlength="4" onkeypress="return validateLoaderInfoText(event)"/>
-                  </td>
-                  <th>Serial Number</th>
-                  <td>
-                    <input name="l_serialnum" type="text" size="25" maxlength="25"/>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Barcode Reader</th>
-                  <td>
-                    <select name="l_barcodes">
-                      <option value="0">No</option>
-                      <option value="1">Yes</option>
-                    </select>
-                  </td>
-                  <th>Element Address Assignment Page (EAAP)</th>
-                  <td>
-                    <select name="l_eaap">
-                      <option value="0">No</option>
-                      <option value="1">Yes</option>
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Transport Geometry Descriptor Page</th>
-                  <td>
-                    <select name="l_tgdp">
-                      <option value="0">No</option>
-                      <option value="1">Yes</option>
-                    </select>
-                  </td>
-                  <th>Can Transfer</th>
-                  <td>
-                    <select name="l_canxfer">
-                      <option value="0">No</option>
-                      <option value="1">Yes</option>
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Number of Medium Transport Elements</th>
-                  <td>
-                    <input name="l_transports" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
-                  </td>
-                  <th>Number of Storage Elements</th>
-                  <td>
-                    <input name="l_slots" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Number of Import/Export Elements</th>
-                  <td>
-                    <input name="l_imports" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
-                  </td>
-                  <th>Number of Data Transfer Elements</th>
-                  <td>
-                    <input name="l_transfers" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
-                  </td>
-                </tr>
-                <tr>
-                  <th style="text-align: center" colspan="4">Comments</th>
-                </tr>
-                <tr>
-                  <td colspan="4" align="center">
-                    <textarea name="l_comments" cols="70" rows="4"></textarea>
-                  </td>
-                </tr>
-                <tr>
-                  <th style="text-align: center" colspan="4">Personal Data</th>
-                </tr>
-                <tr>
-                  <th>Your Name</th>
-                  <td>
-                    <input name="l_name" type="text" size="25" maxlength="80"/>
-                  </td>
-                  <th>Your EMAIL Address</th>
-                  <td>
-                    <input name="l_email" type="text" size="25" maxlength="80"/>
-                  </td>
-                </tr>
-                <tr>
-                  <td align="right" colspan="2">
-                    <input type="submit" name="Save" value="Save"/>
-                  </td>
-                  <td colspan="2">
-                    <input type="button" name="Cancel" value="Cancel" onclick="history.go(-1)"/>
-                  </td>
-                </tr>
-              </table>
-            </p>
+  for ($row_no = 1; $row_no <= $num_rows; $row_no++) {
+    $row = mysql_fetch_assoc($result);
+    echo '<option value="',$row['version'],$row_no == $num_rows ? '" selected="selected">' : '">',$row['version'],'</option>';
+  }
+?>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <th>OS Version</th>
+                <td colspan="3">
+                  <input id="osversion" name="l_osversion" type="text" size="80" maxlength="100"/>
+                </td>
+              </tr>
+              <tr>
+                <th>Loader Description</th>
+                <td colspan="3">
+                  <input id="description" name="l_description" type="text" size="80" maxlength="100"/>
+                </td>
+              </tr>
+              <tr>
+                <th style="text-align: center" colspan="4">LoaderInfo Output</th>
+              </tr>
+              <tr>
+                <th>Vendor ID</th>
+                <td>
+                  <input id="vendorid" name="l_vendorid" type="text" size="8" maxlength="8" onkeypress="return validateLoaderInfoText(event)"/>
+                </td>
+                <th>Product ID</th>
+                <td>
+                  <input id="productid" name="l_productid" type="text" size="16" maxlength="16" onkeypress="return validateLoaderInfoText(event)"/>
+                </td>
+              </tr>
+              <tr>
+                <th>Revision</th>
+                <td>
+                  <input id="revision" name="l_revision" type="text" size="4" maxlength="4" onkeypress="return validateLoaderInfoText(event)"/>
+                </td>
+                <th>Serial Number</th>
+                <td>
+                  <input name="l_serialnum" type="text" size="25" maxlength="25"/>
+                </td>
+              </tr>
+              <tr>
+                <th>Barcode Reader</th>
+                <td>
+                  <select name="l_barcodes">
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                  </select>
+                </td>
+                <th>Element Address Assignment Page (EAAP)</th>
+                <td>
+                  <select name="l_eaap">
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <th>Transport Geometry Descriptor Page</th>
+                <td>
+                  <select name="l_tgdp">
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                  </select>
+                </td>
+                <th>Can Transfer</th>
+                <td>
+                  <select name="l_canxfer">
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <th>Number of Medium Transport Elements</th>
+                <td>
+                  <input name="l_transports" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
+                </td>
+                <th>Number of Storage Elements</th>
+                <td>
+                  <input name="l_slots" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
+                </td>
+              </tr>
+              <tr>
+                <th>Number of Import/Export Elements</th>
+                <td>
+                  <input name="l_imports" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
+                </td>
+                <th>Number of Data Transfer Elements</th>
+                <td>
+                  <input name="l_transfers" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
+                </td>
+              </tr>
+              <tr>
+                <th style="text-align: center" colspan="4">Comments</th>
+              </tr>
+              <tr>
+                <td colspan="4" align="center">
+                  <textarea name="l_comments" cols="70" rows="4"></textarea>
+                </td>
+              </tr>
+              <tr>
+                <th style="text-align: center" colspan="4">Personal Data</th>
+              </tr>
+              <tr>
+                <th>Your Name</th>
+                <td>
+                  <input name="l_name" type="text" size="25" maxlength="80"/>
+                </td>
+                <th>Your EMAIL Address</th>
+                <td>
+                  <input name="l_email" type="text" size="25" maxlength="80"/>
+                </td>
+              </tr>
+              <tr>
+                <td align="right" colspan="2">
+                  <input type="submit" name="Save" value="Save"/>
+                </td>
+                <td colspan="2">
+                  <input type="button" name="Cancel" value="Cancel" onclick="history.go(-1)"/>
+                </td>
+              </tr>
+            </table>
           </form>
           <hr />
           <table style="font-size:small" width="100%">
@@ -386,7 +384,7 @@
           </p>
           <p>
             <a href="http://validator.w3.org/check?uri=referer" >
-              <img src="valid-xhtml10.png" alt="Valid XHTML 1.0 Strict" 
+              <img src="valid-xhtml10.png" alt="Valid XHTML 1.0 Transitional" 
                    height="31" width="88" style="border:0" />
             </a>
           </p>
