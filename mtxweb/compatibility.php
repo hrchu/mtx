@@ -126,7 +126,7 @@
           var page_number = document.getElementById('page_number').value;
           var lines_per_page = document.getElementById('lines_per_page').value;
 
-          location.href = "compatibility.php?start="+page_number+"&amp;count="+lines_per_page;
+          location.href = "compatibility.php?sorttype="+sort_type+"&amp;start="+page_number+"&amp;count="+lines_per_page;
         }
 
         function change_lines_per_page()
@@ -134,14 +134,16 @@
           var lines_per_page = document.getElementById('lines_per_page').value;
           var first_line = <?php echo $lines_per_page * ($page_number - 1) + 1; ?>;
           var page_number = parseInt(first_line / lines_per_page) + 1;
+          var sort_type = <?php echo $sorttype; ?>
 
-          location.href = "compatibility.php?start="+page_number+"&amp;count="+lines_per_page;
+          location.href = "compatibility.php?sorttype="+sort_type+"&amp;start="+page_number+"&amp;count="+lines_per_page;
         }
 
         function goto_prev()
         {
           var page_number = document.getElementById('page_number').value;
           var lines_per_page = document.getElementById('lines_per_page').value;
+          var sort_type = <?php echo $sorttype; ?>
 
           if (page_number <= 2)
           {
@@ -152,17 +154,18 @@
             page_number -= 1;
           }
           
-          location.href = "compatibility.php?start="+page_number+"&amp;count="+lines_per_page;
+          location.href = "compatibility.php?sorttype="+sort_type+"&amp;start="+page_number+"&amp;count="+lines_per_page;
         }
 
         function goto_next()
         {
           var page_number = document.getElementById('page_number').value;
           var lines_per_page = document.getElementById('lines_per_page').value;
+          var sort_type = <?php echo $sorttype; ?>
 
           page_number++;
 
-          location.href = "compatibility.php?start="+page_number+"&amp;count="+lines_per_page;
+          location.href = "compatibility.php?sorttype="+sort_type+"&amp;start="+page_number+"&amp;count="+lines_per_page;
         }
       -->
     </script>
@@ -210,7 +213,7 @@
           <p/>
           <table border="1" width="100%">
             <tr>
-              <td colspan="2" style="text-align:left; border-style:none">
+              <td colspan=<?php echo $sorttype == 4? "3" : "2" ?> style="text-align:left; border-style:none">
                 Lines per page:
                 <select id="lines_per_page" onchange="change_lines_per_page()">
                   <option value="10" <?php if ($lines_per_page == 10) echo 'selected="selected"'?>>10</option>
@@ -221,8 +224,7 @@
                   <option value="0" <?php if ($lines_per_page == 0) echo 'selected="selected"'?>>All</option>
                 </select>
               </td>
-              <td />
-              <td colspan="2" style="text-align:right; border-style:none">
+              <td colspan=<?php echo $sorttype == 4? "2" : "3" ?> style="text-align:right; border-style:none">
                 <input type="button" value="Previous" style="width:6em" onclick="goto_prev()" 
                   <?php if ($page_number < 2) echo 'disabled="disabled"'; ?>
                 />
