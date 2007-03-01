@@ -105,27 +105,27 @@
           <form action="verify.php" method="post">
             <p style="text-align:center">
               <input type="hidden" name="l_verified" value="1" />
-              <?php echo '<input type="hidden" name="l_enabled" value="',$_POST['l_enabled'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_worked" value="',$_POST['l_worked'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_osname" value="',$_POST['l_osname'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_osversion" value="',$_POST['l_osversion'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_mtxversion" value="',$_POST['l_mtxversion'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_description" value="',$_POST['l_description'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_vendorid" value="',$_POST['l_vendorid'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_productid" value="',$_POST['l_productid'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_revision" value="',$_POST['l_revision'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_barcodes" value="',$_POST['l_barcodes'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_eaap" value="',$_POST['l_eaap'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_transports" value="',$_POST['l_transports'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_slots" value="',$_POST['l_slots'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_transfers" value="',$_POST['l_transfers'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_imports" value="',$_POST['l_imports'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_tgdp" value="',$_POST['l_tgdp'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_canxfer" value="',$_POST['l_canxfer'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_serialnum" value="',$_POST['l_serialnum'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_email" value="',$_POST['l_email'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_name" value="',$_POST['l_name'],'"/>' ?>
-              <?php echo '<input type="hidden" name="l_comments" value="',$_POST['l_comments'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_enabled" value="',$_POST['l_enabled'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_worked" value="',$_POST['l_worked'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_osname" value="',$_POST['l_osname'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_osversion" value="',$_POST['l_osversion'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_mtxversion" value="',$_POST['l_mtxversion'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_description" value="',$_POST['l_description'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_vendorid" value="',$_POST['l_vendorid'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_productid" value="',$_POST['l_productid'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_revision" value="',$_POST['l_revision'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_barcodes" value="',$_POST['l_barcodes'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_eaap" value="',$_POST['l_eaap'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_transports" value="',$_POST['l_transports'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_slots" value="',$_POST['l_slots'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_transfers" value="',$_POST['l_transfers'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_imports" value="',$_POST['l_imports'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_tgdp" value="',$_POST['l_tgdp'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_canxfer" value="',$_POST['l_canxfer'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_serialnum" value="',$_POST['l_serialnum'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_email" value="',$_POST['l_email'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_name" value="',$_POST['l_name'],'" />' ?>
+              <?php echo '<input type="hidden" name="l_comments" value="',$_POST['l_comments'],'" />' ?>
               <table border="1" style="text-align:left">
                 <tr>
                   <th style="text-align: center" colspan="4">OS and General Info</th>
