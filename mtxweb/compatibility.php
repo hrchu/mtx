@@ -125,6 +125,7 @@
         {
           var page_number = document.getElementById('page_number').value;
           var lines_per_page = document.getElementById('lines_per_page').value;
+          var sort_type = <?php echo $sorttype; ?>;
 
           location.href = "compatibility.php?sorttype="+sort_type+"&amp;start="+page_number+"&amp;count="+lines_per_page;
         }
@@ -134,7 +135,7 @@
           var lines_per_page = document.getElementById('lines_per_page').value;
           var first_line = <?php echo $lines_per_page * ($page_number - 1) + 1; ?>;
           var page_number = parseInt(first_line / lines_per_page) + 1;
-          var sort_type = <?php echo $sorttype; ?>
+          var sort_type = <?php echo $sorttype; ?>;
 
           location.href = "compatibility.php?sorttype="+sort_type+"&amp;start="+page_number+"&amp;count="+lines_per_page;
         }
@@ -143,7 +144,7 @@
         {
           var page_number = document.getElementById('page_number').value;
           var lines_per_page = document.getElementById('lines_per_page').value;
-          var sort_type = <?php echo $sorttype; ?>
+          var sort_type = <?php echo $sorttype; ?>;
 
           if (page_number <= 2)
           {
@@ -161,7 +162,7 @@
         {
           var page_number = document.getElementById('page_number').value;
           var lines_per_page = document.getElementById('lines_per_page').value;
-          var sort_type = <?php echo $sorttype; ?>
+          var sort_type = <?php echo $sorttype; ?>;
 
           page_number++;
 
