@@ -102,8 +102,8 @@
           You entered the following values.  If they are correct, click on "Save", 
           otherwise click on "Cancel".
 
-          <form action="verify.php" method="post">
-            <p style="text-align:center">
+          <p style="text-align:center">
+            <form action="verify.php" method="post">
               <input type="hidden" name="l_verified" value="1" />
               <?php echo '<input type="hidden" name="l_enabled" value="',$_POST['l_enabled'],'" />' ?>
               <?php echo '<input type="hidden" name="l_worked" value="',$_POST['l_worked'],'" />' ?>
@@ -245,8 +245,8 @@
                   </td>
                 </tr>
               </table>
-            </p>
-          </form>
+            </form>
+          </p>
           <hr />
           <table style="font-size:small" width="100%">
             <tr>
