@@ -214,7 +214,7 @@
           <p/>
           <table border="1" width="100%">
             <tr>
-              <td colspan=<?php echo $sorttype == 4? "3" : "2" ?> style="text-align:left; border-style:none">
+              <td colspan="<?php echo $sorttype == 4 ? "3" : "2" ?>" style="text-align:left; border-style:none">
                 Lines per page:
                 <select id="lines_per_page" onchange="change_lines_per_page()">
                   <option value="10" <?php if ($lines_per_page == 10) echo 'selected="selected"'?>>10</option>
@@ -225,7 +225,7 @@
                   <option value="0" <?php if ($lines_per_page == 0) echo 'selected="selected"'?>>All</option>
                 </select>
               </td>
-              <td colspan=<?php echo $sorttype == 4? "2" : "3" ?> style="text-align:right; border-style:none">
+              <td colspan="<?php echo $sorttype == 4? "2" : "3" ?>" style="text-align:right; border-style:none">
                 <input type="button" value="Previous" style="width:6em" onclick="goto_prev()" 
                   <?php if ($page_number < 2) echo 'disabled="disabled"'; ?>
                 />
