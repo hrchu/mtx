@@ -2,11 +2,11 @@
   /* set these to what you need for your installation */
   include('dbms_inc.php');
 
-  $sorttype = $_GET['sorttype'];
-
   $link = mysql_connect($mysql_host,$mysql_user,$mysql_password)
     or die("Could not connect");
   mysql_select_db($mysql_dbms) or die("Could not select database");
+
+  $sorttype = $_GET['sorttype'];
 
   if ("$sorttype" == "" || $sorttype < 1 || $sorttype > 4)
   {
@@ -39,7 +39,7 @@
 
   if ("$lines_per_page" == "")
   {
-    $lines_per_page = 10;
+    $lines_per_page = 25;
   }
 
   switch ($lines_per_page)
@@ -52,7 +52,7 @@
   case 100:
     break;
   default:
-    $lines_per_page = 10;
+    $lines_per_page = 25;
     break;
   }
   
@@ -401,7 +401,7 @@
           </p>
           <p>
             <a href="http://validator.w3.org/check?uri=referer" >
-              <img src="valid-xhtml10.png" alt="Valid XHTML 1.0 Transitional" 
+              <img src="valid-xhtml10.png" alt="Valid XHTML 1.0 Strict" 
                    height="31" width="88" style="border:0" />
             </a>
           </p>
