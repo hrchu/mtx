@@ -103,149 +103,151 @@
           otherwise click on "Cancel".
 
           <form action="verify.php" method="post">
-            <input type="hidden" name="l_verified" value="1"/>
-            <?php echo '<input type="hidden" name="l_enabled" value="',$_POST['l_enabled'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_worked" value="',$_POST['l_worked'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_osname" value="',$_POST['l_osname'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_osversion" value="',$_POST['l_osversion'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_mtxversion" value="',$_POST['l_mtxversion'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_description" value="',$_POST['l_description'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_vendorid" value="',$_POST['l_vendorid'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_productid" value="',$_POST['l_productid'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_revision" value="',$_POST['l_revision'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_barcodes" value="',$_POST['l_barcodes'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_eaap" value="',$_POST['l_eaap'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_transports" value="',$_POST['l_transports'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_slots" value="',$_POST['l_slots'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_transfers" value="',$_POST['l_transfers'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_imports" value="',$_POST['l_imports'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_tgdp" value="',$_POST['l_tgdp'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_canxfer" value="',$_POST['l_canxfer'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_serialnum" value="',$_POST['l_serialnum'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_email" value="',$_POST['l_email'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_name" value="',$_POST['l_name'],'"/>' ?>
-            <?php echo '<input type="hidden" name="l_comments" value="',$_POST['l_comments'],'"/>' ?>
-            <center>
-              <table border="1" style="text-align:left">
-                <tr>
-                  <th style="text-align: center" colspan="4">OS and General Info</th>
-                </tr>
-                <tr>
-                  <th>Operating System</th>
-                  <td>
-                    <?php echo $_POST['l_osname'] ?>
-                  </td>
-                  <th>MTX Version</th>
-                  <td>
-                    <?php echo $_POST['l_mtxversion'] ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th>OS Version</th>
-                  <td colspan="3">
-                    <?php echo $_POST['l_osversion'],'<br/>' ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Loader Description</th>
-                  <td colspan="3">
-                    <?php echo $_POST['l_description'],'<br/>' ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th style="text-align: center" colspan="4">LoaderInfo Output</th>
-                </tr>
-                <tr>
-                  <th>Vendor ID</th>
-                  <td>
-                    <?php echo $_POST['l_vendorid'],'<br/>' ?>
-                  </td>
-                  <th>Product ID</th>
-                  <td>
-                    <?php echo $_POST['l_productid'],'<br/>' ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Revision</th>
-                  <td>
-                    <?php echo $_POST['l_revision'],'<br/>' ?>
-                  </td>
-                  <th>Serial Number</th>
-                  <td>
-                    <?php echo $_POST['l_serialnum'],'<br/>' ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Barcode Reader</th>
-                  <td>
-                    <?php echo $_POST['l_barcodes'] == 1 ? "Yes" : "No" ?>
-                  </td>
-                  <th>Element Address Assignment Page</th>
-                  <td>
-                    <?php echo $_POST['l_eaap'] == 1 ? "Yes" : "No" ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Transport Geometry Descriptor Page</th>
-                  <td>
-                    <?php echo $_POST['l_tgdp'] == 1 ? "Yes" : "No" ?>
-                  </td>
-                  <th>Can Transfer</th>
-                  <td>
-                    <?php echo $_POST['l_canxfer'] == 1 ? "Yes" : "No" ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Number of Medium Transport Elements</th>
-                  <td>
-                    <?php echo $_POST['l_transports'] ?>
-                  </td>
-                  <th>Number of Storage Elements</th>
-                  <td>
-                    <?php echo $_POST['l_slots'] ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Number of Import/Export Elements</th>
-                  <td>
-                    <?php echo $_POST['l_imports'] ?>
-                  </td>
-                  <th>Number of Data Transfer Elements</th>
-                  <td>
-                    <?php echo $_POST['l_transfers'] ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th style="text-align: center" colspan="4">Comments</th>
-                </tr>
-                <tr>
-                  <td colspan="4" align="center">
-                    <textarea name="l_comments" cols="70" rows="4"><?php echo $_POST['l_comments'] ?></textarea>
-                  </td>
-                </tr>
-                <tr>
-                  <th style="text-align: center" colspan="4">Personal Data</th>
-                </tr>
-                <tr>
-                  <th>Your Name</th>
-                  <td>
-                    <?php echo $_POST['l_name'],'<br/>' ?>
-                  </td>
-                  <th>Your EMAIL Address </th>
-                  <td>
-                    <?php echo $_POST['l_email'],'<br/>' ?>
-                  </td>
-                </tr>
-                <tr>
-                  <td colspan="2" align="right">
-                    <input type="submit" name="Save" value="Save"/>
-                  </td>
-                  <td colspan="2">
-                    <input type="button" name="Cancel" value="Cancel" onclick="history.go(-1)"/>
-                  </td>
-                </tr>
-              </table>
-            </center>
+            <p>
+              <input type="hidden" name="l_verified" value="1" />
+              <?php echo '<input type="hidden" name="l_enabled" value="',$_POST['l_enabled'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_worked" value="',$_POST['l_worked'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_osname" value="',$_POST['l_osname'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_osversion" value="',$_POST['l_osversion'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_mtxversion" value="',$_POST['l_mtxversion'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_description" value="',$_POST['l_description'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_vendorid" value="',$_POST['l_vendorid'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_productid" value="',$_POST['l_productid'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_revision" value="',$_POST['l_revision'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_barcodes" value="',$_POST['l_barcodes'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_eaap" value="',$_POST['l_eaap'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_transports" value="',$_POST['l_transports'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_slots" value="',$_POST['l_slots'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_transfers" value="',$_POST['l_transfers'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_imports" value="',$_POST['l_imports'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_tgdp" value="',$_POST['l_tgdp'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_canxfer" value="',$_POST['l_canxfer'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_serialnum" value="',$_POST['l_serialnum'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_email" value="',$_POST['l_email'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_name" value="',$_POST['l_name'],'"/>' ?>
+              <?php echo '<input type="hidden" name="l_comments" value="',$_POST['l_comments'],'"/>' ?>
+              <center>
+                <table border="1" style="text-align:left">
+                  <tr>
+                    <th style="text-align: center" colspan="4">OS and General Info</th>
+                  </tr>
+                  <tr>
+                    <th>Operating System</th>
+                    <td>
+                      <?php echo $_POST['l_osname'] ?>
+                    </td>
+                    <th>MTX Version</th>
+                    <td>
+                      <?php echo $_POST['l_mtxversion'] ?>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>OS Version</th>
+                    <td colspan="3">
+                      <?php echo $_POST['l_osversion'],'<br/>' ?>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Loader Description</th>
+                    <td colspan="3">
+                      <?php echo $_POST['l_description'],'<br/>' ?>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th style="text-align: center" colspan="4">LoaderInfo Output</th>
+                  </tr>
+                  <tr>
+                    <th>Vendor ID</th>
+                    <td>
+                      <?php echo $_POST['l_vendorid'],'<br/>' ?>
+                    </td>
+                    <th>Product ID</th>
+                    <td>
+                      <?php echo $_POST['l_productid'],'<br/>' ?>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Revision</th>
+                    <td>
+                      <?php echo $_POST['l_revision'],'<br/>' ?>
+                    </td>
+                    <th>Serial Number</th>
+                    <td>
+                      <?php echo $_POST['l_serialnum'],'<br/>' ?>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Barcode Reader</th>
+                    <td>
+                      <?php echo $_POST['l_barcodes'] == 1 ? "Yes" : "No" ?>
+                    </td>
+                    <th>Element Address Assignment Page</th>
+                    <td>
+                      <?php echo $_POST['l_eaap'] == 1 ? "Yes" : "No" ?>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Transport Geometry Descriptor Page</th>
+                    <td>
+                      <?php echo $_POST['l_tgdp'] == 1 ? "Yes" : "No" ?>
+                    </td>
+                    <th>Can Transfer</th>
+                    <td>
+                      <?php echo $_POST['l_canxfer'] == 1 ? "Yes" : "No" ?>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Number of Medium Transport Elements</th>
+                    <td>
+                      <?php echo $_POST['l_transports'] ?>
+                    </td>
+                    <th>Number of Storage Elements</th>
+                    <td>
+                      <?php echo $_POST['l_slots'] ?>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Number of Import/Export Elements</th>
+                    <td>
+                      <?php echo $_POST['l_imports'] ?>
+                    </td>
+                    <th>Number of Data Transfer Elements</th>
+                    <td>
+                      <?php echo $_POST['l_transfers'] ?>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th style="text-align: center" colspan="4">Comments</th>
+                  </tr>
+                  <tr>
+                    <td colspan="4" align="center">
+                      <textarea name="l_comments" cols="70" rows="4"><?php echo $_POST['l_comments'] ?></textarea>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th style="text-align: center" colspan="4">Personal Data</th>
+                  </tr>
+                  <tr>
+                    <th>Your Name</th>
+                    <td>
+                      <?php echo $_POST['l_name'],'<br/>' ?>
+                    </td>
+                    <th>Your EMAIL Address </th>
+                    <td>
+                      <?php echo $_POST['l_email'],'<br/>' ?>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" align="right">
+                      <input type="submit" name="Save" value="Save"/>
+                    </td>
+                    <td colspan="2">
+                      <input type="button" name="Cancel" value="Cancel" onclick="history.go(-1)"/>
+                    </td>
+                  </tr>
+                </table>
+              </center>
+            </p>
           </form>
           <hr />
           <table style="font-size:small" width="100%">
