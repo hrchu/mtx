@@ -46,7 +46,7 @@
  *   purposes only.
  */
 
-static int		bus = -1,
+static int	bus = -1,
 			target = -1,
 			lun = -1;
 
@@ -57,17 +57,21 @@ static int SCSI_OpenDevice(char *DeviceName)
 	int		saverr;
 
 	/* Check for validity of device node */
-	if (stat(DeviceName, &stbuf) < 0) {
+	if (stat(DeviceName, &stbuf) < 0)
+	{
 		FatalError("cannot stat SCSI device '%s' - %m\n", DeviceName);
 	}
-	if (!S_ISCHR(stbuf.st_mode)) {
+	if (!S_ISCHR(stbuf.st_mode))
+	{
 		FatalError("device '%s': not appropriate device type - %m\n", DeviceName);
 	}
 
-	if ((fd = open(DeviceName, O_RDONLY | O_NDELAY, 0)) >= 0) {
+	if ((fd = open(DeviceName, O_RDONLY | O_NDELAY, 0)) >= 0)
+	{
 		struct devget	devget;
 
-		if (ioctl(fd, DEVIOCGET, &devget) >= 0) {
+		if (ioctl(fd, DEVIOCGET, &devget) >= 0)
+		{
 #ifdef __osf__
 			lun = devget.slave_num % 8;
 			devget.slave_num /= 8;
@@ -80,21 +84,24 @@ static int SCSI_OpenDevice(char *DeviceName)
 			(void) close(fd);
 
 			if ((fd = open(DEV_CAM, O_RDWR, 0)) >= 0 ||
-			    (fd = open(DEV_CAM, O_RDONLY, 0)) >= 0) {
+				(fd = open(DEV_CAM, O_RDONLY, 0)) >= 0)
+			{
 				return (fd);
 			}
 			fd = bus = target = lun = -1;
 			FatalError("error %d opening SCSI device '%s' - %m\n",
 					 errno, DEV_CAM);
 		}
-		else {
+		else
+		{
 			(void) close(fd);
 			fd = bus = target = lun = -1;
 			FatalError("error %d on DEVIOCGET ioctl for '%s' - %m\n",
 					 errno, DeviceName);
 		}
 	}
-	else {
+	else
+	{
 		saverr = errno;
 		fd = bus = target = lun = -1;
 		FatalError("cannot open SCSI device '%s', error %d - %m\n",
@@ -106,8 +113,7 @@ static int SCSI_OpenDevice(char *DeviceName)
 }
 
 
-static void SCSI_CloseDevice(char *DeviceName,
-			     int DeviceFD)
+static void SCSI_CloseDevice(char *DeviceName, int DeviceFD)
 {
 	(void) close(DeviceFD);
 	bus = target = lun = -1;
@@ -115,14 +121,12 @@ static void SCSI_CloseDevice(char *DeviceName,
 
 
 static int SCSI_ExecuteCommand(int DeviceFD,
-			       Direction_T Direction,
-			       CDB_T *CDB,
-			       int CDB_Length,
-			       void *DataBuffer,
-			       int DataBufferLength,
-			       RequestSense_T *RequestSense)
-
-
+								Direction_T Direction,
+								CDB_T *CDB,
+								int CDB_Length,
+								void *DataBuffer,
+								int DataBufferLength,
+								RequestSense_T *RequestSense)
 {
 	UAGT_CAM_CCB	uagt;
 	CCB_SCSIIO	ccb;
@@ -145,9 +149,10 @@ static int SCSI_ExecuteCommand(int DeviceFD,
 	ccb.cam_ch.cam_ccb_len = sizeof(CCB_SCSIIO);
 	ccb.cam_ch.cam_func_code = XPT_SCSI_IO;
 
-	if (DataBuffer != NULL && DataBufferLength > 0) {
-		ccb.cam_ch.cam_flags |=
-			(Direction == Input) ? CAM_DIR_IN : CAM_DIR_OUT;
+	if (DataBuffer != NULL && DataBufferLength > 0)
+	{
+		ccb.cam_ch.cam_flags |= (Direction == Input) ?
+			CAM_DIR_IN : CAM_DIR_OUT;
 		uagt.uagt_buffer = (u_char *) DataBuffer;
 		uagt.uagt_buflen = DataBufferLength;
 	}
@@ -165,14 +170,17 @@ static int SCSI_ExecuteCommand(int DeviceFD,
 	ccb.cam_ch.cam_path_id = bus;
 	ccb.cam_ch.cam_target_id = target;
 	ccb.cam_ch.cam_target_lun = lun;
-    
-	if (ioctl(DeviceFD, UAGT_CAM_IO, (caddr_t) &uagt) < 0) {
+
+	if (ioctl(DeviceFD, UAGT_CAM_IO, (caddr_t) &uagt) < 0)
+	{
 		return -1;
-    	}
+	}
 
 	/* Check return status */
-	if ((ccb.cam_ch.cam_status & CAM_STATUS_MASK) != CAM_REQ_CMP) {
-		if (ccb.cam_ch.cam_status & CAM_SIM_QFRZN) {
+	if ((ccb.cam_ch.cam_status & CAM_STATUS_MASK) != CAM_REQ_CMP)
+	{
+		if (ccb.cam_ch.cam_status & CAM_SIM_QFRZN)
+		{
 			(void) memset(&ccb, 0, sizeof(ccb));
 			(void) memset(&uagt, 0, sizeof(uagt));
 
@@ -193,12 +201,12 @@ static int SCSI_ExecuteCommand(int DeviceFD,
 				return -1;
 		}
 
-		printf("mtx: %s:\n%s=0x%x %s=0x%x\n",
-				       "SCSI command fault",
-				       "Opcode",
-				       CDB[0],
-				       "Status",
-				       ccb.cam_scsi_status);
+		printf(	"mtx: %s:\n%s=0x%x %s=0x%x\n",
+				"SCSI command fault",
+				"Opcode",
+				CDB[0],
+				"Status",
+				ccb.cam_scsi_status);
 		return -1;
 	}
 

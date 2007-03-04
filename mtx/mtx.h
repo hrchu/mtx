@@ -1,12 +1,12 @@
 /* MTX -- SCSI Tape Attached Medium Control Program
 
-   Copyright 1997-1998 Leonard N. Zubkoff <lnz@dandelion.com>
- 
-   Changes 1999 Eric Lee Green to add support for multi-drive tape changers.
+	Copyright 1997-1998 Leonard N. Zubkoff <lnz@dandelion.com>
 
-   $Date$
-   $Revision$
-   See mtx.c for licensing information. 
+	Changes 1999 Eric Lee Green to add support for multi-drive tape changers.
+
+	$Date$
+	$Revision$
+	See mtx.c for licensing information. 
 
 */
 
@@ -193,19 +193,20 @@ typedef dsreq_t *DEVICE_TYPE; /* 64-bit pointers/32bit int on later sgi? */
 /* These are flags used for the READ_ELEMENT_STATUS and MOVE_MEDIUM
  * commands:
  */
-typedef struct SCSI_Flags_Struct {
-  unsigned char eepos;
-  unsigned char invert;
-  unsigned char no_attached; /* ignore _attached bit */
-  unsigned char no_barcodes;  /* don't try to get barcodes. */
-  int numbytes;
-  int elementtype;
-  int numelements;
-  int attached;
-  int has_barcodes;
-  int querytype; //MTX_ELEMENTSTATUS
-  unsigned char invert2; /* used for EXCHANGE command, sigh. */
-} SCSI_Flags_T;
+typedef struct SCSI_Flags_Struct
+{
+	unsigned char eepos;
+	unsigned char invert;
+	unsigned char no_attached; /* ignore _attached bit */
+	unsigned char no_barcodes;  /* don't try to get barcodes. */
+	int numbytes;
+	int elementtype;
+	int numelements;
+	int attached;
+	int has_barcodes;
+	int querytype; //MTX_ELEMENTSTATUS
+	unsigned char invert2; /* used for EXCHANGE command, sigh. */
+}	SCSI_Flags_T;
 
 #ifdef _MSC_VER
 typedef unsigned char boolean;
@@ -213,14 +214,12 @@ typedef unsigned char boolean;
 #define false   0
 #define true    1
 
-
 typedef unsigned char Direction_T;
 
 #define Input   0
 #define Output  1
 #else
 typedef enum { false, true } boolean;
-
 
 typedef enum { Input, Output } Direction_T;
 #endif
