@@ -32,13 +32,13 @@
         function validateShort(field)
         {
           var value;
-          
+
           if (field.value == null || field.value == "")
           {
             field.value = "0";
             return true;
           }
-          
+
           value = parseInt(field.value);
 
           if (isNaN(value))
@@ -102,6 +102,10 @@
           var e_vendorid = document.getElementById("vendorid");
           var e_productid = document.getElementById("productid");
           var e_revision = document.getElementById("revision");
+          var e_transports = document.getElementById("transports");
+          var e_slots = document.getElementById("slots");
+          var e_transfers = document.getElementById("transfers");
+          var integerValue;
 
           if (e_osversion.value == "")
           {
@@ -134,6 +138,33 @@
               e_revision.focus();
             }
 
+            return false;
+          }
+
+          integerValue = parseInt(e_transports.value);
+
+          if (isNaN(integerValue) || integerValue < 1)
+          {
+            window.alert("There must be at least one Medium Transport Element.");
+            e_transports.focus();
+            return false;
+          }
+
+          integerValue = parseInt(e_slots.value);
+
+          if (isNaN(integerValue) || integerValue <= 1)
+          {
+            window.alert("There must be more than one Storage Element.");
+            e_slots.focus();
+            return false;
+          }
+
+          integerValue = parseInt(e_transfers.value);
+
+          if (isNaN(integerValue) || integerValue < 1)
+          {
+            window.alert("There must be at least one Data Transfer Element.");
+            e_transfers.focus();
             return false;
           }
 
@@ -304,21 +335,21 @@
               <tr>
                 <th>Number of Medium Transport Elements</th>
                 <td>
-                  <input name="l_transports" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
+                  <input id="transports" name="l_transports" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
                 </td>
                 <th>Number of Storage Elements</th>
                 <td>
-                  <input name="l_slots" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
+                  <input id="slots" name="l_slots" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
                 </td>
               </tr>
               <tr>
                 <th>Number of Import/Export Elements</th>
                 <td>
-                  <input name="l_imports" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
+                  <input id="imports" name="l_imports" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
                 </td>
                 <th>Number of Data Transfer Elements</th>
                 <td>
-                  <input name="l_transfers" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
+                  <input id="transfers" name="l_transfers" type="text" value="0" size="5" maxlength="5" onkeypress="return validateNumeric(event)" onchange="return validateShort(this)"/>
                 </td>
               </tr>
               <tr>

@@ -127,7 +127,7 @@
           var lines_per_page = document.getElementById('lines_per_page').value;
           var sort_type = <?php echo $sorttype; ?>;
 
-          location.href = "compatibility.php?sorttype="+sort_type+"&amp;start="+page_number+"&amp;count="+lines_per_page;
+          location.href = "compatibility.php?sorttype="+sort_type+"&start="+page_number+"&count="+lines_per_page;
         }
 
         function change_lines_per_page()
@@ -137,7 +137,7 @@
           var page_number = parseInt(first_line / lines_per_page) + 1;
           var sort_type = <?php echo $sorttype; ?>;
 
-          location.href = "compatibility.php?sorttype="+sort_type+"&amp;start="+page_number+"&amp;count="+lines_per_page;
+          location.href = "compatibility.php?sorttype="+sort_type+"&start="+page_number+"&count="+lines_per_page;
         }
 
         function goto_prev()
@@ -155,7 +155,7 @@
             page_number -= 1;
           }
           
-          location.href = "compatibility.php?sorttype="+sort_type+"&amp;start="+page_number+"&amp;count="+lines_per_page;
+          location.href = "compatibility.php?sorttype="+sort_type+"&start="+page_number+"&count="+lines_per_page;
         }
 
         function goto_next()
@@ -166,7 +166,7 @@
 
           page_number++;
 
-          location.href = "compatibility.php?sorttype="+sort_type+"&amp;start="+page_number+"&amp;count="+lines_per_page;
+          location.href = "compatibility.php?sorttype="+sort_type+"&start="+page_number+"&count="+lines_per_page;
         }
       -->
     </script>
