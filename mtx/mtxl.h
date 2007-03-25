@@ -52,20 +52,34 @@ int BigEndian24(unsigned char *BigEndianData);
 int min(int x, int y);
 int max(int x, int y);
 
-ElementStatus_T *ReadElementStatus(DEVICE_TYPE MediumChangerFD, RequestSense_T *RequestSense, Inquiry_T *inquiry_info, SCSI_Flags_T *flags);
+void PrintHex(int Indent, unsigned char *Buffer, int Length);
 
-Inquiry_T *RequestInquiry(DEVICE_TYPE fd, RequestSense_T *RequestSense);
+ElementStatus_T *ReadElementStatus(	DEVICE_TYPE MediumChangerFD,
+									RequestSense_T *RequestSense,
+									Inquiry_T *inquiry_info,
+									SCSI_Flags_T *flags);
 
-RequestSense_T *MoveMedium(DEVICE_TYPE MediumChangerFD, int SourceAddress,
-		       int DestinationAddress, 
-		       ElementStatus_T *ElementStatus, 
-			   Inquiry_T *inquiry_info, SCSI_Flags_T *flags);
-RequestSense_T *ExchangeMedium(DEVICE_TYPE MediumChangerFD, int SourceAddress,
-			       int DestinationAddress, int Dest2Address,
-		       ElementStatus_T *ElementStatus, 
-			   Inquiry_T *inquiry_info, SCSI_Flags_T *flags);
+Inquiry_T *RequestInquiry(	DEVICE_TYPE fd,
+							RequestSense_T *RequestSense);
+
+RequestSense_T *MoveMedium(	DEVICE_TYPE MediumChangerFD,
+							int SourceAddress,
+							int DestinationAddress, 
+							ElementStatus_T *ElementStatus, 
+							Inquiry_T *inquiry_info,
+							SCSI_Flags_T *flags);
+
+RequestSense_T *ExchangeMedium(	DEVICE_TYPE MediumChangerFD,
+								int SourceAddress,
+								int DestinationAddress,
+								int Dest2Address,
+								ElementStatus_T *ElementStatus, 
+								SCSI_Flags_T *flags);
+
 RequestSense_T *PositionElement(DEVICE_TYPE MediumChangerFD,
-		int DestinationAddress, ElementStatus_T *ElementStatus);
+								int DestinationAddress,
+								ElementStatus_T *ElementStatus);
+
 int Inventory(DEVICE_TYPE MediumChangerFD);  /* inventory library */
 int LoadUnload(DEVICE_TYPE fd, int bLoad); /* load/unload tape, magazine or disc */
 int StartStop(DEVICE_TYPE fd, int bStart); /* start/stop device */

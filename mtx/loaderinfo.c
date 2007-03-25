@@ -114,13 +114,18 @@ typedef struct DCP
 {
 	unsigned char Page_Code;
 	unsigned char ParameterLength;
-	unsigned char CanStore;  /* bits about whether elements can store carts */
-	unsigned char Reserved; 
-	unsigned char MT_Xfer;  /* bits about whether mt->xx xfers work. */
-	unsigned char ST_Xfer;  /* bits about whether st->xx xfers work. */
-	unsigned char IE_Xfer;  /* bits about whether id->xx xfers work. */
-	unsigned char DT_Xfer; /* bits about whether DT->xx xfers work. */
-	unsigned char Reserved2[12];  /* more reserved data */
+	unsigned char CanStore;		/* bits about whether elements can store carts */
+	unsigned char SMC2_Caps;
+	unsigned char MT_Transfer;	/* bits about whether mt->xx transfers work. */
+	unsigned char ST_Transfer;	/* bits about whether st->xx transfers work. */
+	unsigned char IE_Transfer;	/* bits about whether id->xx transfers work. */
+	unsigned char DT_Transfer;	/* bits about whether DT->xx transfers work. */
+	unsigned char Reserved[4];	/* more reserved data */
+	unsigned char MT_Exchange;	/* bits about whether mt->xx exchanges work. */
+	unsigned char ST_Exchange;	/* bits about whether st->xx exchanges work. */
+	unsigned char IE_Exchange;	/* bits about whether id->xx exchanges work. */
+	unsigned char DT_Exchange;	/* bits about whether DT->xx exchanges work. */
+	unsigned char Reserved2[4];	/* more reserved data */
 }	DCP_Type;
 
 #define MT_BIT 0x01
@@ -192,7 +197,7 @@ static void ReportInquiry(DEVICE_TYPE MediumChangerFD)
  */
 
 static unsigned char
-*mode_sense(DEVICE_TYPE fd, int pagenum, int alloc_len,  RequestSense_T *RequestSense)
+*mode_sense(DEVICE_TYPE fd, char pagenum, int alloc_len,  RequestSense_T *RequestSense)
 {
 	CDB_T CDB;
 	unsigned char *input_buffer;	/*the input buffer -- has junk prepended to
@@ -246,7 +251,7 @@ static unsigned char
 }
 
 /* Report the Element Address Assignment Page */
-static EAAP_Type *ReportEAAP(DEVICE_TYPE MediumChangerFD)
+static void ReportEAAP(DEVICE_TYPE MediumChangerFD)
 {
 	EAAP_Type *EAAP; 
 	RequestSense_T RequestSense;
@@ -257,17 +262,17 @@ static EAAP_Type *ReportEAAP(DEVICE_TYPE MediumChangerFD)
 	{
 		PrintRequestSense(&RequestSense);
 		printf("EAAP: No\n");
-		return NULL;
+		return;
 	}
 
 	/* we did get an EAAP, so do our thing: */
 	printf("EAAP: Yes\n");
 	printf("Number of Medium Transport Elements: %d\n", ( ((unsigned int)EAAP->NumMediumTransportElements[0]<<8) + (unsigned int)EAAP->NumMediumTransportElements[1]));
 	printf("Number of Storage Elements: %d\n", ( ((unsigned int)EAAP->NumStorageElements[0]<<8) + (unsigned int)EAAP->NumStorageElements[1]));
-	printf("Number of Import/Export Element Elements: %d\n", ( ((unsigned int)EAAP->NumImportExportElements[0]<<8) + (unsigned int)EAAP->NumImportExportElements[1]));
+	printf("Number of Import/Export Elements: %d\n", ( ((unsigned int)EAAP->NumImportExportElements[0]<<8) + (unsigned int)EAAP->NumImportExportElements[1]));
 	printf("Number of Data Transfer Elements: %d\n", ( ((unsigned int)EAAP->NumDataTransferElements[0]<<8) + (unsigned int)EAAP->NumDataTransferElements[1]));
 
-	return EAAP;
+	free(EAAP);
 }
 
 /* See if we can get some invert information: */
@@ -298,13 +303,36 @@ static void Report_TGDP(DEVICE_TYPE MediumChangerFD)
 		printf("Invertable: No\n");
 	}
 
-	return;		/* done. */
+	free(result);
 }
 
 /* Okay, let's get the Device Capabilities Page. We don't care
  * about much here, just whether 'mtx transfer' will work (i.e., 
  * ST->ST).
  */
+
+void TransferExchangeTargets(unsigned char ucValue, char *szPrefix)
+{
+	if (ucValue & DT_BIT)
+	{
+		printf("%sData Transfer", szPrefix);
+	}
+
+	if (ucValue & IE_BIT)
+	{
+		printf("%s%sImport/Export", ucValue > (IE_BIT | (IE_BIT - 1)) ? ", " : "", szPrefix);
+	}
+
+	if (ucValue & ST_BIT)
+	{
+		printf("%s%sStorage Slots", ucValue > (ST_BIT | (ST_BIT - 1)) ? ", " : "", szPrefix);
+	}
+
+	if (ucValue & MT_BIT)
+	{
+		printf("%s%sMedium Transfer", ucValue  > (MT_BIT | (MT_BIT - 1)) ? ", " : "", szPrefix);
+	}
+}
 
 static void Report_DCP(DEVICE_TYPE MediumChangerFD)
 {
@@ -321,18 +349,127 @@ static void Report_DCP(DEVICE_TYPE MediumChangerFD)
 
 	printf("Device Configuration Page: Yes\n");
 
-	/* okay, now see if we can do xfers: */
-	if (result->ST_Xfer & ST_BIT) 
+	printf("Storage: ");
+
+	if (result->CanStore & DT_BIT)
 	{
-		printf("Can Transfer: Yes\n");
+		printf("Data Transfer");
+	}
+
+	if (result->CanStore & IE_BIT)
+	{
+		printf("%sImport/Export", result->CanStore > (IE_BIT | (IE_BIT - 1)) ? ", " : "");
+	}
+
+	if (result->CanStore & ST_BIT)
+	{
+		printf("%sStorage Slots", result->CanStore > (ST_BIT | (ST_BIT - 1)) ? ", " : "");
+	}
+
+	if (result->CanStore & MT_BIT)
+	{
+		printf("%sMedium Transfer", result->CanStore > (MT_BIT | (MT_BIT - 1)) ? ", " : "");
+	}
+
+	printf("\n");
+
+	printf("SCSI Media Changer (rev 2): ");
+
+	if (result->SMC2_Caps & 0x01)
+	{
+		printf("Yes\n");
+
+		printf("Volume Tag Reader Present: %s\n", result->SMC2_Caps & 0x02 ? "Yes" : "No");
+		printf("Auto-Clean Enabled: %s\n", result->SMC2_Caps & 0x04 ? "Yes" : "No");
 	}
 	else
 	{
-		printf("Can Transfer: No\n");
+		printf("No\n");
 	}
-	/* We don't care about anything else at the moment, eventually we
-	* do want to add the inport/export stuff here too...
-	*/
+
+	printf("Transfer Medium Transport: ");
+	if ((result->MT_Transfer & 0x0F) != 0)
+	{
+		TransferExchangeTargets(result->MT_Transfer, "->");
+	}
+	else
+	{
+		printf("None");
+	}
+
+	printf("\nTransfer Storage: ");
+	if ((result->ST_Transfer & 0x0F) != 0)
+	{
+		TransferExchangeTargets(result->ST_Transfer, "->");
+	}
+	else
+	{
+		printf("None");
+	}
+
+	printf("\nTransfer Import/Export: ");
+	if ((result->IE_Transfer & 0x0F) != 0)
+	{
+		TransferExchangeTargets(result->IE_Transfer, "->");
+	}
+	else
+	{
+		printf("None");
+	}
+
+	printf("\nTransfer Data Transfer: ");
+	if ((result->DT_Transfer & 0x0F) != 0)
+	{
+		TransferExchangeTargets(result->DT_Transfer, "->");
+	}
+	else
+	{
+		printf("None");
+	}
+
+	printf("\nExchange Medium Transport: ");
+	if ((result->MT_Exchange & 0x0F) != 0)
+	{
+		TransferExchangeTargets(result->MT_Exchange, "<>");
+	}
+	else
+	{
+		printf("None");
+	}
+
+	printf("\nExchange Storage: ");
+	if ((result->ST_Exchange & 0x0F) != 0)
+	{
+		TransferExchangeTargets(result->ST_Exchange, "<>");
+	}
+	else
+	{
+		printf("None");
+	}
+
+	printf("\nExchange Import/Export: ");
+	if ((result->IE_Exchange & 0x0F) != 0)
+	{
+		TransferExchangeTargets(result->IE_Exchange, "<>");
+	}
+	else
+	{
+		printf("None");
+	}
+
+	printf("\nExchange Data Transfer: ");
+	if ((result->DT_Exchange & 0x0F) != 0)
+	{
+		TransferExchangeTargets(result->DT_Exchange, "<>");
+	}
+	else
+	{
+		printf("None");
+	}
+
+	printf("\n");
+
+	free(result);
 }
 
 void usage(void)

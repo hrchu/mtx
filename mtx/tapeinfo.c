@@ -491,7 +491,7 @@ static void ReportTapeAlert(DEVICE_TYPE fd)
 }
 
 static unsigned char
-*mode_sense(DEVICE_TYPE fd, int pagenum, int alloc_len,  RequestSense_T *RequestSense)
+*mode_sense(DEVICE_TYPE fd, char pagenum, int alloc_len,  RequestSense_T *RequestSense)
 {
 	CDB_T CDB;
 
@@ -889,9 +889,9 @@ int WriteFileMarks(DEVICE_TYPE fd,int count)
 
 	CDB[0] = 0x10;  /* WRITE_FILE_MARKS */
 	CDB[1] = 0;
-	CDB[2] = (count >> 16) & 0xff;
-	CDB[3] = (count >>  8) & 0xff;
-	CDB[4] = count & 0xff;
+	CDB[2] = (unsigned char)(count >> 16);
+	CDB[3] = (unsigned char)(count >> 8);
+	CDB[4] = (unsigned char)count;
 	CDB[5] = 0; 
 
 	/* we really don't care if this command works or not, sigh.  */
