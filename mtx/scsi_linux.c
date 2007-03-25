@@ -52,13 +52,14 @@ $Revision$
 
 #define STILL_A_VALID_READ(s) (HIT_FILEMARK(s) || SHORT_READ(s) || HIT_EOD(s) || HIT_EOP(s) || HIT_EOM(s))
 
-#define SG_SCSI_DEFAULT_TIMEOUT HZ*60*5  /* 5 minutes? */
+#define SG_SCSI_DEFAULT_TIMEOUT (HZ*60*5)  /* 5 minutes? */
 
 static int pack_id;
+static int sg_timeout;
 
 DEVICE_TYPE SCSI_OpenDevice(char *DeviceName)
 {
-	int timeout=SG_SCSI_DEFAULT_TIMEOUT;
+	int timeout = SG_SCSI_DEFAULT_TIMEOUT;
 #ifdef SG_IO
 	int k; /* version */
 #endif
@@ -83,8 +84,6 @@ DEVICE_TYPE SCSI_OpenDevice(char *DeviceName)
 	pack_id = 1;	/* used for SG v3 interface if possible. */
 	return (DEVICE_TYPE) DeviceFD;
 }
-
-static int sg_timeout = SG_SCSI_DEFAULT_TIMEOUT;
 
 void SCSI_Set_Timeout(int secs)
 {
@@ -457,7 +456,7 @@ int SCSI_ExecuteCommand(DEVICE_TYPE DeviceFD,
 		fflush(stderr);
 #endif
 		/* if not default, set it: */
-		if(ioctl(DeviceFD, SG_SET_TIMEOUT, &sg_timeout))
+		if (ioctl(DeviceFD, SG_SET_TIMEOUT, &sg_timeout))
 		{
 			FatalError("failed to set sg timeout - %m\n");
 		}
