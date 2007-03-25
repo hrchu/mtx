@@ -296,9 +296,9 @@ static int S_mark(void)
 
 	CDB[0] = 0x10;  /* SET_MARK */
 	CDB[1] = 0;
-	CDB[2] = (count >> 16) & 0xff;
-	CDB[3] = (count >>8) & 0xff;
-	CDB[4] = count & 0xff;
+	CDB[2] = (unsigned char)(count >> 16);
+	CDB[3] = (unsigned char)(count >> 8);
+	CDB[4] = (unsigned char)count;
 	CDB[5] = 0; 
 
 	/* we really don't care if this command works or not, sigh.  */
@@ -320,12 +320,12 @@ static int S_rewind(void)
 	CDB_T CDB;
 	unsigned char buffer[6];
 
-	CDB[0]=0x01;  /* REWIND */
-	CDB[1]=0;
-	CDB[2]=0;
-	CDB[3]=0;
-	CDB[4]=0;
-	CDB[5]=0; 
+	CDB[0] = 0x01;  /* REWIND */
+	CDB[1] = 0;
+	CDB[2] = 0;
+	CDB[3] = 0;
+	CDB[4] = 0;
+	CDB[5] = 0; 
 
 	/* we really don't care if this command works or not, sigh.  */
 	slow_bzero((char *)&sense,sizeof(RequestSense_T));
@@ -341,7 +341,7 @@ static int S_rewind(void)
 
 
 /* This is used for fsf and bsf. */
-static int Space(int count, int code)
+static int Space(int count, char code)
 {
 	RequestSense_T sense;
 	CDB_T CDB;
@@ -349,9 +349,9 @@ static int Space(int count, int code)
 
 	CDB[0] = 0x11;  /* SET_MARK */
 	CDB[1] = code;
-	CDB[2] = (count >> 16) & 0xff;
-	CDB[3] = (count >>8) & 0xff;
-	CDB[4] = count & 0xff;
+	CDB[2] = (unsigned char)(count >> 16);
+	CDB[3] = (unsigned char)(count >> 8);
+	CDB[4] = (unsigned char)count;
 	CDB[5] = 0; 
 
 	/* we really don't care if this command works or not, sigh.  */
@@ -394,7 +394,7 @@ static int S_reten(void)
 	CDB_T CDB;
 	unsigned char buffer[6];
 
-	CDB[0] = 0x1b;  /* START_STOP */
+	CDB[0] = 0x1B;  /* START_STOP */
 	CDB[1] = 0; /* wait */
 	CDB[2] = 0;
 	CDB[3] = 0;
@@ -421,13 +421,13 @@ static int S_seek(void)
 
 	/* printf("count=%d\n",arg1); */
 
-	CDB[0] = 0x2b;  /* LOCATE */
+	CDB[0] = 0x2B;  /* LOCATE */
 	CDB[1] = 0;  /* Logical */
 	CDB[2] = 0; /* padding */
-	CDB[3] = (count >> 24) & 0xff;
-	CDB[4] = (count >> 16) & 0xff;
-	CDB[5] = (count >>8) & 0xff;
-	CDB[6] = count & 0xff;
+	CDB[3] = (unsigned char)(count >> 24);
+	CDB[4] = (unsigned char)(count >> 16);
+	CDB[5] = (unsigned char)(count >> 8);
+	CDB[6] = (unsigned char)count;
 	CDB[7] = 0; 
 	CDB[8] = 0; 
 	CDB[9] = 0; 
@@ -500,9 +500,9 @@ static int S_setblk(void)
 	buffer[6] = 0; /* 2 */
 	buffer[7] = 0; /* 3 */
 	buffer[8] = 0; /* 4 */
-	buffer[9] = (count >> 16) & 0xff; /* 5 */
-	buffer[10] = (count >> 8) & 0xff; /* 6 */
-	buffer[11] = count & 0xff;  /* 7 */
+	buffer[9] = (unsigned char)(count >> 16); /* 5 */
+	buffer[10] = (unsigned char)(count >> 8); /* 6 */
+	buffer[11] = (unsigned char)count;  /* 7 */
 
 	if (SCSI_ExecuteCommand(MediumChangerFD,Output,&CDB,6,buffer,12,&sense)!=0)
 	{
@@ -600,9 +600,9 @@ int SCSI_readt(DEVICE_TYPE fd, char * buf, unsigned int bufsize, unsigned int *l
 	memset(&cmd, 0, sizeof(CDB_T));
 	cmd[0] = 0x08; /* READ */
 	cmd[1] = (bufsize) ? 1 : 0; /* fixed length or var length blocks */
-	cmd[2] = (blockCount >> 16) & 0xff; /* MSB */
-	cmd[3] = (blockCount >> 8) & 0xff;
-	cmd[4] = blockCount & 0xff; /* LSB */
+	cmd[2] = (unsigned char)(blockCount >> 16); /* MSB */
+	cmd[3] = (unsigned char)(blockCount >> 8);
+	cmd[4] = (unsigned char)blockCount; /* LSB */
 
 	/* okay, let's read, look @ the result code: */
 	rtnval=READ_OK;
@@ -659,16 +659,15 @@ int SCSI_readt(DEVICE_TYPE fd, char * buf, unsigned int bufsize, unsigned int *l
 		}
 	}
 
-	return(rtnval);
+	return rtnval;
 }
 
 /* Low level SCSI write. Modified from BRU 16.1,  with much BRU smarts
  * taken out and with the various types changed to mtx types rather than
  * BRU types.
  */ 
-int SCSI_writet(DEVICE_TYPE fd, char * buf, unsigned int blocksize,
-                unsigned int *len, 
-		unsigned int timeout)
+int SCSI_write(DEVICE_TYPE fd, char * buf, unsigned int blocksize,
+				unsigned int *len)
 {
 	CDB_T cmd;
 
@@ -696,9 +695,9 @@ int SCSI_writet(DEVICE_TYPE fd, char * buf, unsigned int blocksize,
 	memset(&cmd, 0, sizeof(CDB_T));
 	cmd[0] = 0x0a; /* WRITE */
 	cmd[1] = (blocksize) ? 1 : 0; /* fixed length or var length blocks */
-	cmd[2] = (blockCount >> 16) & 0xff; /* MSB */
-	cmd[3] = (blockCount >> 8) & 0xff;
-	cmd[4] = blockCount & 0xff; /* LSB */
+	cmd[2] = (unsigned char)(blockCount >> 16); /* MSB */
+	cmd[3] = (unsigned char)(blockCount >> 8);
+	cmd[4] = (unsigned char)blockCount; /* LSB */
 
 
 	if (SCSI_ExecuteCommand(fd,Output,&cmd,6,buf, *len, &RequestSense))
@@ -723,7 +722,7 @@ int SCSI_writet(DEVICE_TYPE fd, char * buf, unsigned int blocksize,
 	{
 		rtnval = *len; /* worked! */
 	}
-	return(rtnval);
+	return rtnval;
 }
 
 /* S_write is not implemented yet! */
@@ -780,7 +779,7 @@ static int S_write(void)
 			len += result;	/* add the result input to our length. */
 		}
 
-		result = SCSI_writet(MediumChangerFD, buffer, blocksize, &len, DEFAULT_TIMEOUT);
+		result = SCSI_write(MediumChangerFD, buffer, blocksize, (unsigned int *)&len);
 		if (!result)
 		{
 			return 1; /* at end of tape! */

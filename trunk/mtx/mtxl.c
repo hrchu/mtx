@@ -85,7 +85,6 @@
 #	include "[.vms]scsi.c"
 #endif
 
-void PrintHex(int Indent, unsigned char *Buffer, int Length);
 extern char *argv0; /* something to let us do good error messages. */
 
 /* create a global RequestSenseT value. */
@@ -168,7 +167,7 @@ void FatalError(char *ErrorMessage, ...)
 	char	FormatBuffer[FORMAT_BUF_LEN];
 	char	*SourcePointer;
 	char	*TargetPointer = FormatBuffer;
-	int		Character, LastCharacter = '\0';
+	char	Character, LastCharacter = '\0';
 	int		numchars = 0;
 
 	va_list ArgumentPointer;
@@ -289,12 +288,12 @@ int SendNSMHack(DEVICE_TYPE MediumChangerFD, NSM_Param_T *nsm_command,
 	int list_len = param_len + sizeof(NSM_Param_T) - 2048;
 
 	/* Okay, now for the command: */
-	CDB[0]=0x1d;
-	CDB[1]=0x10;
-	CDB[2]=0;
-	CDB[3]=(list_len >> 8) & 0xff;
-	CDB[4]=(list_len) & 0xff;
-	CDB[5]=0;
+	CDB[0] = 0x1D;
+	CDB[1] = 0x10;
+	CDB[2] = 0;
+	CDB[3] = (unsigned char)(list_len >> 8);
+	CDB[4] = (unsigned char)list_len;
+	CDB[5] = 0;
 
 #ifdef DEBUG_NSM
 	dump_cdb(&CDB,6);
@@ -325,12 +324,12 @@ NSM_Result_T *RecNSMHack(	DEVICE_TYPE MediumChangerFD,
 	int list_len = param_len + sizeof(NSM_Result_T) - 0xffff;
 
 	/* Okay, now for the command: */
-	CDB[0]=0x1c;
-	CDB[1]=0x00;
-	CDB[2]=0;
-	CDB[3]=((list_len) >> 8) & 0xff;
-	CDB[4]=(list_len) & 0xff;
-	CDB[5]=0; 
+	CDB[0] = 0x1C;
+	CDB[1] = 0x00;
+	CDB[2] = 0;
+	CDB[3] = (unsigned char)(list_len >> 8);
+	CDB[4] = (unsigned char)list_len;
+	CDB[5] = 0;
 
 #ifdef DEBUG_NSM
 	dump_cdb(&CDB,6);
@@ -399,9 +398,9 @@ ElementModeSense_T *ReadAssignmentPage(DEVICE_TYPE MediumChangerFD)
 	ElementModeSensePage_T *sense_page; /* raw SCSI. */
 
 	/* okay, now for the command: */
-	CDB[0] = 0x1a; /* Mode Sense(6) */
+	CDB[0] = 0x1A; /* Mode Sense(6) */
 	CDB[1] = 0x08; 
-	CDB[2] = 0x1d; /* Mode Sense Element Address Assignment Page */
+	CDB[2] = 0x1D; /* Mode Sense Element Address Assignment Page */
 	CDB[3] = 0;
 	CDB[4] = 136; /* allocation_length... */
 	CDB[5] = 0;
@@ -629,22 +628,23 @@ static unsigned char *SendElementStatusRequestActual(
 		0 : 0x10) | flags->elementtype;  /* Lun + VolTag + Type code */
 	free(scsi_id);
 #else
-	CDB[1] = ((flags->no_barcodes) ? 0 : 0x10) | flags->elementtype;		/* Element Type Code = 0, VolTag = 1 */
+	/* Element Type Code = 0, VolTag = 1 */
+	CDB[1] = (unsigned char)((flags->no_barcodes ? 0 : 0x10) | flags->elementtype);
 #endif
-	CDB[2] = (ElementStart >> 8) & 0xff;	/* Starting Element Address MSB */
-	CDB[3] = ElementStart & 0xff;		/* Starting Element Address LSB */
+	/* Starting Element Address */
+	CDB[2] = (unsigned char)(ElementStart >> 8);
+	CDB[3] = (unsigned char)ElementStart;
 
-
-	CDB[4]= (NumElements >> 8) & 0xff;	  /* Number Of Elements MSB */
-	CDB[5]= NumElements & 0xff ;        /* Number of elements LSB */
-
-	/*  CDB[5]=127; */ /* test */
+	/* Number Of Elements */
+	CDB[4]= (unsigned char)(NumElements >> 8);
+	CDB[5]= (unsigned char)NumElements;
 
 	CDB[6] = 0;			/* Reserved */
 
-	CDB[7]= (NumBytes >> 16) & 0xff; /* allocation length MSB */
-	CDB[8]= (NumBytes >> 8) & 0xff;
-	CDB[9]= NumBytes & 0xff;   /* allocation length LSB */
+	/* allocation length */
+	CDB[7]= (unsigned char)(NumBytes >> 16);
+	CDB[8]= (unsigned char)(NumBytes >> 8);
+	CDB[9]= (unsigned char)NumBytes;
 
 	CDB[10] = 0;			/* Reserved */
 	CDB[11] = 0;			/* Control */
@@ -1498,10 +1498,10 @@ RequestSense_T *PositionElement(DEVICE_TYPE MediumChangerFD,
 
 	CDB[0] = 0x2b;
 	CDB[1] = 0;
-	CDB[2] = (ElementStatus->TransportElementAddress >> 8) & 0xFF;
-	CDB[3] = (ElementStatus->TransportElementAddress) & 0xFF;
-	CDB[4] = (DestinationAddress >> 8) & 0xFF;
-	CDB[5] = DestinationAddress & 0xFF;
+	CDB[2] = (unsigned char)(ElementStatus->TransportElementAddress >> 8);
+	CDB[3] = (unsigned char)ElementStatus->TransportElementAddress;
+	CDB[4] = (unsigned char)(DestinationAddress >> 8);
+	CDB[5] = (unsigned char)DestinationAddress;
 	CDB[6] = 0;
 	CDB[7] = 0;
 	CDB[8] = 0;
@@ -1537,12 +1537,19 @@ RequestSense_T *MoveMedium(	DEVICE_TYPE MediumChangerFD, int SourceAddress,
 	}
 
 	CDB[1] = 0;			/* Reserved */
-	CDB[2] = (ElementStatus->TransportElementAddress >> 8) & 0xFF;  /* Transport Element Address MSB */
-	CDB[3] = (ElementStatus->TransportElementAddress) & 0xff;   /* Transport Element Address LSB */
-	CDB[4] = (SourceAddress >> 8) & 0xFF;	/* Source Address MSB */
-	CDB[5] = SourceAddress & 0xFF; /* Source Address LSB */
-	CDB[6] = (DestinationAddress >> 8) & 0xFF; /* Destination Address MSB */
-	CDB[7] = DestinationAddress & 0xFF; /* Destination Address LSB */
+
+	/* Transport Element Address */
+	CDB[2] = (unsigned char)(ElementStatus->TransportElementAddress >> 8);
+	CDB[3] = (unsigned char)ElementStatus->TransportElementAddress;
+
+	/* Source Address */
+	CDB[4] = (unsigned char)(SourceAddress >> 8);
+	CDB[5] = (unsigned char)SourceAddress;
+
+	/* Destination Address */
+	CDB[6] = (unsigned char)(DestinationAddress >> 8);
+	CDB[7] = (unsigned char)DestinationAddress;
+
 	CDB[8] = 0;			/* Reserved */
 	CDB[9] = 0;			/* Reserved */
 
@@ -1575,21 +1582,29 @@ RequestSense_T *MoveMedium(	DEVICE_TYPE MediumChangerFD, int SourceAddress,
 RequestSense_T *ExchangeMedium(	DEVICE_TYPE MediumChangerFD, int SourceAddress,
 								int DestinationAddress, int Dest2Address,
 								ElementStatus_T *ElementStatus,
-								Inquiry_T *inquiry_info, SCSI_Flags_T *flags)
+								SCSI_Flags_T *flags)
 {
 	RequestSense_T *RequestSense = xmalloc(sizeof(RequestSense_T));
 	CDB_T CDB;
 
-	CDB[0] = 0xA6;   /* EXCHANGE MEDIUM */
+	CDB[0] = 0xA6;		/* EXCHANGE MEDIUM */
 	CDB[1] = 0;			/* Reserved */
-	CDB[2] = (ElementStatus->TransportElementAddress >> 8) & 0xFF;  /* Transport Element Address MSB */
-	CDB[3] = (ElementStatus->TransportElementAddress) & 0xff;   /* Transport Element Address LSB */
-	CDB[4] = (SourceAddress >> 8) & 0xFF;	/* Source Address MSB */
-	CDB[5] = SourceAddress & 0xFF; /* Source Address LSB */
-	CDB[6] = (DestinationAddress >> 8) & 0xFF; /* Destination Address MSB */
-	CDB[7] = DestinationAddress & 0xFF; /* Destination Address LSB */
-	CDB[8] = (Dest2Address>>8) & 0xFF; /* move destination back to source? */
-	CDB[9] = Dest2Address & 0xFF; /* move destination back to source? */
+
+	/* Transport Element Address */
+	CDB[2] = (unsigned char)(ElementStatus->TransportElementAddress >> 8);
+	CDB[3] = (unsigned char)ElementStatus->TransportElementAddress;
+
+	/* Source Address */
+	CDB[4] = (unsigned char)(SourceAddress >> 8);
+	CDB[5] = (unsigned char)SourceAddress;
+
+	/* Destination Address */
+	CDB[6] = (unsigned char)(DestinationAddress >> 8);
+	CDB[7] = (unsigned char)DestinationAddress;
+
+	/* move destination back to source? */
+	CDB[8] = (unsigned char)(Dest2Address >> 8);
+	CDB[9] = (unsigned char)Dest2Address;
 	CDB[10] = 0;
 
 	if (flags->invert)
@@ -1658,7 +1673,7 @@ int LoadUnload(DEVICE_TYPE fd, int bLoad)
 	CDB_T CDB;
 	/* okay, now for the command: */
 
-	CDB[0] = 0x1b;
+	CDB[0] = 0x1B;
 	CDB[4] = bLoad ? 3 : 2;
 	CDB[1] = CDB[2] = CDB[3] = CDB[5] = 0;
 
@@ -1685,7 +1700,7 @@ int StartStop(DEVICE_TYPE fd, int bStart)
 	CDB_T CDB;
 	/* okay, now for the command: */
 
-	CDB[0] = 0x1b;
+	CDB[0] = 0x1B;
 	CDB[4] = bStart ? 1 : 0;
 	CDB[1] = CDB[2] = CDB[3] = CDB[5] = 0;
 
@@ -1710,7 +1725,7 @@ int LockUnlock(DEVICE_TYPE fd, int bLock)
 	CDB_T CDB;
 	/* okay, now for the command: */
 
-	CDB[0] = 0x1e;
+	CDB[0] = 0x1E;
 	CDB[1] = CDB[2] = CDB[3] = CDB[5] = 0;
 	CDB[4] = (char)bLock;
 
@@ -1836,11 +1851,12 @@ void PrintRequestSense(RequestSense_T *RequestSense)
 	fprintf(stderr, "mtx: Request Sense: BPV=%s\n", RequestSense->BPV ? Yes : No);
 	fprintf(stderr, "mtx: Request Sense: Error in CDB=%s\n", RequestSense->CommandData ? Yes : No);
 	fprintf(stderr, "mtx: Request Sense: SKSV=%s\n", RequestSense->SKSV ? Yes : No);
-	fflush(stderr);
 
 	if (RequestSense->BPV || RequestSense -> SKSV)
 	{
 		fprintf(stderr, "mtx: Request Sense: Field Pointer = %02X %02X\n",
 				RequestSense->FieldData[0], RequestSense->FieldData[1]);
 	}
+
+	fflush(stderr);
 }

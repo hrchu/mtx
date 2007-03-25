@@ -106,7 +106,7 @@ static void Unload(void);
 static void First(void);
 static void Last(void);
 static void Next(void);
-/* static void Previous(void); */
+static void Previous(void);
 static void InvertCommand(void);
 static void Transfer(void);
 static void Eepos(void);
@@ -141,6 +141,7 @@ command_table[] =
 	{ 2, "transfer", Transfer, 1,1 },
 	{ 1, "first", First, 1,1 },
 	{ 1, "last", Last, 1,1 },
+	{ 1, "previous", Previous, 1,1 },
 	{ 1, "next", Next, 1,1 },
 	{ 0, "--version", Version, 0,0 },
 	{ 0, "inventory", do_Inventory, 1,0},
@@ -163,8 +164,8 @@ static void Usage()
 	mtx [ -f <loader-dev> ] [altres] [nobarcode] status\n\
 	mtx [ -f <loader-dev> ] [altres] first [<drive#>]\n\
 	mtx [ -f <loader-dev> ] [altres] last [<drive#>]\n\
-	mtx [ -f <loader-dev> ] [altres] next [<drive#>]\n\
 	mtx [ -f <loader-dev> ] [altres] previous [<drive#>]\n\
+	mtx [ -f <loader-dev> ] [altres] next [<drive#>]\n\
 	mtx [ -f <loader-dev> ] [altres] [invert] load <storage-element-number> [<drive#>]\n\
 	mtx [ -f <loader-dev> ] [altres] [invert] unload [<storage-element-number>][<drive#>]\n\
 	mtx [ -f <loader-dev> ] [altres] [eepos eepos-number] transfer <storage-element-number> <storage-element-number>\n\
@@ -254,7 +255,7 @@ static void First(void)
 	if (ElementStatus->DataTransferElementFull[driveno])
 	{
 		/* if so, then unload it... */
-		arg1 = ElementStatus->DataTransferElementSourceStorageElementNumber[driveno]+1;
+		arg1 = ElementStatus->DataTransferElementSourceStorageElementNumber[driveno] + 1;
 		if (arg1 == 1)
 		{
 			printf("loading...done.\n");  /* it already has tape #1 in it! */ 
@@ -265,8 +266,8 @@ static void First(void)
 	}
 
 	/* and now to actually do the Load(): */
-	arg2 = driveno;
 	arg1 = 1;	/* first! */
+	arg2 = driveno;
 	Load();		/* and voila! */
 }
 
@@ -277,7 +278,7 @@ static void Last(void)
 	/* okay, first see if we have a drive#: */
 	if (arg1 >= 0 && arg1 < ElementStatus->DataTransferElementCount)
 	{
-		driveno=arg1;
+		driveno = arg1;
 	}
 	else
 	{
@@ -304,10 +305,10 @@ static void Last(void)
 }
 
 
-static void Next(void)
+static void Previous(void)
 {
 	int driveno;
-	int current = 0;
+	int current = ElementStatus->StorageElementCount - ElementStatus->ImportExportCount + 1;
 
 	/* okay, first see if we have a drive#: */
 	if (arg1 >= 0 && arg1 < ElementStatus->DataTransferElementCount)
@@ -323,26 +324,72 @@ static void Next(void)
 	if (ElementStatus->DataTransferElementFull[driveno])
 	{
 		/* if so, unload it! */
-		arg1 = ElementStatus->DataTransferElementSourceStorageElementNumber[driveno] + 1;
-		current = arg1;
+		current = ElementStatus->DataTransferElementSourceStorageElementNumber[driveno];
+		if (current == 0)
+		{
+			FatalError("No More Media\n");		/* Already at the 1st slot...*/
+		}
+		arg1 = current + 1;		/* Args are 1 based */
 		arg2 = driveno;
 		Unload();
 	}
-	
-	/* okay, now to load, if we can... */
-	/* Thanks, Chris McCrory! */
-	while (! ElementStatus->StorageElementFull[current++])
+
+	/* Position current to previous element */
+	for (current--; current >= 0; current--)
 	{
-		/*cycle til found*/
-		if (current > (ElementStatus->StorageElementCount - ElementStatus->ImportExportCount))
+		if (ElementStatus->StorageElementFull[current])
 		{
-			FatalError("No More Media\n");		/*last slot...*/
+			arg1 = current + 1;
+			arg2 = driveno;
+			Load();
+			return;
 		}
 	}
 
-	arg1 = current;
-	arg2 = driveno;
-	Load();
+	FatalError("No More Media\n");		/* First slot */
+}
+
+
+static void Next(void)
+{
+	int driveno;
+	int current = -1;
+
+	/* okay, first see if we have a drive#: */
+	if (arg1 >= 0 && arg1 < ElementStatus->DataTransferElementCount)
+	{
+		driveno = arg1;
+	}
+	else
+	{
+		driveno = 0;
+	}
+
+	/* Now to see if there's anything in that drive! */
+	if (ElementStatus->DataTransferElementFull[driveno])
+	{
+		/* if so, unload it! */
+		current = ElementStatus->DataTransferElementSourceStorageElementNumber[driveno];
+
+		arg1 = current + 1;
+		arg2 = driveno;
+		Unload();
+	}
+
+	for (current++;
+		 current < (ElementStatus->StorageElementCount - ElementStatus->ImportExportCount);
+		 current++)
+	{
+		if (ElementStatus->StorageElementFull[current])
+		{
+			arg1 = current + 1;
+			arg2 = driveno;
+			Load();
+			return;
+		}
+	}
+
+	FatalError("No More Media\n");		/* last slot */
 }
 
 static void do_Inventory(void) 
@@ -678,7 +725,7 @@ static void Exchange(void)
 	dest = ElementStatus->StorageElementAddress[arg2 - 1];
 	dest2 = ElementStatus->StorageElementAddress[arg3 - 1];
 	
-	result = ExchangeMedium(MediumChangerFD, src, dest, dest2, ElementStatus, inquiry_info, &SCSI_Flags);
+	result = ExchangeMedium(MediumChangerFD, src, dest, dest2, ElementStatus, &SCSI_Flags);
 	if (result)
 	{
 		/* we have an error! */
@@ -719,7 +766,7 @@ static void Eepos(void)
 		FatalError("eepos equires argument between 0 and 3.\n");
 	}
 
-	SCSI_Flags.eepos = arg1;
+	SCSI_Flags.eepos = (unsigned char)arg1;
 }
 
 
@@ -990,7 +1037,7 @@ int parse_args(void)
 
 
 
-int main(int ArgCount, char *ArgVector[], char *Environment[])
+int main(int ArgCount, char *ArgVector[])
 {
 #ifdef VMS
 	RequestSense_T RequestSense;

@@ -261,10 +261,9 @@ int SCSI_ExecuteCommand(DEVICE_TYPE DeviceFD,
 {
 	PSCSI_PASS_THROUGH ScsiPassThrough;
 
-	const DWORD	dwSenseInfoOffset = sizeof(SCSI_PASS_THROUGH);
 	const DWORD	dwDataBufferOffset = sizeof(SCSI_PASS_THROUGH) + (sizeof(RequestSense_T) + 3) / 4 * 4;
-
 	const DWORD	dwBufferSize = dwDataBufferOffset + DataBufferLength;
+
 	BOOL		bResult;
 	DWORD		dwBytesReturned;
 	DWORD		dwInputLength;
