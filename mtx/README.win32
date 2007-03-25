@@ -1,26 +1,3 @@
-INSTALLING THE PATCH
-====================
-
-Extract the tar file in the mtx directory.
-
-The following new files will be created:
-
-	README.win32
-	changes.patch
-	
-	msvc/config.h
-	msvc/mtx.sln
-	msvc/loaderinfo/loaderinfo.vcproj
-	msvc/mtx/mtx.vcproj
-	msvc/nsmhack/nsmhack.vcproj
-	msvc/scsitape/scsitape.vcproj
-	msvc/tapeinfo/tapeinfo.vcproj
-	
-Apply the patch with the command:
-
-	patch < changes.patch
-
-
 BUILDING FOR MICROSOFT WINDOWS
 ==============================
 
@@ -42,9 +19,7 @@ You can perform the build using either MinGW or Microsoft Visual Studio 2005.
 	To generate the intitial configure script, this only needs to be 
 	done once.
 	
-	./autoconf
-	
-	./configure
+	./configure --host=mingw32
 	make
 	
 CHANGES FROM UNIX
