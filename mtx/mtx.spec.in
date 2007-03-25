@@ -4,7 +4,7 @@ Release: 1
 Summary: SCSI media changer control program
 License: GPL
 Group: Utilities/System
-Source0: ftp://ftp.badtux.net/pub/storage/mtx/unstable/%{name}-%{version}.tar.gz
+Source0: ftp://ftp.opensource-sw.net/pub/mtx/development/%{name}-%{version}.tar.gz
 Url: http://%{name}.sourceforge.net
 BuildRoot: /var/tmp/%{name}-%{version}
 
