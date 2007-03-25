@@ -325,7 +325,7 @@ void TransferExchangeTargets(unsigned char ucValue, char *szPrefix)
 
 	if (ucValue & ST_BIT)
 	{
-		printf("%s%sStorage Slots", ucValue > (ST_BIT | (ST_BIT - 1)) ? ", " : "", szPrefix);
+		printf("%s%sStorage", ucValue > (ST_BIT | (ST_BIT - 1)) ? ", " : "", szPrefix);
 	}
 
 	if (ucValue & MT_BIT)
@@ -363,7 +363,7 @@ static void Report_DCP(DEVICE_TYPE MediumChangerFD)
 
 	if (result->CanStore & ST_BIT)
 	{
-		printf("%sStorage Slots", result->CanStore > (ST_BIT | (ST_BIT - 1)) ? ", " : "");
+		printf("%sStorage", result->CanStore > (ST_BIT | (ST_BIT - 1)) ? ", " : "");
 	}
 
 	if (result->CanStore & MT_BIT)
