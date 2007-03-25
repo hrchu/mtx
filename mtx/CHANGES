@@ -1,3 +1,14 @@
+CHANGES, mtx 1.3.11
+- loaderinfo: Print RequestSense information if an operation fails.
+- loaderinfo: Print all information from the Device Configuration Page.
+- mtx: Fix problems with a lot of loaders determining the number of elements.
+- mtx: Implement Previous command.
+- mtx: Fix bugs in Last command.
+- scsieject: New tool that handles start/stop, load/unload.
+- tapeinfo: Fix inconsistencies in output.
+- Fix timeout handling on Linux.
+- Merge in fixes from the Debian and FreeBSD distributions.
+
 CHANGES, mtx 1.3.10
 - Add support for Microsoft Windows.
 - Add support for Sony VGP-XL1B(2) Media Changer.
