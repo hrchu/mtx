@@ -145,7 +145,7 @@ int execute_command(struct command_table_struct *command)
 	/* if the device is not already open, then open it from the 
 	* environment.
 	*/
-	if (!MediumChangerFD == -1)
+	if (MediumChangerFD != -1)
 	{
 		/* try to get it from STAPE or TAPE environment variable... */
 		device = getenv("STAPE");
@@ -302,7 +302,7 @@ static int S_mark(void)
 	CDB[5] = 0; 
 
 	/* we really don't care if this command works or not, sigh.  */
-	slow_bzero((char *)&RequestSense, sizeof(RequestSense_T));
+	memset(&RequestSense, 0, sizeof(RequestSense_T));
 
 	if (SCSI_ExecuteCommand(MediumChangerFD, Input, &CDB, 6, buffer, 0, &RequestSense)!= 0)
 	{
@@ -328,7 +328,7 @@ static int S_rewind(void)
 	CDB[5] = 0; 
 
 	/* we really don't care if this command works or not, sigh.  */
-	slow_bzero((char *)&sense,sizeof(RequestSense_T));
+	memset(&sense, 0, sizeof(RequestSense_T));
 	if (SCSI_ExecuteCommand(MediumChangerFD,Input,&CDB,6,buffer,0,&sense)!=0)
 	{
 		PrintRequestSense(&sense);
@@ -355,7 +355,7 @@ static int Space(int count, char code)
 	CDB[5] = 0; 
 
 	/* we really don't care if this command works or not, sigh.  */
-	slow_bzero((char *)&sense,sizeof(RequestSense_T));
+	memset(&sense,0, sizeof(RequestSense_T));
 	if (SCSI_ExecuteCommand(MediumChangerFD, Input, &CDB, 6, buffer, 0, &sense) != 0)
 	{
 		PrintRequestSense(&sense);
@@ -402,7 +402,7 @@ static int S_reten(void)
 	CDB[5] = 0; 
 
 	/* we really don't care if this command works or not, sigh.  */
-	slow_bzero((char *)&sense, sizeof(RequestSense_T));
+	memset(&sense, 0, sizeof(RequestSense_T));
 	if (SCSI_ExecuteCommand(MediumChangerFD, Input, &CDB, 6, buffer, 0, &sense) != 0)
 	{
 		PrintRequestSense(&sense);
@@ -433,7 +433,7 @@ static int S_seek(void)
 	CDB[9] = 0; 
 
 	/* we really don't care if this command works or not, sigh.  */
-	slow_bzero((char *)&sense,sizeof(RequestSense_T));
+	memset(&sense, 0, sizeof(RequestSense_T));
 	if (SCSI_ExecuteCommand(MediumChangerFD, Input, &CDB, 10, buffer, 0, &sense) != 0)
 	{
 		PrintRequestSense(&sense);
@@ -487,8 +487,8 @@ static int S_setblk(void)
 	CDB[4] = 12; /* length of data */
 	CDB[5] = 0;
 
-	slow_bzero((char *)&sense, sizeof(RequestSense_T));
-	slow_bzero(buffer, 12);
+	memset(&sense, 0, sizeof(RequestSense_T));
+	memset(buffer, 0, 12);
 
 	/* Now to set the mode page header: */
 	buffer[0] = 0;
@@ -752,7 +752,7 @@ static int S_write(void)
 	}
 
 	/* sigh, make it oversized just to have some */  
-	buffer = malloc(buffersize+8); 
+	buffer = (char *)xmalloc(buffersize+8); 
 
 	eof_input = 0;
 	while (!eof_input)
@@ -847,7 +847,7 @@ static int S_read(void)
 	}
 
 	/* sigh, make it oversized just to have some */  
-	buffer = malloc(buffersize + 8); 
+	buffer = (char *)malloc(buffersize + 8); 
 
 	for ( ; ; )
 	{

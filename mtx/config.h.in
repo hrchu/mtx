@@ -33,5 +33,6 @@
 
 #define WORDS_BIGENDIAN 0
 
-#endif
+#define HAVE_MEMSET 0
 
+#endif

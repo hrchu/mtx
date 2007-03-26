@@ -215,7 +215,7 @@ static unsigned char
 	input_buffer = (unsigned char *)xzmalloc(256); /* overdo it, eh? */
 
 	/* clear the sense buffer: */
-	slow_bzero((char *)RequestSense, sizeof(RequestSense_T));
+	memset(RequestSense, 0, sizeof(RequestSense_T));
 
 	/* returns an array of bytes in the page, or, if not possible, NULL. */
 	CDB[0] = 0x1a; /* Mode Sense(6) */
@@ -238,8 +238,8 @@ static unsigned char
 	/* First skip past any header.... */
 	tmp = input_buffer + 4 + input_buffer[3];
 	/* now find out real length of page... */
-	pagelen=tmp[1] + 2;
-	retval = xmalloc(pagelen);
+	pagelen = tmp[1] + 2;
+	retval = (unsigned char *)xmalloc(pagelen);
 	/* and copy our data to the new page. */
 	for (i = 0; i < pagelen; i++)
 	{

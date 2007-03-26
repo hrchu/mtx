@@ -251,7 +251,7 @@ static TapeCapacity *RequestTapeCapacity(DEVICE_TYPE fd, RequestSense_T *sense)
 
 	unsigned char buffer[TAPEALERT_SIZE]; /* Overkill, but ... */
 
-	slow_bzero((char *)buffer,TAPEALERT_SIZE); /*zero it... */
+	memset(buffer, 0, TAPEALERT_SIZE); /*zero it... */
 
 	/* now to create the CDB block: */
 	CDB[0] = 0x4d;   /* Log Sense */
@@ -291,7 +291,7 @@ static TapeCapacity *RequestTapeCapacity(DEVICE_TYPE fd, RequestSense_T *sense)
 		return NULL; /* This Is Not The Page You're Looking For */
 	}
 
-	result = xmalloc(sizeof(TapeCapacity));
+	result = (TapeCapacity *)xmalloc(sizeof(TapeCapacity));
 
 	/* okay, now allocate data and move the buffer over there: */
 
@@ -353,7 +353,7 @@ static struct tapealert_struct *RequestTapeAlert(DEVICE_TYPE fd, RequestSense_T 
 	unsigned char buffer[TAPEALERT_SIZE];
 	unsigned char *walkptr;
 
-	slow_bzero((char *)buffer, TAPEALERT_SIZE); /*zero it... */
+	memset(buffer, 0, TAPEALERT_SIZE); /*zero it... */
 
 	/* now to create the CDB block: */
 	CDB[0] = 0x4d;	/* Log Sense */
@@ -372,7 +372,7 @@ static struct tapealert_struct *RequestTapeAlert(DEVICE_TYPE fd, RequestSense_T 
 		return NULL;
 	}
 
-	result = xmalloc(sizeof(struct tapealert_struct));
+	result = (tapealert_struct *)xmalloc(sizeof(struct tapealert_struct));
 
 	/* okay, we have stuff in the result buffer: the first 4 bytes are a header:
 	 * byte 0 should be 0x2e, byte 1 == 0, bytes 2,3 tell how long the
@@ -396,7 +396,7 @@ static struct tapealert_struct *RequestTapeAlert(DEVICE_TYPE fd, RequestSense_T 
 
 	/* okay, now allocate data and move the buffer over there: */
 	result->length = MAX_TAPE_ALERT;
-	result->data = xzmalloc(MAX_TAPE_ALERT); /* alloc & zero. */
+	result->data = (unsigned char *)xzmalloc(MAX_TAPE_ALERT);
 
 	walkptr = &buffer[4];
 	i = 0;
@@ -508,7 +508,7 @@ static unsigned char
 	input_buffer = (unsigned char *)xzmalloc(256); /* overdo it, eh? */
 
 	/* clear the sense buffer: */
-	slow_bzero((char *)RequestSense, sizeof(RequestSense_T));
+	memset(RequestSense, 0, sizeof(RequestSense_T));
 
 	/* returns an array of bytes in the page, or, if not possible, NULL. */
 	CDB[0] = 0x1a; /* Mode Sense(6) */
@@ -572,7 +572,7 @@ static unsigned char
 
 	/* now find out real length of page... */
 	pagelen = tmp[1] + 2;
-	retval = xmalloc(pagelen);
+	retval = (unsigned char *)xmalloc(pagelen);
 
 	/* and copy our data to the new page. */
 	for (i=0;i<pagelen;i++)
@@ -776,7 +776,7 @@ void ReportBlockLimits(DEVICE_TYPE fd)
 	CDB[4] = 0;
 	CDB[5] = 0; 
 
-	slow_bzero((char *)&sense,sizeof(RequestSense_T));
+	memset(&sense, 0, sizeof(RequestSense_T));
 	if (SCSI_ExecuteCommand(fd, Input, &CDB, 6, buffer, 6, &sense) != 0)
 	{
 		return;
@@ -806,7 +806,7 @@ void ReadPosition(DEVICE_TYPE fd)
 	CDB[8] = 0;
 	CDB[9] = 0;
 
-	slow_bzero((char *)&sense, sizeof(RequestSense_T));
+	memset(&sense, 0, sizeof(RequestSense_T));
 
 	SCSI_Set_Timeout(2); /* set timeout to 2 seconds! */
 
@@ -866,7 +866,7 @@ int TestUnitReady(DEVICE_TYPE fd)
 	CDB[4] = 0;
 	CDB[5] = 0;
 
-	slow_bzero((char *)&sense,sizeof(RequestSense_T));
+	memset(&sense, 0, sizeof(RequestSense_T));
 	if (SCSI_ExecuteCommand(fd,Input,&CDB,6,buffer,0,&sense)!=0)
 	{
 		printf("Ready: no\n");
@@ -895,7 +895,7 @@ int WriteFileMarks(DEVICE_TYPE fd,int count)
 	CDB[5] = 0; 
 
 	/* we really don't care if this command works or not, sigh.  */
-	slow_bzero((char *)&sense, sizeof(RequestSense_T));
+	memset(&sense, 0, sizeof(RequestSense_T));
 	if (SCSI_ExecuteCommand(fd, Input, &CDB, 6, buffer, 0, &sense) != 0)
 	{
 		return 1;

@@ -107,6 +107,7 @@ dnl AC_FUNC_ALLOCA
 
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
+AC_CHECK_FUNCS(memset)
 
 dnl Check for files
 

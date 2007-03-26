@@ -13,6 +13,35 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nsmhack", "nsmhack\nsmhack.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scsieject", "scsieject\scsieject.vcproj", "{E3B77A78-FD72-4AD7-933A-0503FB21551D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{95A34279-04E7-4BED-A3F4-8B15D3DBF113}"
+	ProjectSection(SolutionItems) = preProject
+		..\build.win32 = ..\build.win32
+		..\CHANGES = ..\CHANGES
+		..\COMPATABILITY = ..\COMPATABILITY
+		..\config.guess = ..\config.guess
+		config.h = config.h
+		..\config.h.in = ..\config.h.in
+		..\config.sub = ..\config.sub
+		..\configure.in = ..\configure.in
+		..\FAQ = ..\FAQ
+		..\install-sh = ..\install-sh
+		..\LICENSE = ..\LICENSE
+		..\LICENSE.html = ..\LICENSE.html
+		..\loaderinfo.1 = ..\loaderinfo.1
+		..\makedist = ..\makedist
+		..\Makefile.in = ..\Makefile.in
+		..\mtx.1 = ..\mtx.1
+		..\mtx.doc = ..\mtx.doc
+		..\mtx.spec.in = ..\mtx.spec.in
+		..\mtxl.README.html = ..\mtxl.README.html
+		..\README = ..\README
+		..\README.win32 = ..\README.win32
+		..\scsieject.1 = ..\scsieject.1
+		..\scsitape.1 = ..\scsitape.1
+		..\tapeinfo.1 = ..\tapeinfo.1
+		..\TODO = ..\TODO
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32

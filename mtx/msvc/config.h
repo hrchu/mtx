@@ -31,6 +31,8 @@
 #define HAVE_SYS_MTIO_H 0
 #define HAVE_DDK_NTDDSCSI_H 0
 
+#define HAVE_MEMSET 1
+
 #define WORDS_BIGENDIAN 0
 
 #endif
