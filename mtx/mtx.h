@@ -210,17 +210,12 @@ typedef struct SCSI_Flags_Struct
 
 #ifdef _MSC_VER
 typedef unsigned char boolean;
-
-#define false   0
-#define true    1
-
 typedef unsigned char Direction_T;
 
 #define Input   0
 #define Output  1
 #else
-typedef enum { false, true } boolean;
-
+typedef bool boolean;
 typedef enum { Input, Output } Direction_T;
 #endif
 
