@@ -2,7 +2,7 @@ dnl Copyright 2001 Enhanced Software Technologies Inc.
 dnl Written Jan. 2001 Eric Lee Green
 
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(mtx.c)
+AC_INIT(mtx.cpp)
 AC_CONFIG_HEADER(config.h)
 
 dnl Check system.
@@ -53,7 +53,7 @@ AC_SUBST(CPU)
 
 
 dnl Checks for programs.
-AC_PROG_CC
+AC_PROG_CXX
 AC_PROG_INSTALL
 AC_CHECK_PROG(USE_OBJCOPY, objcopy, yes, no)
 

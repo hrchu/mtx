@@ -142,7 +142,7 @@ scsi_id_t *SCSI_GetIDLun(DEVICE_TYPE fd)
 
 #ifdef SG_IO
 #include "sg_err.h"  /* error stuff. */
-#include "sg_err.c"  /* some of Doug Gilbert's routines */
+#include "sg_err.cpp"  /* some of Doug Gilbert's routines */
 
 /* Use the new SG_IO structure */
 int SCSI_ExecuteCommand(DEVICE_TYPE DeviceFD,

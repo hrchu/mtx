@@ -9,7 +9,7 @@
 # GNU Autoconf. 
 
 # Version # for 'make dist'...
-VERSION=1.3.11
+VERSION=2.0.0
 
 BINS = mtx@EXEEXT@ tapeinfo@EXEEXT@ loaderinfo@EXEEXT@ scsitape@EXEEXT@ scsieject@EXEEXT@ \
 	nsmhack@EXEEXT@
@@ -20,7 +20,7 @@ MAN_TXT := $(MAN:%.1=%.txt)
 
 TARGET	= @TARGET@
 CPU	= @CPU@
-CC	= @CC@
+CXX	= @CXX@
 INSTALL	= @INSTALL@
 
 CFLAGS		= @CFLAGS@
@@ -43,19 +43,16 @@ mandir		= @mandir@
 #
 ifeq ($(TARGET),linux)
 CFLAGS += -Wall
-CPPFLAGS	+= -DLONG_PRINT_REQUEST_SENSE=1
 endif
 
 ifeq ($(TARGET),mingw)
 CFLAGS += -Wall
-CPPFLAGS	+= -DLONG_PRINT_REQUEST_SENSE=1
 endif
 
 #
 # FreeBSD
 #
 ifeq ($(TARGET),freebsd86)
-CPPFLAGS	+= -DLONG_PRINT_REQUEST_SENSE=1
 LIBS		+= -lcam
 endif
 
@@ -131,43 +128,43 @@ dist: distclean
 	./makedist $(VERSION)	
 
 loaderinfo@EXEEXT@: loaderinfo.o mtxl.o mtxl.h mtx.h $(EXTRA)
-	$(CC) $(LDFLAGS) -o loaderinfo@EXEEXT@ loaderinfo.o mtxl.o $(EXTRA) $(LIBS)
+	$(CXX) $(LDFLAGS) -o loaderinfo@EXEEXT@ loaderinfo.o mtxl.o $(EXTRA) $(LIBS)
 
 nsmhack@EXEEXT@: nsmhack.o mtxl.o $(EXTRA)
-	$(CC) $(LDFLAGS) -o nsmhack@EXEEXT@ nsmhack.o mtxl.o $(EXTRA) $(LIBS)
+	$(CXX) $(LDFLAGS) -o nsmhack@EXEEXT@ nsmhack.o mtxl.o $(EXTRA) $(LIBS)
 
 mtx@EXEEXT@: mtx.o mtxl.o mtxl.h mtx.h $(EXTRA)
-	$(CC) $(LDFLAGS) -o mtx@EXEEXT@ mtx.o mtxl.o $(EXTRA) $(LIBS)
+	$(CXX) $(LDFLAGS) -o mtx@EXEEXT@ mtx.o mtxl.o $(EXTRA) $(LIBS)
 
 mam2debug@EXEEXT@: mtxl.o mam2debug.o mtx.h $(EXTRA)	
-	$(CC) $(LDFLAGS) -o mam2debug@EXEEXT@ mtxl.o mam2debug.o $(EXTRA) $(LIBS)
+	$(CXX) $(LDFLAGS) -o mam2debug@EXEEXT@ mtxl.o mam2debug.o $(EXTRA) $(LIBS)
 
 tapeinfo@EXEEXT@: tapeinfo.o mtxl.o mtx.h mtxl.h $(EXTRA)
-	$(CC) $(LDFLAGS) -o tapeinfo@EXEEXT@ tapeinfo.o mtxl.o $(EXTRA) $(LIBS)
+	$(CXX) $(LDFLAGS) -o tapeinfo@EXEEXT@ tapeinfo.o mtxl.o $(EXTRA) $(LIBS)
 
 mam2debug2@EXEEXT@: mtxl.o mam2debug2.o mtx.h $(EXTRA)
-	$(CC) $(LDFLAGS) -o mam2debug2@EXEEXT@ mtxl.o mam2debug2.o $(EXTRA) $(LIBS)
+	$(CXX) $(LDFLAGS) -o mam2debug2@EXEEXT@ mtxl.o mam2debug2.o $(EXTRA) $(LIBS)
 
 scsitape@EXEEXT@: scsitape.o mtxl.o mtxl.h mtx.h $(EXTRA)
-	$(CC) $(LDFLAGS) -o scsitape@EXEEXT@ scsitape.o mtxl.o $(EXTRA) $(LIBS)
+	$(CXX) $(LDFLAGS) -o scsitape@EXEEXT@ scsitape.o mtxl.o $(EXTRA) $(LIBS)
 
-scsitape.o: scsitape.c mtx.h mtxl.h
+scsitape.o: scsitape.cpp mtx.h mtxl.h
 
 scsieject@EXEEXT@: scsieject.o mtxl.o mtxl.h mtx.h $(EXTRA)
-	$(CC) $(LDFLAGS) -o scsieject@EXEEXT@ scsieject.o mtxl.o $(EXTRA) $(LIBS)
+	$(CXX) $(LDFLAGS) -o scsieject@EXEEXT@ scsieject.o mtxl.o $(EXTRA) $(LIBS)
 
-scsieject.o: scsieject.c mtx.h mtxl.h
+scsieject.o: scsieject.cpp mtx.h mtxl.h
 
-loaderinfo.o: loaderinfo.c mtx.h mtxl.h
+loaderinfo.o: loaderinfo.cpp mtx.h mtxl.h
 
-tapeinfo.o: tapeinfo.c mtx.h mtxl.h
+tapeinfo.o: tapeinfo.cpp mtx.h mtxl.h
 
-mam2debug.o: mam2debug.c mtx.h mtxl.h
+mam2debug.o: mam2debug.cpp mtx.h mtxl.h
 
-mam2debug2.o: mam2debug2.c mtx.h mtxl.h
+mam2debug2.o: mam2debug2.cpp mtx.h mtxl.h
 
-mtx.o: mtx.c mtx.h mtxl.h
+mtx.o: mtx.cpp mtx.h mtxl.h
 
-mtxl.o: mtxl.c mtx.h mtxl.h scsi_linux.c scsi_win32.c
+mtxl.o: mtxl.cpp mtx.h mtxl.h scsi_linux.cpp scsi_win32.cpp
 
-nsmhack.o: nsmhack.c mtxl.h mtx.h
+nsmhack.o: nsmhack.cpp mtxl.h mtx.h
