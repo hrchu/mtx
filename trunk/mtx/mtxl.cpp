@@ -43,46 +43,46 @@
 
 /* the camlib is used on FreeBSD. */
 #if HAVE_CAMLIB_H
-#	include "scsi_freebsd.c"
+#	include "scsi_freebsd.cpp"
 #endif
 
 /* the scsi_ctl interface is used on HP/UX. */
 #if HAVE_SYS_SCSI_CTL_H
-#	include "scsi_hpux.c"
+#	include "scsi_hpux.cpp"
 #endif
 
 /* the 'sg' interface is used on Linux. */
 #if HAVE_SCSI_SG_H
-#	include "scsi_linux.c"
+#	include "scsi_linux.cpp"
 #endif
 
 /* the IOCTL_SCSI_PASSTHROUGH interface is used on Windows. */
 #if HAVE_DDK_NTDDSCSI_H || defined(_MSC_VER)
-#	include "scsi_win32.c"
+#	include "scsi_win32.cpp"
 #endif
 
 /* The 'uscsi' interface is used on Solaris. */
 #if HAVE_SYS_SCSI_IMPL_USCSI_H
-#	include "scsi_sun.c"
+#	include "scsi_sun.cpp"
 #endif
 
 /* The 'gsc' interface, is used on AIX. */
 #if HAVE_SYS_GSCDDS_H
-#	include "scsi_aix.c"
+#	include "scsi_aix.cpp"
 #endif
 
 /* The 'dslib' interface is used on SGI. */
 #if HAVE_DSLIB_H
-#	include "scsi_sgi.c"
+#	include "scsi_sgi.cpp"
 #endif
 
 /* Hmm, dunno what to do about Digital Unix at the moment. */
 #ifdef DIGITAL_UNIX
-#	include "du/scsi.c"
+#	include "du/scsi.cpp"
 #endif
 
 #ifdef VMS
-#	include "[.vms]scsi.c"
+#	include "[.vms]scsi.cpp"
 #endif
 
 extern char *argv0; /* something to let us do good error messages. */
@@ -235,14 +235,16 @@ void FatalError(char *ErrorMessage, ...)
 #endif
 }
 
+#if !HAVE_MEMSET
 /* This is a really slow and stupid 'bzero' implementation'... */
-void slow_bzero(char *buffer, int numchars)
+void *memset(void *_Dst, int _Val, size_t _Size)
 {
-	while (numchars--)
+	while (_Size-- > 0)
 	{
-		*buffer++ = 0;
+		*buffer++ = _Val;
 	}
 }
+#endif
 
 /* malloc some memory while checking for out-of-memory conditions. */
 void *xmalloc(size_t Size)
@@ -260,7 +262,7 @@ void *xzmalloc(size_t Size)
 {
 	void *Result = (void *)xmalloc(Size);
 
-	slow_bzero(Result, Size);
+	memset(Result, 0, Size);
 	return Result;
 }
 
@@ -406,8 +408,8 @@ ElementModeSense_T *ReadAssignmentPage(DEVICE_TYPE MediumChangerFD)
 	CDB[5] = 0;
 
 	/* clear the data buffer: */
-	slow_bzero((char *)&scsi_error_sense, sizeof(RequestSense_T));
-	slow_bzero((char *)input_buffer, sizeof(input_buffer));
+	memset(&scsi_error_sense, 0, sizeof(RequestSense_T));
+	memset(input_buffer, 0, sizeof(input_buffer));
 
 	if (SCSI_ExecuteCommand(MediumChangerFD, Input, &CDB, 6,
 							&input_buffer, sizeof(input_buffer), &scsi_error_sense) != 0)
@@ -610,7 +612,7 @@ static unsigned char *SendElementStatusRequestActual(
 
 	DataBuffer = (unsigned char *)xzmalloc(NumBytes + 1);
 
-	slow_bzero((char *)RequestSense, sizeof(RequestSense_T));
+	memset(RequestSense, 0, sizeof(RequestSense_T));
 
 #ifdef HAVE_GET_ID_LUN
 	scsi_id = SCSI_GetIDLun(MediumChangerFD);
@@ -681,7 +683,7 @@ static unsigned char *SendElementStatusRequestActual(
 		{
 			/* we issued a code requesting bar codes, there is no bar code reader? */
 			/* clear out our sense buffer first... */
-			slow_bzero((char *)RequestSense, sizeof(RequestSense_T));
+			memset(RequestSense, 0, sizeof(RequestSense_T));
 
 			CDB[1] &= ~0x10; /* clear bar code flag! */
 
@@ -1493,7 +1495,7 @@ RequestSense_T *PositionElement(DEVICE_TYPE MediumChangerFD,
 		int DestinationAddress,
 		ElementStatus_T *ElementStatus)
 {
-	RequestSense_T *RequestSense = xmalloc(sizeof(RequestSense_T));
+	RequestSense_T *RequestSense = (RequestSense_T *)xmalloc(sizeof(RequestSense_T));
 	CDB_T CDB;
 
 	CDB[0] = 0x2b;
@@ -1523,7 +1525,7 @@ RequestSense_T *MoveMedium(	DEVICE_TYPE MediumChangerFD, int SourceAddress,
 							ElementStatus_T *ElementStatus,
 							Inquiry_T *inquiry_info, SCSI_Flags_T *flags)
 {
-	RequestSense_T *RequestSense = xmalloc(sizeof(RequestSense_T));
+	RequestSense_T *RequestSense = (RequestSense_T *)xmalloc(sizeof(RequestSense_T));
 	CDB_T CDB;
 
 	if (inquiry_info->MChngr && inquiry_info->PeripheralDeviceType != MEDIUM_CHANGER_TYPE)
@@ -1584,7 +1586,7 @@ RequestSense_T *ExchangeMedium(	DEVICE_TYPE MediumChangerFD, int SourceAddress,
 								ElementStatus_T *ElementStatus,
 								SCSI_Flags_T *flags)
 {
-	RequestSense_T *RequestSense = xmalloc(sizeof(RequestSense_T));
+	RequestSense_T *RequestSense = (RequestSense_T *)xmalloc(sizeof(RequestSense_T));
 	CDB_T CDB;
 
 	CDB[0] = 0xA6;		/* EXCHANGE MEDIUM */
@@ -1641,7 +1643,7 @@ RequestSense_T *ExchangeMedium(	DEVICE_TYPE MediumChangerFD, int SourceAddress,
 
 RequestSense_T *Erase(DEVICE_TYPE MediumChangerFD)
 {
-	RequestSense_T *RequestSense = xmalloc(sizeof(RequestSense_T));
+	RequestSense_T *RequestSense = (RequestSense_T *)xmalloc(sizeof(RequestSense_T));
 	CDB_T CDB;
 
 	CDB[0] = 0x19;
