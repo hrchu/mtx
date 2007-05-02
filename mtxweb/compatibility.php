@@ -132,10 +132,24 @@
 
         function change_lines_per_page()
         {
-          var lines_per_page = document.getElementById('lines_per_page').value;
-          var first_line = <?php echo $lines_per_page * ($page_number - 1) + 1; ?>;
-          var page_number = parseInt(first_line / lines_per_page) + 1;
-          var sort_type = <?php echo $sorttype; ?>;
+          var lines_per_page;
+          var first_line;
+          var page_number;
+          var sort_type;
+
+          lines_per_page = document.getElementById('lines_per_page').value;
+          if (lines_per_page > 0)
+          {
+            first_line = <?php echo $lines_per_page * ($page_number - 1) + 1; ?>;
+            page_number = parseInt(first_line / lines_per_page) + 1;
+            sort_type = <?php echo $sorttype; ?>;
+          }
+          else
+          {
+            first_line = 1;
+            page_number = 1;
+          }
+          sort_type = <?php echo $sorttype; ?>;
 
           location.href = "compatibility.php?sorttype="+sort_type+"&start="+page_number+"&count="+lines_per_page;
         }
@@ -311,15 +325,23 @@
   }
   else
   {
-    $first_row = ($page_number - 1) * $lines_per_page;
+    if ($lines_per_page > 0)
+    {
+      $first_row = ($page_number - 1) * $lines_per_page;
+    }
+    else
+    {
+      $first_row = 0;
+    }
 
     if ($first_row > 0)
     {
       mysql_data_seek($result, $first_row);
     }
 
-    for ($index = 0; $index < $lines_per_page; $index += 1)
+    for ($index = 0; $lines_per_page < 0 || index < $lines_per_page; $index += 1)
     {
+      
       $row = mysql_fetch_assoc($result);
 
       if (! $row)
