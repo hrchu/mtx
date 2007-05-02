@@ -339,7 +339,7 @@
       mysql_data_seek($result, $first_row);
     }
 
-    for ($index = 0; $lines_per_page < 0 || index < $lines_per_page; $index += 1)
+    for ($index = 0; $lines_per_page == 0 || $index < $lines_per_page; $index += 1)
     {
       
       $row = mysql_fetch_assoc($result);
