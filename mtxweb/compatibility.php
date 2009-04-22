@@ -187,7 +187,7 @@
   </head>
 
   <body>
-    <table width="100%" cellspacing="0" cellpadding="10">
+    <table style="width:100%" cellspacing="0" cellpadding="10">
       <tr valign="middle">
         <th></th>
         <th>
@@ -226,7 +226,7 @@
           <p/>
           In order to display the detailed information click on the desired line.
           <p/>
-          <table border="1" width="100%">
+          <table border="1" style="width:100%">
             <tr>
               <td colspan="<?php echo $sorttype == 4 ? "3" : "2" ?>" style="text-align:left; border-style:none">
                 Lines per page:
@@ -392,7 +392,7 @@
           </table>
           <br />
           <hr />
-          <table style="font-size:small; " width="100%">
+          <table style="font-size:small;width:100%">
             <tr>
               <td style="text-align:left; width:33%">
                 Maintained by <a href="mailto:robertnelson@users.sourceforge.net">Robert Nelson</a>
@@ -429,8 +429,9 @@
           </p>
           <p>
             <a href="http://sourceforge.net/projects/mtx">
-              <img src="http://sflogo.sourceforge.net/sflogo.php?group_id=4626&amp;type=1"
-                   height="31" width="81" style="border:0" alt="SourceForge.net Logo" />
+              <img src="http://sflogo.sourceforge.net/sflogo.php?group_id=4626&amp;type=16"
+                   width="150" height="40"
+                   alt="Get MTX: Media Changer Tools at SourceForge.net. Fast, secure and Free Open Source software downloads" />
             </a>
           </p>
         </th>

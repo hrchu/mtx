@@ -1,13 +1,23 @@
 <?php
   include('dbms_inc.php');
+  require_once 'securimage.php';
+
+  $image = new Securimage();
 
   $link = mysql_connect($mysql_host,$mysql_user,$mysql_password)
       or die("Could not connect");
 
   mysql_select_db($mysql_dbms) or die("Could not select database");
 
+  $image_verified = false;
+
+  if ($image->check($_POST['l_code'])) {
+    $image_verified = true;   
+  }
+
   /* Okay, see if they submitted anything: */
-  if ($_POST['l_verified'] != "") {
+  if ($_POST['l_verified'] != "" && $image_verified) {
+    $image->clear();
     /* create a MySQL insert statement: */
     $ld_enabled=(int)$_POST['l_enabled'];
     $ld_worked=(int)$_POST['l_worked'];
@@ -44,12 +54,13 @@
     exit();
   }
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
     <meta http-equiv="Pragma" content="no-cache"/>
+    <meta name="Content-script-type" content="text/javascript" />
 
     <title>MTX Compatibility List - Verification</title>
     
@@ -65,10 +76,24 @@
         A:visited { color: blue; text-decoration: underline; }
       -->
     </style>
+    <script language="JavaScript">
+      function OnSubmitForm()
+      {
+        if (document.pressed == 'Save')
+        {
+          document.loader.action = "verify.php";
+        }
+        else if (document.pressed == 'Cancel' || document.pressed == 'Try Again')
+        {
+          document.loader.action = "contrib.php";
+        }
+        return true;
+      }
+    </script>
   </head>
 
   <body>
-    <table width="100%" cellspacing="0" cellpadding="10">
+    <table style="width:100%" cellspacing="0" cellpadding="10">
       <tr valign="middle">
         <th></th>
         <th style="text-align: center">
@@ -99,174 +124,149 @@
           </p>
         </th>
         <td rowspan="2">
-          You entered the following values.  If they are correct, click on "Save", 
-          otherwise click on "Cancel".
-
+<?php
+          if (!$image_verified) {
+            echo "          <h2>The code you entered didn't match the image, click the Try Again button to return and retry</h2>\n";
+          } else {
+            echo "          You entered the following values.  If they are correct, click on \"Save\", \n";
+            echo "          otherwise click on \"Cancel\"\n";
+          }
+?>
           <!-- <p style="text-align:center"> -->
-            <form action="verify.php" method="post">
+            <form name="loader" action="verify.php" method="post" onSubmit="return OnSubmitForm();">
               <input type="hidden" name="l_verified" value="1" />
-              <?php echo '<input type="hidden" name="l_enabled" value="',$_POST['l_enabled'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_worked" value="',$_POST['l_worked'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_osname" value="',$_POST['l_osname'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_osversion" value="',$_POST['l_osversion'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_mtxversion" value="',$_POST['l_mtxversion'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_description" value="',$_POST['l_description'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_vendorid" value="',$_POST['l_vendorid'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_productid" value="',$_POST['l_productid'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_revision" value="',$_POST['l_revision'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_barcodes" value="',$_POST['l_barcodes'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_eaap" value="',$_POST['l_eaap'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_transports" value="',$_POST['l_transports'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_slots" value="',$_POST['l_slots'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_transfers" value="',$_POST['l_transfers'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_imports" value="',$_POST['l_imports'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_tgdp" value="',$_POST['l_tgdp'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_canxfer" value="',$_POST['l_canxfer'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_serialnum" value="',$_POST['l_serialnum'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_email" value="',$_POST['l_email'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_name" value="',$_POST['l_name'],"\" />\n"; ?>
-              <?php echo '<input type="hidden" name="l_comments" value="',$_POST['l_comments'],"\" />\n"; ?>
-              <table border="1" style="text-align:left">
-                <tr>
-                  <th style="text-align: center" colspan="4">OS and General Info</th>
-                </tr>
-                <tr>
-                  <th>Operating System</th>
-                  <td>
-                    <?php echo $_POST['l_osname'] ?>
-                  </td>
-                  <th>MTX Version</th>
-                  <td>
-                    <?php echo $_POST['l_mtxversion'] ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th>OS Version</th>
-                  <td colspan="3">
-                    <?php echo $_POST['l_osversion'],'<br/>' ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Loader Description</th>
-                  <td colspan="3">
-                    <?php echo $_POST['l_description'],'<br/>' ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th style="text-align: center" colspan="4">LoaderInfo Output</th>
-                </tr>
-                <tr>
-                  <th>Vendor ID</th>
-                  <td>
-                    <?php echo $_POST['l_vendorid'],'<br/>' ?>
-                  </td>
-                  <th>Product ID</th>
-                  <td>
-                    <?php echo $_POST['l_productid'],'<br/>' ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Revision</th>
-                  <td>
-                    <?php echo $_POST['l_revision'],'<br/>' ?>
-                  </td>
-                  <th>Serial Number</th>
-                  <td>
-                    <?php echo $_POST['l_serialnum'],'<br/>' ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Barcode Reader</th>
-                  <td>
-                    <?php echo $_POST['l_barcodes'] == 1 ? "Yes" : "No" ?>
-                  </td>
-                  <th>Element Address Assignment Page</th>
-                  <td>
-                    <?php echo $_POST['l_eaap'] == 1 ? "Yes" : "No" ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Transport Geometry Descriptor Page</th>
-                  <td>
-                    <?php echo $_POST['l_tgdp'] == 1 ? "Yes" : "No" ?>
-                  </td>
-                  <th>Can Transfer</th>
-                  <td>
-                    <?php echo $_POST['l_canxfer'] == 1 ? "Yes" : "No" ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Number of Medium Transport Elements</th>
-                  <td>
-                    <?php echo $_POST['l_transports'] ?>
-                  </td>
-                  <th>Number of Storage Elements</th>
-                  <td>
-                    <?php echo $_POST['l_slots'] ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Number of Import/Export Elements</th>
-                  <td>
-                    <?php echo $_POST['l_imports'] ?>
-                  </td>
-                  <th>Number of Data Transfer Elements</th>
-                  <td>
-                    <?php echo $_POST['l_transfers'] ?>
-                  </td>
-                </tr>
-                <tr>
-                  <th style="text-align: center" colspan="4">Comments</th>
-                </tr>
-                <tr>
-                  <td colspan="4" align="center">
-                    <textarea name="l_comments" cols="70" rows="4"><?php echo $_POST['l_comments'] ?></textarea>
-                  </td>
-                </tr>
-                <tr>
-                  <th style="text-align: center" colspan="4">Personal Data</th>
-                </tr>
-                <tr>
-                  <th>Your Name</th>
-                  <td>
-                    <?php echo $_POST['l_name'],'<br/>' ?>
-                  </td>
-                  <th>Your EMAIL Address </th>
-                  <td>
-                    <?php echo $_POST['l_email'],'<br/>' ?>
-                  </td>
-                </tr>
-                <tr>
-                  <td colspan="2" align="right">
-                    <input type="submit" name="Save" value="Save"/>
-                  </td>
-                  <td colspan="2">
-                    <input type="button" name="Cancel" value="Cancel" onclick="history.go(-1)"/>
-                  </td>
-                </tr>
-              </table>
-            </form>
-          <!-- </p> -->
-          <hr />
-          <table style="font-size:small" width="100%">
-            <tr>
-              <td style="text-align:left; width:33%">
-                Maintained by <a href="mailto:robertnelson@users.sourceforge.net">Robert Nelson</a>
-              </td>
-              <td style="text-align:center; width:34%">
-                <?php
-                  $ChangedDate = preg_replace('/.*: (.+) \(.*/', '\1', '$LastChangedDate$');
-                  echo "Date changed: $ChangedDate";
-                ?>
-              </td>
-              <td style="text-align:right; width:33%">
-                <?php
-                  $ChangedBy = preg_replace('/.*: (.+) \$/', '\1', '$LastChangedBy$');
-                  echo "Changed by: $ChangedBy";
-                ?>
-              </td>
-            </tr>
-          </table>
+              <input type="hidden" name="l_enabled" value="1" />
+              <input type="hidden" name="l_worked" value="<?php echo $_POST['l_worked'] ?>" />
+              <input type="hidden" name="l_osname" value="<?php echo $_POST['l_osname'] ?>" />
+              <input type="hidden" name="l_osversion" value="<?php echo $_POST['l_osversion'] ?>" />
+              <input type="hidden" name="l_mtxversion" value="<?php echo $_POST['l_mtxversion'] ?>" />
+              <input type="hidden" name="l_description" value="<?php echo $_POST['l_description'] ?>" />
+              <input type="hidden" name="l_vendorid" value="<?php echo $_POST['l_vendorid'] ?>" />
+              <input type="hidden" name="l_productid" value="<?php echo $_POST['l_productid'] ?>" />
+              <input type="hidden" name="l_revision" value="<?php echo $_POST['l_revision'] ?>" />
+              <input type="hidden" name="l_barcodes" value="<?php echo $_POST['l_barcodes'] ?>" />
+              <input type="hidden" name="l_eaap" value="<?php echo $_POST['l_eaap'] ?>" />
+              <input type="hidden" name="l_transports" value="<?php echo $_POST['l_transports'] ?>" />
+              <input type="hidden" name="l_slots" value="<?php echo $_POST['l_slots'] ?>" />
+              <input type="hidden" name="l_transfers" value="<?php echo $_POST['l_transfers'] ?>" />
+              <input type="hidden" name="l_imports" value="<?php echo $_POST['l_imports'] ?>" />
+              <input type="hidden" name="l_tgdp" value="<?php echo $_POST['l_tgdp'] ?>" />
+              <input type="hidden" name="l_canxfer" value="<?php echo $_POST['l_canxfer'] ?>" />
+              <input type="hidden" name="l_serialnum" value="<?php echo $_POST['l_serialnum'] ?>" />
+              <input type="hidden" name="l_email" value="<?php echo $_POST['l_email'] ?>" />
+              <input type="hidden" name="l_name" value="<?php echo $_POST['l_name'] ?>" />
+              <input type="hidden" name="l_comments" value="<?php echo $_POST['l_comments'] ?>" />
+              <input type="hidden" name="l_code" value="<?php echo $_POST['l_code'] ?>" />
+
+<?php
+          if (!$image_verified) {
+            echo "            <div style=\"text-align:center\">\n";
+            echo "              <input type=\"submit\" name=\"Cancel\" value=\"Try Again\" onClick=\"document.pressed=this.value\" />\n";
+            echo "            </div>\n";
+          } else {
+            echo "              <table border=\"1\" style=\"text-align:left\">\n";
+            echo "                <tr>\n";
+            echo "                  <th style=\"text-align: center\" colspan=\"4\">OS and General Info</th>\n";
+            echo "                </tr>\n";
+            echo "                <tr>\n";
+            echo "                  <th>Operating System</th>\n";
+            echo "                  <td>".$_POST['l_osname']."</td>\n";
+            echo "                  <th>MTX Version</th>\n";
+            echo "                  <td>".$_POST['l_mtxversion']."</td>\n";
+            echo "                </tr>\n";
+            echo "                <tr>\n";
+            echo "                  <th>OS Version</th>\n";
+            echo "                  <td colspan=\"3\">".$_POST['l_osversion']."<br/></td>\n";
+            echo "                </tr>\n";
+            echo "                <tr>\n";
+            echo "                  <th>Loader Description</th>\n";
+            echo "                  <td colspan=\"3\">".$_POST['l_description']."<br/></td>\n";
+            echo "                </tr>\n";
+            echo "                <tr>\n";
+            echo "                  <th style=\"text-align: center\" colspan=\"4\">LoaderInfo Output</th>\n";
+            echo "                </tr>\n";
+            echo "                <tr>\n";
+            echo "                  <th>Vendor ID</th>\n";
+            echo "                  <td>".$_POST['l_vendorid']."<br/></td>\n";
+            echo "                  <th>Product ID</th>\n";
+            echo "                  <td>".$_POST['l_productid']."<br/></td>\n";
+            echo "                </tr>\n";
+            echo "                <tr>\n";
+            echo "                  <th>Revision</th>\n";
+            echo "                  <td>".$_POST['l_revision']."<br/></td>\n";
+            echo "                  <th>Serial Number</th>\n";
+            echo "                  <td>".$_POST['l_serialnum']."<br/></td>\n";
+            echo "                </tr>\n";
+            echo "                <tr>\n";
+            echo "                  <th>Barcode Reader</th>\n";
+            echo "                  <td>".($_POST['l_barcodes'] == 1 ? "Yes" : "No")."</td>\n";
+            echo "                  <th>Element Address Assignment Page</th>\n";
+            echo "                  <td>".($_POST['l_eaap'] == 1 ? "Yes" : "No")."</td>\n";
+            echo "                </tr>\n";
+            echo "                <tr>\n";
+            echo "                  <th>Transport Geometry Descriptor Page</th>\n";
+            echo "                  <td>".($_POST['l_tgdp'] == 1 ? "Yes" : "No")."</td>\n";
+            echo "                  <th>Can Transfer</th>\n";
+            echo "                  <td>".($_POST['l_canxfer'] == 1 ? "Yes" : "No")."</td>\n";
+            echo "                </tr>\n";
+            echo "                <tr>\n";
+            echo "                  <th>Number of Medium Transport Elements</th>\n";
+            echo "                  <td>".$_POST['l_transports']."</td>\n";
+            echo "                  <th>Number of Storage Elements</th>\n";
+            echo "                  <td>".$_POST['l_slots']."</td>\n";
+            echo "                </tr>\n";
+            echo "                <tr>\n";
+            echo "                  <th>Number of Import/Export Elements</th>\n";
+            echo "                  <td>".$_POST['l_imports']."</td>\n";
+            echo "                  <th>Number of Data Transfer Elements</th>\n";
+            echo "                  <td>".$_POST['l_transfers']."</td>\n";
+            echo "                </tr>\n";
+            echo "                <tr>\n";
+            echo "                  <th style=\"text-align: center\" colspan=\"4\">Comments</th>\n";
+            echo "                </tr>\n";
+            echo "                <tr>\n";
+            echo "                  <td colspan=\"4\" style=\"text-align:center\">\n";
+            echo "                    <textarea name=\"l_comments\" cols=\"70\" rows=\"4\">".$_POST['l_comments']."</textarea>\n";
+            echo "                  </td>\n";
+            echo "                </tr>\n";
+            echo "                <tr>\n";
+            echo "                  <th style=\"text-align: center\" colspan=\"4\">Personal Data</th>\n";
+            echo "                </tr>\n";
+            echo "                <tr>\n";
+            echo "                  <th>Your Name</th>\n";
+            echo "                  <td>".$_POST['l_name']."<br/></td>\n";
+            echo "                  <th>Your EMAIL Address </th>\n";
+            echo "                  <td>".$_POST['l_email']."<br/></td>\n";
+            echo "                </tr>\n";
+            echo "                <tr>\n";
+            echo "                  <td colspan=\"2\" style=\"text-align:right\">\n";
+            echo "                    <input type=\"submit\" name=\"Save\" value=\"Save\" onClick=\"document.pressed=this.value\" />\n";
+            echo "                  </td>\n";
+            echo "                  <td colspan=\"2\">\n";
+            echo "                    <input type=\"submit\" name=\"Cancel\" value=\"Cancel\" onClick=\"document.pressed=this.value\" />\n";
+            echo "                  </td>\n";
+            echo "                </tr>\n";
+            echo "              </table>\n";
+            echo "            </form>\n";
+            echo "          <!-- </p> -->\n";
+            echo "          <hr />\n";
+            echo "          <table style=\"font-size:small; width:100%\">\n";
+            echo "            <tr>\n";
+            echo "              <td style=\"text-align:left; width:33%\">\n";
+            echo "                Maintained by <a href=\"mailto:robertnelson@users.sourceforge.net\">Robert Nelson</a>\n";
+            echo "              </td>\n";
+            echo "              <td style=\"text-align:center; width:34%\">\n";
+            $ChangedDate = preg_replace('/.*: (.+) \(.*/', '\1', '$LastChangedDate$');
+            echo "                  Date changed: ".$ChangedDate;
+            echo "              </td>\n";
+            echo "              <td style=\"text-align:right; width:33%\">\n";
+            $ChangedBy = preg_replace('/.*: (.+) \$/', '\1', '$LastChangedBy$');
+            echo "                  Changed by: $ChangedBy";
+            echo "              </td>\n";
+            echo "            </tr>\n";
+            echo "          </table>\n";
+          }
+ ?>
         </td>
       </tr>
       <tr>
@@ -279,14 +279,15 @@
           </p>
           <p>
             <a href="http://validator.w3.org/check?uri=referer" >
-              <img src="valid-xhtml10.png" alt="Valid XHTML 1.0 Transitional" 
+              <img src="valid-xhtml10.png" alt="Valid XHTML 1.0 Strict" 
                    height="31" width="88" style="border:0" />
             </a>
           </p>
           <p>
             <a href="http://sourceforge.net/projects/mtx">
-              <img src="http://sflogo.sourceforge.net/sflogo.php?group_id=4626&amp;type=1"
-                   height="31" width="81" style="border:0" alt="SourceForge.net Logo" />
+              <img src="http://sflogo.sourceforge.net/sflogo.php?group_id=4626&amp;type=16"
+                   width="150" height="40"
+                   alt="Get MTX: Media Changer Tools at SourceForge.net. Fast, secure and Free Open Source software downloads" />
             </a>
           </p>
         </th>
