@@ -347,40 +347,41 @@
       {
         break;
       }
+?>
+            <tr onclick="location.href='detail.php?record=<?php echo $row['id'] ?>">
 
-      echo '            <tr onclick="location.href=\'detail.php?record='.$row['id']."'\">\n";
-
+<?php 
       if ($sorttype == 1) {
 ?>
-              <td><?php echo $row['osname']."<br/>"; ?></td>
-              <td><?php echo $row['osversion']."<br/>"; ?></td>
-              <td><?php echo $row['vendorid']."<br/>"; ?></td>
-              <td><?php echo $row['description']."<br/>"; ?></td>
-              <td><?php echo $row['mtxversion']."<br/>"; ?></td>
+              <td><?php echo $row['osname'] ?><br/></td>
+              <td><?php echo $row['osversion'] ?><br/></td>
+              <td><?php echo $row['vendorid'] ?><br/></td>
+              <td><?php echo $row['description'] ?><br/></td>
+              <td><?php echo $row['mtxversion'] ?><br/></td>
 <?php 
       } else if ($sorttype == 2) {
 ?>
-              <td><?php echo $row['vendorid']."<br/>"; ?></td>
-              <td><?php echo $row['description']."<br/>"; ?></td>
-              <td><?php echo $row['osname']."<br/>"; ?></td>
-              <td><?php echo $row['osversion']."<br/>"; ?></td>
-              <td><?php echo $row['mtxversion']."<br/>"; ?></td>
+              <td><?php echo $row['vendorid'] ?><br/></td>
+              <td><?php echo $row['description'] ?><br/></td>
+              <td><?php echo $row['osname'] ?><br/></td>
+              <td><?php echo $row['osversion'] ?><br/></td>
+              <td><?php echo $row['mtxversion'] ?><br/></td>
 <?php 
       } else if ($sorttype == 3) {
 ?>
-              <td><?php echo $row['description']."<br/>"; ?></td>
-              <td><?php echo $row['vendorid']."<br/>"; ?></td>
-              <td><?php echo $row['osname']."<br/>"; ?></td>
-              <td><?php echo $row['osversion']."<br/>"; ?></td>
-              <td><?php echo $row['mtxversion']."<br/>"; ?></td>
+              <td><?php echo $row['description'] ?><br/></td>
+              <td><?php echo $row['vendorid'] ?><br/></td>
+              <td><?php echo $row['osname'] ?><br/></td>
+              <td><?php echo $row['osversion'] ?><br/></td>
+              <td><?php echo $row['mtxversion'] ?><br/></td>
 <?php 
       } else {
 ?>
-              <td><?php echo $row['mtxversion']."<br/>"; ?></td>
-              <td><?php echo $row['osname']."<br/>"; ?></td>
-              <td><?php echo $row['osversion']."<br/>"; ?></td>
-              <td><?php echo $row['vendorid']."<br/>"; ?></td>
-              <td><?php echo $row['description']."<br/>"; ?></td>
+              <td><?php echo $row['mtxversion'] ?><br/></td>
+              <td><?php echo $row['osname'] ?><br/></td>
+              <td><?php echo $row['osversion'] ?><br/></td>
+              <td><?php echo $row['vendorid'] ?><br/></td>
+              <td><?php echo $row['description'] ?><br/></td>
 <?php
       }
       echo "            </tr>\n";
@@ -388,28 +389,8 @@
     mysql_free_result($result);
   }
 ?>
-          </table>
-          <br />
-          <hr />
-          <table style="font-size:small; width:100%">
-            <tr>
-              <td style="text-align:left; width:33%">
-                Maintained by <a href="mailto:robertnelson@users.sourceforge.net">Robert Nelson</a>
-              </td>
-              <td style="text-align:center; width:34%">
-<?php
-				$ChangedDate = preg_replace('/.*: (.+) \(.*/', '\1', '$LastChangedDate$');
-				echo "Date changed: $ChangedDate";
-?>
-              </td>
-              <td style="text-align:right; width:33%">
-<?php
-				$ChangedBy = preg_replace('/.*: (.+) \$/', '\1', '$LastChangedBy$');
-				echo "Changed by: $ChangedBy";
-?>
-              </td>
-            </tr>
-          </table>
+		  </table>
+		  <br />
         </td>
       </tr>
       <tr>
@@ -435,6 +416,31 @@
           </p>
         </th>
       </tr>
+	  <tr>
+		<th />
+		<td>
+          <hr />
+          <table style="font-size:small; width:100%">
+            <tr>
+              <td style="text-align:left; width:33%">
+                Maintained by <a href="mailto:robertnelson@users.sourceforge.net">Robert Nelson</a>
+              </td>
+              <td style="text-align:center; width:34%">
+<?php
+				$ChangedDate = preg_replace('/.*: (.+) \(.*/', '\1', '$LastChangedDate$');
+				echo "Date changed: $ChangedDate";
+?>
+              </td>
+              <td style="text-align:right; width:33%">
+<?php
+				$ChangedBy = preg_replace('/.*: (.+) \$/', '\1', '$LastChangedBy$');
+				echo "Changed by: $ChangedBy";
+?>
+              </td>
+            </tr>
+          </table>
+		</td>
+	  </tr>
     </table>
   </body>
 </html>

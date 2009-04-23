@@ -192,8 +192,8 @@
 <?php
   }
 ?>
-          </table>
-          <br />
+		  </table>
+		  <br />
         </td>
       </tr>
       <tr>
@@ -219,9 +219,8 @@
           </p>
         </th>
       </tr>
-      <tr>
-		<th>
-		</th>
+	  <tr>
+		<th />
 		<td>
           <hr />
           <table style="font-size:small; width:100%">
