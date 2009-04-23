@@ -1,9 +1,9 @@
 <?php
-  /* set these to what you need for your installation */
   include('dbms_inc.php');
 
   $link = mysql_connect($mysql_host,$mysql_user,$mysql_password)
-    or die("Could not connect");
+	or die("Could not connect");
+
   mysql_select_db($mysql_dbms) or die("Could not select database");
 
   $sorttype = $_GET['sorttype'];
@@ -82,20 +82,20 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
-    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Pragma" content="no-cache" />
 
     <title>MTX Compatibility List - Summary</title>
 
     <style type="text/css">
       <!--
-        TH { background-color: aqua;  }
+        TH { background-color: aqua; }
         TR { background-color: white; }
         H2 { text-align: center; }
         BODY { background-color: white; }
-        A:link { color: blue; text-decoration: underline ; }
-        A:active { text-decoration: underline ; }
-        A:hover { text-decoration: underline ; }
-        A:visited { color: blue; text-decoration: underline ; }
+        A:link { color: blue; text-decoration: underline; }
+        A:active { text-decoration: underline; }
+        A:hover { text-decoration: underline; }
+        A:visited { color: blue; text-decoration: underline; }
       -->
     </style>
 
@@ -183,15 +183,15 @@
           location.href = "compatibility.php?sorttype="+sort_type+"&start="+page_number+"&count="+lines_per_page;
         }
       -->
-    </script>
+	</script>
   </head>
 
   <body>
     <table style="width:100%" cellspacing="0" cellpadding="10">
       <tr valign="middle">
         <th></th>
-        <th>
-          <h1>MTX Compatibility List<br/>Summary</h1>
+        <th style="text-align: center">
+          <h1>MTX Compatibility List<br />Summary</h1>
         </th>
       </tr>
       <tr>
@@ -218,14 +218,13 @@
           </p>
         </th>
         <td rowspan="2">
-          This application is currently in beta test and may have bugs. The database
-          is currently very incomplete. Please <a href="contrib.php">submit</a> new 
+          The database is currently very incomplete. Please <a href="contrib.php">submit</a> new 
           entries so that others can benefit.
-          <p/>
+          <p />
           You can change the sort order by clicking on the underlined column heading.
-          <p/>
+          <p />
           In order to display the detailed information click on the desired line.
-          <p/>
+          <p />
           <table border="1" style="width:100%">
             <tr>
               <td colspan="<?php echo $sorttype == 4 ? "3" : "2" ?>" style="text-align:left; border-style:none">
@@ -392,7 +391,7 @@
           </table>
           <br />
           <hr />
-          <table style="font-size:small;width:100%">
+          <table style="font-size:small; width:100%">
             <tr>
               <td style="text-align:left; width:33%">
                 Maintained by <a href="mailto:robertnelson@users.sourceforge.net">Robert Nelson</a>
