@@ -194,26 +194,6 @@
 ?>
           </table>
           <br />
-          <hr />
-          <table style="font-size:small; width:100%">
-            <tr>
-              <td style="text-align:left; width:33%">
-                Maintained by <a href="mailto:robertnelson@users.sourceforge.net">Robert Nelson</a>
-              </td>
-              <td style="text-align:center; width:34%">
-                <?php
-                  $ChangedDate = preg_replace('/.*: (.+) \(.*/', '\1', '$LastChangedDate$');
-                  echo "Date changed: $ChangedDate";
-                ?>
-              </td>
-              <td style="text-align:right; width:33%">
-                <?php
-                  $ChangedBy = preg_replace('/.*: (.+) \$/', '\1', '$LastChangedBy$');
-                  echo "Changed by: $ChangedBy";
-                ?>
-              </td>
-            </tr>
-          </table>
         </td>
       </tr>
       <tr>
@@ -239,6 +219,32 @@
           </p>
         </th>
       </tr>
+      <tr>
+		<th>
+		</th>
+		<td>
+          <hr />
+          <table style="font-size:small; width:100%">
+            <tr>
+              <td style="text-align:left; width:33%">
+                Maintained by <a href="mailto:robertnelson@users.sourceforge.net">Robert Nelson</a>
+              </td>
+              <td style="text-align:center; width:34%">
+<?php
+				$ChangedDate = preg_replace('/.*: (.+) \(.*/', '\1', '$LastChangedDate$');
+				echo "Date changed: $ChangedDate";
+?>
+              </td>
+              <td style="text-align:right; width:33%">
+<?php
+				$ChangedBy = preg_replace('/.*: (.+) \$/', '\1', '$LastChangedBy$');
+				echo "Changed by: $ChangedBy";
+?>
+              </td>
+            </tr>
+          </table>
+		</td>
+	  </tr>
     </table>
   </body>
 </html>

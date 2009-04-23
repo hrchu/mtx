@@ -426,16 +426,16 @@
                 Maintained by <a href="mailto:robertnelson@users.sourceforge.net">Robert Nelson</a>
               </td>
               <td style="text-align:center; width:34%">
-                <?php
-                  $ChangedDate = preg_replace('/.*: (.+) \(.*/', '\1', '$LastChangedDate$');
-                  echo "Date changed: $ChangedDate";
-                ?>
+<?php
+				$ChangedDate = preg_replace('/.*: (.+) \(.*/', '\1', '$LastChangedDate$');
+				echo "Date changed: $ChangedDate";
+?>
               </td>
               <td style="text-align:right; width:33%">
-                <?php
-                  $ChangedBy = preg_replace('/.*: (.+) \$/', '\1', '$LastChangedBy$');
-                  echo "Changed by: $ChangedBy";
-                ?>
+<?php
+				$ChangedBy = preg_replace('/.*: (.+) \$/', '\1', '$LastChangedBy$');
+				echo "Changed by: $ChangedBy";
+?>
               </td>
             </tr>
           </table>
