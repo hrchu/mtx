@@ -260,6 +260,7 @@
   }
 ?>
 		  </form>
+		  <br />
         </td>
       </tr>
       <tr>
@@ -309,7 +310,7 @@
             </tr>
           </table>
 		</td>
-	  <tr>
+	  </tr>
     </table>
   </body>
 </html>
