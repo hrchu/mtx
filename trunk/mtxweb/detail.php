@@ -1,12 +1,13 @@
 <?php
   include('dbms_inc.php');
 
-  $record = $_GET['record'];
-  
   $link = mysql_connect($mysql_host,$mysql_user,$mysql_password)
-       or die("Could not connect");
+	or die("Could not connect");
+
   mysql_select_db($mysql_dbms) or die("Could not select database");
 
+  $record = $_GET['record'];
+  
   $query_str="select * from loaders where id = $record";
   $result=mysql_query($query_str,$link) or die("Invalid query '$query_str'");
   $num_rows=mysql_num_rows($result);
@@ -16,7 +17,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
-    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Pragma" content="no-cache" />
 
     <title>MTX Compatibility List - Details</title>
 
@@ -39,7 +40,7 @@
       <tr valign="middle" style="background-color:Aqua">
         <th></th>
         <th style="text-align: center">
-          <h1>MTX Compatibility List<br/>Details</h1>
+          <h1>MTX Compatibility List<br />Details</h1>
         </th>
       </tr>
       <tr>
@@ -66,8 +67,7 @@
           </p>
         </th>
         <td rowspan="2">
-          This application is currently in beta test and may have bugs. The database
-          is currently very incomplete. Please <a href="contrib.php">submit</a> new 
+          The database is currently very incomplete. Please <a href="contrib.php">submit</a> new 
           entries so that others can benefit.
           <p />
           <table style="text-align:center" border="1">

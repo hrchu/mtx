@@ -3,7 +3,8 @@
   require_once 'securimage.php';
 
   $link = mysql_connect($mysql_host,$mysql_user,$mysql_password)
-       or die("Could not connect");
+	or die("Could not connect");
+
   mysql_select_db($mysql_dbms) or die("Could not select database");
 
   $image = new Securimage();
@@ -37,7 +38,7 @@
     <meta name="Content-script-type" content="text/javascript" />
 
     <title>MTX Compatibility List - Contribute</title>
-    
+
     <style type="text/css">
       <!--
         TH { background-color: aqua; text-align: right; }
@@ -50,6 +51,7 @@
         A:visited { color: blue; text-decoration: underline; }
       -->
     </style>
+
     <script type="text/javascript">
       <!--
         function validateShort(field)
@@ -97,7 +99,7 @@
 
           return keyCode < 32 || keyCode == null || (keyCode >= 48 && keyCode <= 57);
         }
-        
+
         function validateLoaderInfoText(e)
         {
           var keyCode;
@@ -194,8 +196,9 @@
           return true;
         }
       -->
-    </script>
+	</script>
   </head>
+
   <body>
     <table style="width:100%" cellspacing="0" cellpadding="10">
       <tr valign="middle">
