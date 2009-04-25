@@ -43,6 +43,7 @@
       <!--
         TH { background-color: aqua; text-align: right; }
         TR { background-color: white; }
+        TD { text-align: left; }
         H2 { text-align: center; }
         BODY { background-color: white; }
         A:link { color: blue; text-decoration: underline; }

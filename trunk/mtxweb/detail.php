@@ -25,6 +25,7 @@
       <!--
         TH { background-color: aqua; text-align: right; }
         TR { background-color: white; }
+        TD { text-align: left; }
         H2 { text-align: center; }
         BODY { background-color: white; }
         A:link { color: blue; text-decoration: underline; }
@@ -85,19 +86,19 @@
               </td>
               <th>MTX Version</th>
               <td>
-                <?php echo "$mtxversion<br/>" ?>
+                <?php echo "$mtxversion" ?><br/>
               </td>
             </tr>
             <tr>
               <th>OS Version</th>
               <td colspan="3">
-                <?php echo "$osversion<br/>" ?>
+                <?php echo "$osversion" ?><br/>
               </td>
             </tr>
             <tr>
               <th>Loader Description</th>
               <td colspan="3">
-                <?php echo "$description<br/>" ?>
+                <?php echo "$description" ?><br/>
               </td>
             </tr>
             <tr>
@@ -106,21 +107,21 @@
             <tr>
               <th>Vendor ID</th>
               <td>
-                <?php echo "$vendorid<br/>" ?>
+                <?php echo "$vendorid" ?><br/>
               </td>
               <th>Product ID</th>
               <td>
-                <?php echo "$productid<br/>" ?>
+                <?php echo "$productid" ?><br/>
               </td>
             </tr>
             <tr>
               <th>Revision</th>
               <td>
-                <?php echo "$revision<br/>" ?>
+                <?php echo "$revision" ?><br/>
               </td>
               <th>Serial Number</th>
               <td>
-                <?php echo "$serialnum<br/>" ?>
+                <?php echo "$serialnum" ?><br/>
               </td>
             </tr>
             <tr>
@@ -167,8 +168,8 @@
               <th style="text-align: center" colspan="4">Comments</th>
             </tr>
             <tr>
-              <td colspan="4">
-                <?php echo "$comments<br/>" ?>
+              <td colspan="4" style="text-align: left">
+                <?php echo "$comments" ?><br/>
               </td>
             </tr>
             <tr>
@@ -177,7 +178,7 @@
                   <tr>
                     <th style="width:50%">Submitted By</th>
                     <td style="width:50%">
-                      <?php echo "$name<br/>" ?>
+                      <?php echo "$name" ?><br/>
                     </td>
                   </tr>
                 </table>
