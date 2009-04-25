@@ -90,6 +90,7 @@
       <!--
         TH { background-color: aqua; }
         TR { background-color: white; }
+        TD { text-align: left; }
         H2 { text-align: center; }
         BODY { background-color: white; }
         A:link { color: blue; text-decoration: underline; }
@@ -348,7 +349,7 @@
         break;
       }
 ?>
-            <tr onclick="location.href='detail.php?record=<?php echo $row['id'] ?>">
+            <tr onclick="location.href=&quot;detail.php?record=<?php echo $row['id'] ?>&quot;">
 
 <?php 
       if ($sorttype == 1) {
